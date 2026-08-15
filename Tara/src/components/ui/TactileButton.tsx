@@ -1,17 +1,18 @@
-import { useState, type ReactNode } from "react";
+import React, { useRef, type ReactNode } from "react";
 import {
-  Animated,
   ActivityIndicator,
+  Animated,
   Pressable,
   StyleSheet,
   Text,
   View,
   type StyleProp,
-  type ViewStyle,
   type TextStyle,
+  type ViewStyle,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import { MaterialIcons } from "@expo/vector-icons";
-import { buttonStyles, colors, rounded, typography } from "../../theme/theme";
+import { colors, rounded, typography } from "../../theme/theme";
 
 export type ButtonVariant = "primary" | "secondary" | "reward" | "ghost";
 
@@ -25,6 +26,9 @@ interface TactileButtonProps {
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  height?: number;
+  depth?: number;
+  borderRadius?: number;
   children?: ReactNode;
 }
 
@@ -38,70 +42,122 @@ export function TactileButton({
   loading = false,
   style,
   textStyle,
+  height = 54,
+  depth = 4.5,
+  borderRadius = rounded.lg,
   children,
 }: TactileButtonProps) {
-  const [pressAnim] = useState(() => new Animated.Value(0));
+  const pressAnim = useRef(new Animated.Value(0)).current;
 
   const handlePressIn = () => {
+    if (disabled || loading) return;
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {
+      // ignore on unsupported web/platforms
+    }
     Animated.spring(pressAnim, {
       toValue: 1,
       useNativeDriver: true,
-      speed: 50,
-      bounciness: 0,
+      tension: 300,
+      friction: 20,
     }).start();
   };
 
   const handlePressOut = () => {
+    if (disabled || loading) return;
     Animated.spring(pressAnim, {
       toValue: 0,
       useNativeDriver: true,
-      speed: 40,
-      bounciness: 4,
+      tension: 250,
+      friction: 16,
     }).start();
   };
 
+  // 3D Push-down physics: Top face slides down by `depth` to cover the dark base
   const translateY = pressAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, variant === "secondary" ? 1 : 2.5],
+    outputRange: [0, depth],
   });
 
-  const scale = pressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 0.98],
-  });
+  // Pick color palette based on variant
+  const getPalette = () => {
+    if (disabled) {
+      return {
+        face: "#E3E7E1",
+        depth: "#C7CDC4",
+        text: "#8F9A8C",
+        border: "transparent",
+      };
+    }
+    switch (variant) {
+      case "primary":
+        return {
+          face: "#3FA84E", // Vibrant lush green top face
+          depth: "#186A25", // 3D dark green extruded foundation
+          text: "#FFFFFF",
+          border: "transparent",
+        };
+      case "reward":
+        return {
+          face: "#CDA721", // Golden amber top face
+          depth: "#7A5E00", // Deep amber 3D base
+          text: "#FFFFFF",
+          border: "transparent",
+        };
+      case "secondary":
+        return {
+          face: "#FFFFFF",
+          depth: "#BAC4B7",
+          text: colors.primary,
+          border: "#D0D9CD",
+        };
+      case "ghost":
+        return {
+          face: "transparent",
+          depth: "transparent",
+          text: colors.onSurfaceVariant,
+          border: "transparent",
+        };
+      default:
+        return {
+          face: "#3FA84E",
+          depth: "#186A25",
+          text: "#FFFFFF",
+          border: "transparent",
+        };
+    }
+  };
 
-  // Pick base styling
-  const isPrimary = variant === "primary";
-  const isSecondary = variant === "secondary";
-  const isReward = variant === "reward";
+  const palette = getPalette();
   const isGhost = variant === "ghost";
 
-  const getContainerStyle = () => {
-    if (disabled) {
-      return styles.disabledButton;
-    }
-    if (isPrimary) return styles.primaryButton;
-    if (isSecondary) return styles.secondaryButton;
-    if (isReward) return styles.rewardButton;
-    if (isGhost) return styles.ghostButton;
-    return styles.primaryButton;
-  };
-
-  const getTextColor = () => {
-    if (disabled) return colors.onSurfaceVariant;
-    if (isPrimary) return colors.onPrimary;
-    if (isSecondary) return colors.primary;
-    if (isReward) return colors.onPrimaryFixed;
-    if (isGhost) return colors.onSurfaceVariant;
-    return colors.onPrimary;
-  };
+  if (isGhost) {
+    return (
+      <Pressable
+        onPress={onPress}
+        disabled={disabled || loading}
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        style={({ pressed }) => [
+          styles.ghostButton,
+          { opacity: pressed ? 0.7 : 1 },
+          style,
+        ]}
+      >
+        <Text style={[styles.buttonText, { color: palette.text }, textStyle]}>
+          {title}
+        </Text>
+      </Pressable>
+    );
+  }
 
   return (
-    <Animated.View
+    <View
       style={[
-        styles.wrapper,
+        styles.outerContainer,
         {
-          transform: [{ translateY }, { scale }],
+          height: height + depth,
         },
         style,
       ]}
@@ -113,60 +169,115 @@ export function TactileButton({
         disabled={disabled || loading}
         accessibilityRole="button"
         accessibilityLabel={title}
-        style={[styles.baseButton, getContainerStyle()]}
+        style={styles.pressableContainer}
       >
-        {loading ? (
-          <ActivityIndicator color={getTextColor()} size="small" />
-        ) : (
-          <View style={styles.contentRow}>
-            {icon && iconPosition === "left" && (
-              <MaterialIcons
-                name={icon}
-                size={20}
-                color={getTextColor()}
-                style={styles.iconLeft}
-              />
-            )}
-            <Text style={[styles.text, { color: getTextColor() }, textStyle]}>
-              {title}
-            </Text>
-            {icon && iconPosition === "right" && (
-              <MaterialIcons
-                name={icon}
-                size={20}
-                color={getTextColor()}
-                style={styles.iconRight}
-              />
-            )}
-            {children}
-          </View>
-        )}
+        {/* 1. Bottom 3D extruded foundation layer */}
+        <View
+          style={[
+            styles.depthLayer,
+            {
+              backgroundColor: palette.depth,
+              borderRadius: borderRadius,
+              top: depth,
+              height: height,
+            },
+          ]}
+        />
+
+        {/* 2. Top Interactive Face Layer that presses down */}
+        <Animated.View
+          style={[
+            styles.faceLayer,
+            {
+              backgroundColor: palette.face,
+              borderRadius: borderRadius,
+              height: height,
+              transform: [{ translateY }],
+              borderWidth: palette.border !== "transparent" ? 1.5 : 0,
+              borderColor: palette.border,
+            },
+          ]}
+        >
+          {loading ? (
+            <ActivityIndicator color={palette.text} size="small" />
+          ) : (
+            <View style={styles.contentRow}>
+              {icon && iconPosition === "left" && (
+                <MaterialIcons
+                  name={icon}
+                  size={20}
+                  color={palette.text}
+                  style={styles.iconLeft}
+                />
+              )}
+              <Text
+                style={[
+                  styles.buttonText,
+                  { color: palette.text },
+                  textStyle,
+                ]}
+              >
+                {title}
+              </Text>
+              {icon && iconPosition === "right" && (
+                <MaterialIcons
+                  name={icon}
+                  size={20}
+                  color={palette.text}
+                  style={styles.iconRight}
+                />
+              )}
+              {children}
+            </View>
+          )}
+        </Animated.View>
       </Pressable>
-    </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
+  outerContainer: {
+    width: "100%",
+    position: "relative",
+  },
+  pressableContainer: {
+    width: "100%",
+    height: "100%",
+    position: "relative",
+  },
+  depthLayer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
     width: "100%",
   },
-  baseButton: {
-    height: 56,
-    borderRadius: rounded.xl,
+  faceLayer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 24,
-    flexDirection: "row",
+    paddingHorizontal: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 2,
   },
   contentRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
-  text: {
+  buttonText: {
     ...typography.labelLg,
     fontSize: 16,
     fontWeight: "700",
+    letterSpacing: 0.2,
   },
   iconLeft: {
     marginRight: 8,
@@ -174,41 +285,10 @@ const styles = StyleSheet.create({
   iconRight: {
     marginLeft: 8,
   },
-  primaryButton: {
-    backgroundColor: buttonStyles.primary.default.backgroundColor,
-    borderBottomWidth: buttonStyles.primary.default.borderBottomWidth,
-    borderBottomColor: buttonStyles.primary.default.borderBottomColor,
-    shadowColor: buttonStyles.primary.default.shadow.shadowColor,
-    shadowOffset: buttonStyles.primary.default.shadow.shadowOffset,
-    shadowOpacity: buttonStyles.primary.default.shadow.shadowOpacity,
-    shadowRadius: buttonStyles.primary.default.shadow.shadowRadius,
-    elevation: buttonStyles.primary.default.shadow.elevation,
-  },
-  secondaryButton: {
-    backgroundColor: buttonStyles.secondary.default.backgroundColor,
-    borderWidth: buttonStyles.secondary.default.borderWidth,
-    borderColor: buttonStyles.secondary.default.borderColor,
-    borderBottomWidth: buttonStyles.secondary.default.borderBottomWidth,
-    borderBottomColor: buttonStyles.secondary.default.borderBottomColor,
-  },
-  rewardButton: {
-    backgroundColor: buttonStyles.reward.default.backgroundColor,
-    borderBottomWidth: buttonStyles.reward.default.borderBottomWidth,
-    borderBottomColor: buttonStyles.reward.default.borderBottomColor,
-    shadowColor: buttonStyles.reward.default.shadow.shadowColor,
-    shadowOffset: buttonStyles.reward.default.shadow.shadowOffset,
-    shadowOpacity: buttonStyles.reward.default.shadow.shadowOpacity,
-    shadowRadius: buttonStyles.reward.default.shadow.shadowRadius,
-    elevation: buttonStyles.reward.default.shadow.elevation,
-  },
   ghostButton: {
-    backgroundColor: "transparent",
-    borderBottomWidth: 0,
-    height: 44,
-  },
-  disabledButton: {
-    backgroundColor: colors.surfaceDim,
-    borderBottomWidth: 0,
-    opacity: 0.6,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
   },
 });
