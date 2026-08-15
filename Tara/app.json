@@ -40,9 +40,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#F7FAF5",
+          "image": "./assets/app-icon.png",
+          "imageWidth": 200
         }
       ],
       "expo-audio",
