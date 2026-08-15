@@ -1,0 +1,73 @@
+import type { OnboardingSlide } from "../../types/onboarding";
+
+export const ONBOARDING_SLIDES: OnboardingSlide[] = [
+  {
+    id: "welcome",
+    stepNumber: 1,
+    totalSteps: 8,
+    title: "Namaste! I'm Tara.",
+    subtitle: "Your companion on the journey to sustainable and prosperous farming.",
+    expression: "hi-wave",
+  },
+  {
+    id: "purpose",
+    stepNumber: 2,
+    totalSteps: 8,
+    title: "Why Sustainable Farming?",
+    subtitle: "To heal our soil, grow healthier food, and ensure a better future for our children.",
+    expression: "thinking",
+    interactiveCards: [
+      { id: "heal_soil", icon: "eco", label: "Heal Soil" },
+      { id: "healthier_food", icon: "restaurant", label: "Healthier Food" },
+    ],
+  },
+  {
+    id: "learn",
+    stepNumber: 3,
+    totalSteps: 8,
+    title: "Learn Every Day",
+    subtitle: "Get bite-sized, easy-to-follow lessons on natural farming techniques tailored for your land.",
+    expression: "happy",
+  },
+  {
+    id: "practice",
+    stepNumber: 4,
+    totalSteps: 8,
+    title: "Practice on Your Farm",
+    subtitle: "Turn knowledge into action. I'll guide you through each step of implementing sustainable practices.",
+    expression: "listening",
+  },
+  {
+    id: "verify",
+    stepNumber: 5,
+    totalSteps: 8,
+    title: "AI-Powered Verification",
+    subtitle: "Take a photo of your work. My AI eyes will verify your practice to help you stay on track.",
+    expression: "surprised",
+  },
+  {
+    id: "community",
+    stepNumber: 6,
+    totalSteps: 8,
+    title: "Grow with the Community",
+    subtitle: "Share your success, ask questions, and learn from fellow farmers in your local area.",
+    expression: "laughing",
+  },
+  {
+    id: "rewards",
+    stepNumber: 7,
+    totalSteps: 8,
+    title: "Earn as You Grow",
+    subtitle: "Collect XP, earn badges, and unlock rewards as you improve your soil health and impact.",
+    expression: "excited",
+    xpReward: 150,
+  },
+  {
+    id: "ready",
+    stepNumber: 8,
+    totalSteps: 8,
+    title: "Ready for the Journey?",
+    subtitle: "Let's build a greener future together. Your first practice is waiting for you!",
+    expression: "winking",
+  },
+];

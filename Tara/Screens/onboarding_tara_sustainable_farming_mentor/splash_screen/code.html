@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Tara - Learn. Practice. Grow.</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#cda721",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e0e3df",
+                        "secondary-fixed-dim": "#88d982",
+                        "tertiary-fixed-dim": "#ebc23e",
+                        "primary-fixed": "#94f990",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "secondary-fixed": "#a3f69c",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#3f4a3c",
+                        "surface-bright": "#f7faf5",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#a0f399",
+                        "surface": "#f7faf5",
+                        "on-surface": "#181c1a",
+                        "tertiary": "#735c00",
+                        "on-tertiary-container": "#4e3d00",
+                        "on-secondary-fixed-variant": "#005312",
+                        "on-secondary-fixed": "#002204",
+                        "inverse-primary": "#78dc77",
+                        "surface-container": "#ecefea",
+                        "inverse-on-surface": "#eff2ed",
+                        "inverse-surface": "#2d312e",
+                        "on-background": "#181c1a",
+                        "primary-container": "#4caf50",
+                        "on-secondary-container": "#217128",
+                        "tertiary-fixed": "#ffe087",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#003c0b",
+                        "background": "#f7faf5",
+                        "on-primary-fixed": "#002204",
+                        "surface-container-highest": "#e0e3df",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#005313",
+                        "surface-tint": "#006e1c",
+                        "outline": "#6f7a6b",
+                        "outline-variant": "#becab9",
+                        "on-primary": "#ffffff",
+                        "primary": "#006e1c",
+                        "surface-container-low": "#f1f4ef",
+                        "secondary": "#1b6d24",
+                        "surface-container-high": "#e6e9e4",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#78dc77",
+                        "surface-dim": "#d8dbd6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "margin-mobile": "20px",
+                        "gutter": "16px",
+                        "stack-lg": "24px",
+                        "stack-md": "16px",
+                        "section-padding": "32px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .animate-fade-in-up {
+                animation: fadeInUp 1s ease-out forwards;
+            }
+            .animate-pulse-slow {
+                animation: pulseSlow 3s infinite;
+            }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes pulseSlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest h-screen w-full overflow-hidden flex flex-col justify-between items-center relative antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Ambient background gradient -->
+<div class="absolute inset-0 bg-gradient-to-b from-surface-container-lowest via-surface-bright to-surface-container-low opacity-50 z-0 pointer-events-none"></div>
+<!-- Main Content Container -->
+<main class="flex-1 flex flex-col items-center justify-center w-full max-w-md px-margin-mobile relative z-10 pt-section-padding">
+<!-- Logo Section -->
+<div class="flex flex-col items-center animate-fade-in-up" style="animation-delay: 0.2s;">
+<div class="relative flex items-end">
+<span class="text-[64px] font-bold tracking-tight text-primary-container font-headline-lg leading-none" style="letter-spacing: -0.04em;">Tara</span>
+<span class="material-symbols-outlined text-primary-container absolute -top-4 -right-6 text-[40px] rotate-12" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<p class="mt-stack-sm text-on-surface-variant font-body-md text-center opacity-80 max-w-[240px]">
+                Your sustainable farming companion
+            </p>
+<div class="mt-stack-lg flex items-center space-x-3 text-primary font-label-lg tracking-widest uppercase">
+<span class="">Learn</span>
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span>
+<span class="">Practice</span>
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span>
+<span class="">Grow</span>
+</div>
+</div>
+</main>
+<!-- Character Integration at the bottom -->
+<div class="w-full max-w-md flex justify-center items-end relative z-10 animate-fade-in-up" style="animation-delay: 0.6s; height: 50vh;">
+<!-- Subtle shadow/glow under character -->
+<div class="absolute bottom-10 w-48 h-12 bg-primary-container/20 blur-xl rounded-full"></div>
+<img alt="Tara, a friendly Indian farming companion character wearing traditional green and white clothing, smiling warmly and looking optimistic." class="w-full h-auto object-contain max-h-full pb-8" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdKI40nLPW7gyQ_afyuI_wD2ozsj3YnqqJjW4CF6bWiOznLyIBcOafnN6GUkKM0afO32MDsMO21_gvD1_rXDTbMa9DFCSq-aiKy22N7ftHfXmpWGwfDZSXwtfJKWmx_g-_gmSwR2Q3GASUvM2yEKpPm-cpGhGMvAw-w5yY2beib4uTTmOuCW5tswU1mPuF8Fq1XfzlzYFuqlK3igSNVMoDBBw-kCWy4JzNDaObdtHpnLGzIUbqkCpFr1LOTWT5M1vTmBy3rXrd4XNu6w">
+</div>
+<!-- Loading Indicator -->
+<div class="absolute bottom-safe pb-8 left-0 w-full flex justify-center z-20 animate-fade-in-up" style="animation-delay: 1s;">
+<div class="flex space-x-1">
+<div class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></div>
+<div class="w-2 h-2 rounded-full bg-primary-container animate-pulse" style="animation-delay: 0.2s;"></div>
+<div class="w-2 h-2 rounded-full bg-primary-container animate-pulse" style="animation-delay: 0.4s;"></div>
+</div>
+</div>
+
+
+</body></html>

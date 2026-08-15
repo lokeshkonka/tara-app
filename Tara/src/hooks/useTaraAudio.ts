@@ -31,7 +31,10 @@ export function useTaraAudio(
 
   const wasPlayingRef = useRef(isPlaying);
   const optionsRef = useRef(options);
-  optionsRef.current = options;
+
+  useEffect(() => {
+    optionsRef.current = options;
+  }, [options]);
 
   useEffect(() => {
     setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});

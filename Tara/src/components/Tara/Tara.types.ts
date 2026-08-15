@@ -9,7 +9,8 @@ export type TaraExpression =
   | "neutral"
   | "sad"
   | "surprised"
-  | "thinking";
+  | "thinking"
+  | "winking";
 
 export interface TaraProps {
   expression: TaraExpression;

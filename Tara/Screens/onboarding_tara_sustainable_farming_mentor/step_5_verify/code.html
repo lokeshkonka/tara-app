@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>TARA - Onboarding Step 5: Verify</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#1b6d24",
+                        "on-primary-fixed": "#002204",
+                        "inverse-surface": "#2d312e",
+                        "error": "#ba1a1a",
+                        "tertiary": "#735c00",
+                        "outline-variant": "#becab9",
+                        "on-primary-fixed-variant": "#005313",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "primary-fixed": "#94f990",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#a3f69c",
+                        "surface-container-high": "#e6e9e4",
+                        "surface-container-highest": "#e0e3df",
+                        "tertiary-fixed-dim": "#ebc23e",
+                        "on-error-container": "#93000a",
+                        "background": "#f7faf5",
+                        "surface-bright": "#f7faf5",
+                        "on-primary-container": "#003c0b",
+                        "inverse-primary": "#78dc77",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eff2ed",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#ecefea",
+                        "surface-variant": "#e0e3df",
+                        "on-error": "#ffffff",
+                        "primary-container": "#4caf50",
+                        "on-secondary-fixed": "#002204",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-secondary-fixed-variant": "#005312",
+                        "tertiary-fixed": "#ffe087",
+                        "on-secondary-container": "#217128",
+                        "on-secondary": "#ffffff",
+                        "outline": "#6f7a6b",
+                        "secondary-fixed-dim": "#88d982",
+                        "tertiary-container": "#cda721",
+                        "secondary-container": "#a0f399",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#d8dbd6",
+                        "primary-fixed-dim": "#78dc77",
+                        "surface-container-low": "#f1f4ef",
+                        "surface": "#f7faf5",
+                        "on-tertiary-container": "#4e3d00",
+                        "on-surface-variant": "#3f4a3c",
+                        "on-background": "#181c1a",
+                        "on-surface": "#181c1a",
+                        "surface-tint": "#006e1c",
+                        "primary": "#006e1c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "gutter": "16px",
+                        "stack-lg": "24px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "unit": "4px",
+                        "section-padding": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "label-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background dark:bg-background text-on-background min-h-screen flex flex-col justify-between">
+<!-- Top Navigation (Suppressed for Onboarding per guidelines, but keeping top padding equivalent) -->
+<div class="pt-8 px-margin-mobile">
+<button class="text-primary p-2 active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+</div>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col items-center justify-center px-margin-mobile pb-section-padding">
+<!-- Tara Image (surprised) -->
+<div class="relative w-48 h-48 mb-stack-lg flex items-center justify-center">
+<!-- Decorative Background Element -->
+<div class="absolute inset-0 bg-primary-fixed rounded-full opacity-20 animate-pulse"></div>
+<img alt="Tara Character Surprised" class="relative z-10 w-full h-auto drop-shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUceSXd1vETadgxfsmQSvZsjtGbuWF-M0ubnXl2_wxXHn0J4_jtRsAATfzS1GHiC4ej_ikmgZVwW3nIN9gOq1DMgwncf3v75ncJOk1H3peTMVhyCGm0r1FMgRAH1iOJAncb5btFjrce3Yrp6XQpYfPpH-rBypO2XJaE6D4zuqlpNvrQ6xNsNnYVX-_4-ka37g7JPxJZ2Xx8VKXvE9b3D0OfLRrGDby_Q89HdMLjL5D1jdhZDugal4xeQt47LlEA_vHFg">
+</div>
+<!-- Copy -->
+<div class="text-center max-w-sm mb-stack-lg">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-stack-sm tracking-tight">AI-Powered Verification</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Take a photo of your work. My AI eyes will verify your practice to help you stay on track.</p>
+</div>
+</main>
+<!-- Bottom Actions -->
+<div class="px-margin-mobile pb-8 pt-4 w-full flex flex-col items-center gap-stack-lg bg-background">
+<!-- Progress Dots -->
+<div class="flex gap-2">
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-8 h-2 rounded-full bg-primary transition-all duration-300"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+</div>
+<!-- Next Button -->
+<button class="w-full max-w-sm bg-primary-container text-on-primary font-label-lg text-label-lg py-4 rounded-xl shadow-[0_2px_0_0_#005313] hover:brightness-110 active:translate-y-[2px] active:shadow-none transition-all duration-150 flex items-center justify-center gap-2">
+            Next
+            <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+
+
+</body></html>

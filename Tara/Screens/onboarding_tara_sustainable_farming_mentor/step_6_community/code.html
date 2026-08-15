@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tara - Community Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#1b6d24",
+                        "on-primary-fixed": "#002204",
+                        "inverse-surface": "#2d312e",
+                        "error": "#ba1a1a",
+                        "tertiary": "#735c00",
+                        "outline-variant": "#becab9",
+                        "on-primary-fixed-variant": "#005313",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "primary-fixed": "#94f990",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#a3f69c",
+                        "surface-container-high": "#e6e9e4",
+                        "surface-container-highest": "#e0e3df",
+                        "tertiary-fixed-dim": "#ebc23e",
+                        "on-error-container": "#93000a",
+                        "background": "#f7faf5",
+                        "surface-bright": "#f7faf5",
+                        "on-primary-container": "#003c0b",
+                        "inverse-primary": "#78dc77",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eff2ed",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#ecefea",
+                        "surface-variant": "#e0e3df",
+                        "on-error": "#ffffff",
+                        "primary-container": "#4caf50",
+                        "on-secondary-fixed": "#002204",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-secondary-fixed-variant": "#005312",
+                        "tertiary-fixed": "#ffe087",
+                        "on-secondary-container": "#217128",
+                        "on-secondary": "#ffffff",
+                        "outline": "#6f7a6b",
+                        "secondary-fixed-dim": "#88d982",
+                        "tertiary-container": "#cda721",
+                        "secondary-container": "#a0f399",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#d8dbd6",
+                        "primary-fixed-dim": "#78dc77",
+                        "surface-container-low": "#f1f4ef",
+                        "surface": "#f7faf5",
+                        "on-tertiary-container": "#4e3d00",
+                        "on-surface-variant": "#3f4a3c",
+                        "on-background": "#181c1a",
+                        "on-surface": "#181c1a",
+                        "surface-tint": "#006e1c",
+                        "primary": "#006e1c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "gutter": "16px",
+                        "stack-lg": "24px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "unit": "4px",
+                        "section-padding": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "label-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: theme('colors.background'); color: theme('colors.on-background'); font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-margin-mobile relative overflow-hidden bg-background">
+<!-- Decorative Background Elements -->
+<div class="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary-fixed-dim/10 via-background to-background rounded-full -z-10 blur-3xl opacity-60"></div>
+<div class="absolute bottom-0 right-[-20%] w-[60%] h-[60%] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-tertiary-fixed-dim/10 via-background to-background rounded-full -z-10 blur-3xl opacity-40"></div>
+<main class="w-full max-w-md bg-surface-container-lowest rounded-[24px] shadow-[0_4px_24px_rgba(0,34,4,0.04)] border border-outline-variant/30 flex flex-col p-stack-lg relative overflow-hidden z-10 transition-transform duration-300">
+<!-- Image Container -->
+<div class="w-full flex justify-center mb-section-padding relative">
+<div class="w-[195px] h-[246px] relative animate-[float_4s_ease-in-out_infinite]">
+<img alt="Tara character laughing" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrMfxcwMWVQj-mgS2501_P7dVFRWOzDssp5QfB_fbhJipxyytko_ZBfKqU859zbc78MkPDt8N1gpDWgWa03WHVSXqy3vAG3w7MB4Vh96CyswvMHmiu4m0EF0oPWFwAV1TxMB2HPCWli-Q2u2yRXjDWOfzDikWmGLmWyvQumluBOqkwQuvsEaPo41av_sS9R6MTVoon7ntQr9vprnNula69Zlkagq4o31TbRorghoRULQw0S2Po7yVzolrk76mbXdyLMQ"/>
+</div>
+<!-- Floating Decorative Elements -->
+<div class="absolute top-[10%] right-[15%] w-8 h-8 bg-tertiary-fixed rounded-full opacity-70 animate-[bounce_3s_infinite_0.5s] flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary-fixed text-sm">forum</span>
+</div>
+<div class="absolute bottom-[20%] left-[10%] w-6 h-6 bg-secondary-fixed rounded-full opacity-60 animate-[bounce_4s_infinite_1s]"></div>
+</div>
+<!-- Text Content -->
+<div class="text-center mb-section-padding flex flex-col gap-stack-sm">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary tracking-tight">
+                Grow with the Community
+            </h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[280px] mx-auto">
+                Share your success, ask questions, and learn from fellow farmers in your local area.
+            </p>
+</div>
+<!-- Controls Container -->
+<div class="mt-auto flex flex-col gap-stack-lg w-full">
+<!-- Progress Dots (6/8) -->
+<div class="flex justify-center items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-8 h-2 rounded-full bg-primary-container"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-stack-sm w-full">
+<button class="w-full bg-primary-container text-on-primary font-label-lg text-label-lg py-4 rounded-xl flex items-center justify-center gap-2 border-b-[3px] border-on-primary-fixed-variant hover:brightness-110 active:border-b-0 active:translate-y-[3px] transition-all duration-150 shadow-[0_4px_12px_rgba(0,110,28,0.08)]">
+                    Next
+                    <span class="material-symbols-outlined text-lg" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+<style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</body></html>

@@ -2,8 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Tara from "../components/Tara/Tara";
-import type { TaraExpression } from "../components/Tara/Tara.types";
-import type { TaraHandle } from "../components/Tara/Tara.types";
+import type { TaraExpression, TaraHandle } from "../components/Tara/Tara.types";
 import { TaraColors } from "../components/Tara/Tara.styles";
 import {
   TARA_DEMO_CONTENT,
@@ -49,14 +48,13 @@ const EXPRESSION_LABELS: Record<TaraExpression, string> = {
   laughing: "Laughing",
   listening: "Listening",
   "hi-wave": "Hi Wave",
+  winking: "Winking",
 };
 
 export default function TaraDemoScreen() {
   const [language, setLanguage] = useState<TaraLanguage>("english");
   const [messageIndex, setMessageIndex] = useState(0);
-  const [expression, setExpression] = useState<TaraExpression>(
-    MESSAGE_EXPRESSIONS[0]
-  );
+  const expression = MESSAGE_EXPRESSIONS[messageIndex] ?? MESSAGE_EXPRESSIONS[0];
   const taraRef = useRef<TaraHandle>(null);
   const advanceTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -115,10 +113,6 @@ export default function TaraDemoScreen() {
     startSequence();
     taraRef.current?.play();
   };
-
-  useEffect(() => {
-    setExpression(MESSAGE_EXPRESSIONS[messageIndex] ?? MESSAGE_EXPRESSIONS[0]);
-  }, [messageIndex]);
 
   return (
     <SafeAreaView style={styles.safeArea}>

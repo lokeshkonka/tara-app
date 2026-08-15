@@ -11,6 +11,7 @@ export const TARA_EXPRESSIONS: Record<TaraExpression, ImageSource> = {
   sad: require("../../../assets/tara/tara-expressions/sad.png"),
   surprised: require("../../../assets/tara/tara-expressions/surprised.png"),
   thinking: require("../../../assets/tara/tara-expressions/thinking.png"),
+  winking: require("../../../assets/tara/tara-expressions/winking.png"),
 };
 
 export const TARA_EXPRESSION_KEYS: TaraExpression[] = [
@@ -23,4 +24,5 @@ export const TARA_EXPRESSION_KEYS: TaraExpression[] = [
   "laughing",
   "listening",
   "hi-wave",
+  "winking",
 ];
