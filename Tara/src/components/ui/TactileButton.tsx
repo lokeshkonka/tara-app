@@ -1,7 +1,8 @@
-import React, { useRef, type ReactNode } from "react";
+import React, { useState, type ReactNode } from "react";
 import {
   ActivityIndicator,
   Animated,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -29,6 +30,7 @@ interface TactileButtonProps {
   height?: number;
   depth?: number;
   borderRadius?: number;
+  autoAdvanceProgress?: Animated.Value;
   children?: ReactNode;
 }
 
@@ -45,20 +47,23 @@ export function TactileButton({
   height = 54,
   depth = 4.5,
   borderRadius = rounded.lg,
+  autoAdvanceProgress,
   children,
 }: TactileButtonProps) {
-  const pressAnim = useRef(new Animated.Value(0)).current;
+  const [pressAnim] = useState(() => new Animated.Value(0));
 
   const handlePressIn = () => {
     if (disabled || loading) return;
-    try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    } catch {
-      // ignore on unsupported web/platforms
+    if (Platform.OS !== "web") {
+      try {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      } catch {
+        // ignore on unsupported platforms
+      }
     }
     Animated.spring(pressAnim, {
       toValue: 1,
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== "web",
       tension: 300,
       friction: 20,
     }).start();
@@ -68,7 +73,7 @@ export function TactileButton({
     if (disabled || loading) return;
     Animated.spring(pressAnim, {
       toValue: 0,
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== "web",
       tension: 250,
       friction: 16,
     }).start();
@@ -195,9 +200,25 @@ export function TactileButton({
               transform: [{ translateY }],
               borderWidth: palette.border !== "transparent" ? 1.5 : 0,
               borderColor: palette.border,
+              overflow: "hidden", // added to contain the splash fill
             },
           ]}
         >
+          {/* Watery Splash Auto-Advance Fill */}
+          {autoAdvanceProgress && (
+            <Animated.View
+              style={[
+                styles.autoAdvanceFill,
+                {
+                  width: autoAdvanceProgress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ["0%", "100%"],
+                  }),
+                },
+              ]}
+            />
+          )}
+
           {loading ? (
             <ActivityIndicator color={palette.text} size="small" />
           ) : (
@@ -290,5 +311,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 16,
+  },
+  autoAdvanceFill: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
   },
 });

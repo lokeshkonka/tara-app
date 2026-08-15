@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { View } from "react-native";
 import { OnboardingLayout } from "../../components/onboarding/OnboardingLayout";
-import { colors, rounded, spacing, typography } from "../../theme/theme";
+import { ConceptHighlightCards } from "../../components/ui/ConceptHighlightCards";
+import { useOnboarding } from "../../hooks/useOnboarding";
+import { colors } from "../../theme/theme";
 
 interface PurposeScreenProps {
   onNext: () => void;
@@ -9,89 +10,85 @@ interface PurposeScreenProps {
   onSkip?: () => void;
 }
 
+const SCREEN_CONTENT: Record<string, { title: string; subtitle: string; audio: any }> = {
+  en: {
+    title: "Why Sustainable Farming?",
+    subtitle: "To heal our soil, grow healthier food, and ensure a better future for our children.",
+    audio: require("../../../assets/onboarding-voices/screen2/english-speech.mp3"),
+  },
+  hi: {
+    title: "सतत खेती क्यों?",
+    subtitle: "अपनी मिट्टी को स्वस्थ करने, पौष्टिक भोजन उगाने और अपने बच्चों के लिए बेहतर भविष्य सुनिश्चित करने के लिए।",
+    audio: require("../../../assets/onboarding-voices/screen2/hindi-speech.mp3"),
+  },
+  te: {
+    title: "సుస్థిర వ్యవసాయం ఎందుకు?",
+    subtitle: "మన నేలను ఆరోగ్యంగా మార్చడానికి, ఆరోగ్యకరమైన ఆహారాన్ని పండించడానికి, మన పిల్లలకు మెరుగైన భవిష్యత్తును అందించడానికి.",
+    audio: require("../../../assets/onboarding-voices/screen2/telugu-speech.mp3"),
+  },
+  ml: {
+    title: "സുസ്ഥിര കൃഷി എന്തുകൊണ്ട്?",
+    subtitle: "നമ്മുടെ മണ്ണിനെ സംരക്ഷിക്കാനും ആരോഗ്യകരമായ ഭക്ഷണം വളർത്താനും നമ്മുടെ കുട്ടികൾക്ക് മികച്ചൊരു ഭാവി ഉറപ്പാക്കാനും.",
+    audio: require("../../../assets/onboarding-voices/screen2/malayalam-speech.mp3"),
+  },
+};
+
 export function PurposeScreen({
   onNext,
   onBack,
   onSkip,
 }: PurposeScreenProps) {
+  const { state } = useOnboarding();
+  const currentLang = state.selectedLanguage || "en";
+  const content = SCREEN_CONTENT[currentLang] || SCREEN_CONTENT.en;
+
   return (
     <OnboardingLayout
       currentStep={2}
       totalSteps={8}
       expression="thinking"
-      title="Why Sustainable Farming?"
-      subtitle="To heal our soil, grow healthier food, and ensure a better future for our children."
+      title={content.title}
+      subtitle={content.subtitle}
+      audioSource={content.audio}
       actionText="Continue"
       actionIcon="arrow-forward"
       canGoBack={true}
       canSkip={true}
+      showLanguageSelector={true}
       onAction={onNext}
       onBack={onBack}
       onSkip={onSkip}
+      floatingBadges={[
+        {
+          icon: "eco",
+          color: colors.onPrimaryContainer,
+          bgColor: colors.primaryContainer,
+          position: "top-right",
+        },
+        {
+          icon: "restaurant",
+          color: colors.onTertiaryFixed,
+          bgColor: colors.tertiaryFixed,
+          position: "bottom-left",
+        },
+      ]}
     >
-      {/* 2 Concept Highlight Cards */}
-      <View style={styles.cardsGrid}>
-        <View style={styles.card}>
-          <View style={[styles.iconCircle, { backgroundColor: "rgba(76, 175, 80, 0.15)" }]}>
-            <MaterialIcons
-              name="eco"
-              size={24}
-              color={colors.primaryContainer}
-            />
-          </View>
-          <Text style={styles.cardLabel}>Heal Soil</Text>
-        </View>
-
-        <View style={styles.card}>
-          <View style={[styles.iconCircle, { backgroundColor: colors.tertiaryFixed }]}>
-            <MaterialIcons
-              name="restaurant"
-              size={24}
-              color={colors.tertiary}
-            />
-          </View>
-          <Text style={styles.cardLabel}>Healthier Food</Text>
-        </View>
-      </View>
+      <ConceptHighlightCards
+        cards={[
+          {
+            icon: "eco",
+            title: "Heal Soil",
+            iconBgColor: "rgba(76, 175, 80, 0.15)",
+            iconColor: colors.primaryContainer,
+          },
+          {
+            icon: "restaurant",
+            title: "Healthier Food",
+            iconBgColor: colors.tertiaryFixed,
+            iconColor: colors.tertiary,
+          },
+        ]}
+      />
     </OnboardingLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  cardsGrid: {
-    flexDirection: "row",
-    gap: spacing.gutter,
-    width: "100%",
-    maxWidth: 360,
-    justifyContent: "center",
-  },
-  card: {
-    flex: 1,
-    backgroundColor: colors.surfaceContainerLowest,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    borderRadius: rounded.xl,
-    paddingVertical: 18,
-    paddingHorizontal: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 8,
-  },
-  cardLabel: {
-    ...typography.labelLg,
-    color: colors.onSurface,
-    textAlign: "center",
-  },
-});

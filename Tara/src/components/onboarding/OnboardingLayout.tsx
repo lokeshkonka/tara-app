@@ -1,18 +1,18 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import {
+  Animated,
   ScrollView,
   StyleSheet,
-  Text,
   useWindowDimensions,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Image } from "expo-image";
 import { MaterialIcons } from "@expo/vector-icons";
-import { colors, rounded, spacing, typography } from "../../theme/theme";
-import { TARA_EXPRESSIONS } from "../Tara/expressionMap";
+import type { AudioSource } from "expo-audio";
+import { colors, spacing } from "../../theme/theme";
 import type { TaraExpression } from "../Tara/Tara.types";
 import { TactileButton, type ButtonVariant } from "../ui/TactileButton";
+import { TaraMessageCard } from "../tara/TaraMessageCard";
 import { OnboardingHeader } from "./OnboardingHeader";
 
 interface OnboardingLayoutProps {
@@ -21,11 +21,14 @@ interface OnboardingLayoutProps {
   expression: TaraExpression;
   title: string;
   subtitle: string;
+  audioSource?: AudioSource;
+  showVoiceControl?: boolean;
   actionText?: string;
   actionIcon?: keyof typeof MaterialIcons.glyphMap;
   actionVariant?: ButtonVariant;
   canGoBack?: boolean;
   canSkip?: boolean;
+  showLanguageSelector?: boolean;
   onBack?: () => void;
   onSkip?: () => void;
   onAction: () => void;
@@ -45,11 +48,14 @@ export function OnboardingLayout({
   expression,
   title,
   subtitle,
+  audioSource,
+  showVoiceControl,
   actionText = "Next",
   actionIcon = "arrow-forward",
   actionVariant = "primary",
   canGoBack = true,
   canSkip = true,
+  showLanguageSelector = false,
   onBack,
   onSkip,
   onAction,
@@ -60,6 +66,39 @@ export function OnboardingLayout({
   const { height } = useWindowDimensions();
   const isCompact = height < 700;
 
+  const [isSpeaking, setIsSpeaking] = useState(true); // Defaults to true because autoPlay is true
+  const autoAdvanceAnim = useRef(new Animated.Value(0)).current;
+
+  // Handle auto-advance watery splash fill after speech ends
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+
+    if (!isSpeaking && currentStep < totalSteps) {
+      // If speech finished, wait 1.5 seconds, then take 3.5 seconds to fill the button
+      timer = setTimeout(() => {
+        Animated.timing(autoAdvanceAnim, {
+          toValue: 1,
+          duration: 3500, // Watery splash slow fill
+          useNativeDriver: false, // width interpolation
+        }).start(({ finished }) => {
+          if (finished) {
+            onAction();
+          }
+        });
+      }, 1500); // Wait 1.5s after speech ends before filling
+    } else {
+      // If started speaking again, or language toggled, reset the animation and timer
+      autoAdvanceAnim.stopAnimation();
+      autoAdvanceAnim.setValue(0);
+    }
+
+    return () => {
+      clearTimeout(timer);
+      autoAdvanceAnim.stopAnimation();
+      autoAdvanceAnim.setValue(0);
+    };
+  }, [isSpeaking, currentStep, totalSteps, onAction, autoAdvanceAnim]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.mainContainer}>
@@ -69,6 +108,7 @@ export function OnboardingLayout({
           totalSteps={totalSteps}
           canGoBack={canGoBack}
           canSkip={canSkip}
+          showLanguageSelector={showLanguageSelector}
           onBack={onBack}
           onSkip={onSkip}
         />
@@ -83,40 +123,21 @@ export function OnboardingLayout({
           bounces={false}
         >
           <View style={styles.centerContainer}>
-            {/* Mascot Character Hero Area */}
-            <View style={[styles.avatarContainer, isCompact && styles.avatarContainerCompact]}>
-              <View style={styles.avatarGlow} />
-              <Image
-                source={TARA_EXPRESSIONS[expression]}
-                style={styles.avatarImage}
-                contentFit="contain"
-                accessibilityLabel={`Tara avatar ${expression}`}
-              />
+            {/* Unified Tara Message Card Hero */}
+            <TaraMessageCard
+              title={title}
+              message={subtitle}
+              expression={expression}
+              audioSource={audioSource}
+              showVoiceControl={showVoiceControl ?? Boolean(audioSource)}
+              autoPlay={true}
+              isLoading={isLoading}
+              floatingBadges={floatingBadges}
+              onSpeechStart={() => setIsSpeaking(true)}
+              onSpeechEnd={() => setIsSpeaking(false)}
+            />
 
-              {/* Optional Floating Badges */}
-              {floatingBadges?.map((badge, idx) => (
-                <View
-                  key={idx}
-                  style={[
-                    styles.floatingBadge,
-                    badge.position === "top-right"
-                      ? styles.badgeTopRight
-                      : styles.badgeBottomLeft,
-                    { backgroundColor: badge.bgColor },
-                  ]}
-                >
-                  <MaterialIcons name={badge.icon} size={18} color={badge.color} />
-                </View>
-              ))}
-            </View>
-
-            {/* Typography Stack */}
-            <View style={styles.textStack}>
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.subtitle}>{subtitle}</Text>
-            </View>
-
-            {/* Optional Custom Slot (Cards, XP Bar, etc.) */}
+            {/* Optional Custom Slot (Cards, XP Bar, interactive forms, etc.) */}
             {children && <View style={styles.customSlot}>{children}</View>}
           </View>
         </ScrollView>
@@ -129,6 +150,7 @@ export function OnboardingLayout({
             variant={actionVariant}
             onPress={onAction}
             loading={isLoading}
+            autoAdvanceProgress={currentStep < totalSteps ? autoAdvanceAnim : undefined}
           />
         </View>
       </View>
@@ -151,83 +173,19 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     paddingHorizontal: spacing.marginMobile,
-    paddingVertical: spacing.stackMd,
+    paddingVertical: spacing.stackSm,
   },
   scrollContentCompact: {
-    paddingVertical: spacing.stackSm,
+    paddingVertical: spacing.unit,
   },
   centerContainer: {
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
   },
-  avatarContainer: {
-    width: 220,
-    height: 240,
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-    marginBottom: spacing.stackLg,
-  },
-  avatarContainerCompact: {
-    width: 170,
-    height: 190,
-    marginBottom: spacing.stackMd,
-  },
-  avatarGlow: {
-    position: "absolute",
-    width: "90%",
-    height: "90%",
-    borderRadius: rounded.full,
-    backgroundColor: "rgba(148, 249, 144, 0.2)",
-  },
-  avatarImage: {
-    width: "100%",
-    height: "100%",
-  },
-  floatingBadge: {
-    position: "absolute",
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1.5,
-    borderColor: colors.outlineVariant,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  badgeTopRight: {
-    top: 4,
-    right: 4,
-  },
-  badgeBottomLeft: {
-    bottom: 12,
-    left: 4,
-  },
-  textStack: {
-    alignItems: "center",
-    paddingHorizontal: spacing.gutter,
-    maxWidth: 360,
-  },
-  title: {
-    ...typography.headlineLgMobile,
-    color: colors.primary,
-    textAlign: "center",
-    marginBottom: spacing.stackSm,
-  },
-  subtitle: {
-    ...typography.bodyMd,
-    color: colors.onSurfaceVariant,
-    textAlign: "center",
-    lineHeight: 22,
-  },
   customSlot: {
     width: "100%",
-    marginTop: spacing.stackLg,
+    marginTop: spacing.stackMd,
     alignItems: "center",
   },
   footer: {

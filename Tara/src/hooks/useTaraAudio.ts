@@ -19,7 +19,7 @@ export interface TaraAudio {
 }
 
 export function useTaraAudio(
-  source: AudioSource,
+  source?: AudioSource,
   options?: UseTaraAudioOptions
 ): TaraAudio {
   const player = useAudioPlayer(source, {

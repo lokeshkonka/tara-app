@@ -39,6 +39,7 @@ export interface LanguageOption {
   name: string;
   nativeName: string;
   script: string;
+  isComingSoon?: boolean;
 }
 
 export interface UserTypeOption {

@@ -86,35 +86,14 @@ const Tara = forwardRef<TaraHandle, TaraProps>(function Tara(
     if (message === displayedMessage) {
       return;
     }
-    textAnim.setValue(0);
-    const exit = Animated.timing(bubbleAnim, {
-      toValue: 0,
-      duration: 160,
+    textAnim.setValue(0.2);
+    setDisplayedMessage(message);
+    Animated.timing(textAnim, {
+      toValue: 1,
+      duration: 250,
       useNativeDriver: true,
-    });
-    exit.start();
-    const timer = setTimeout(() => {
-      setDisplayedMessage(message);
-      bubbleAnim.setValue(0);
-      Animated.parallel([
-        Animated.timing(bubbleAnim, {
-          toValue: 1,
-          duration: 260,
-          useNativeDriver: true,
-        }),
-        Animated.timing(textAnim, {
-          toValue: 1,
-          duration: 300,
-          delay: 80,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, 160);
-    return () => {
-      clearTimeout(timer);
-      exit.stop();
-    };
-  }, [message, displayedMessage, bubbleAnim, textAnim]);
+    }).start();
+  }, [message, displayedMessage, textAnim]);
 
   useEffect(() => {
     if (expression === displayedExpression) {

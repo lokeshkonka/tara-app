@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  Dimensions,
+  Animated as RNAnimated,
+  Easing,
   StyleSheet,
   Text,
   View,
@@ -9,16 +10,23 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
 import { MaterialIcons } from "@expo/vector-icons";
+import Svg, {
+  Defs,
+  RadialGradient,
+  Rect,
+  Stop,
+} from "react-native-svg";
 import Animated, {
   FadeIn,
   FadeInDown,
   FadeInUp,
 } from "react-native-reanimated";
 import { TactileButton } from "../../components/ui/TactileButton";
+import { AtmosphericGlow } from "../../components/ui/AtmosphericGlow";
 import { colors, rounded, spacing, typography } from "../../theme/theme";
-import { TARA_EXPRESSIONS } from "../../components/Tara/expressionMap";
+
+const TARA_FULL_BODY_FRONT = require("../../../assets/tara/tara-body/tara-front.png");
 
 interface SplashScreenProps {
   onStart: () => void;
@@ -26,11 +34,54 @@ interface SplashScreenProps {
 
 export function SplashScreen({ onStart }: SplashScreenProps) {
   const insets = useSafeAreaInsets();
-  const { height: screenHeight, width: screenWidth } = useWindowDimensions();
+  const { height: screenHeight } = useWindowDimensions();
 
-  // Dynamic character height based on screen size (roughly 50% of the screen height)
-  const characterHeight = Math.min(Math.max(screenHeight * 0.48, 320), 480);
-  const characterWidth = Math.min(screenWidth * 0.9, 420);
+  const characterHeight = Math.min(Math.max(screenHeight * 0.48, 320), 500);
+  const characterWidth = Math.min(characterHeight * 0.346, 190);
+
+  const [floatAnim] = useState(() => new RNAnimated.Value(0));
+  const buttonSplashAnim = useRef(new RNAnimated.Value(0)).current;
+  const [isStarting, setIsStarting] = useState(false);
+
+  useEffect(() => {
+    const loop = RNAnimated.loop(
+      RNAnimated.sequence([
+        RNAnimated.timing(floatAnim, {
+          toValue: 1,
+          duration: 2500,
+          useNativeDriver: true,
+          easing: Easing.inOut(Easing.sin),
+        }),
+        RNAnimated.timing(floatAnim, {
+          toValue: 0,
+          duration: 2500,
+          useNativeDriver: true,
+          easing: Easing.inOut(Easing.sin),
+        }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [floatAnim]);
+
+  const badgeFloat = floatAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -12],
+  });
+
+  const handleStart = () => {
+    if (isStarting) return;
+    setIsStarting(true);
+    RNAnimated.timing(buttonSplashAnim, {
+      toValue: 1,
+      duration: 500, // Smooth 500ms watery fill
+      useNativeDriver: false,
+    }).start(({ finished }) => {
+      if (finished) {
+        onStart();
+      }
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -41,10 +92,9 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
         style={StyleSheet.absoluteFill}
       />
 
-      {/* Decorative soft ambient circular light behind header */}
-      <View style={styles.topAura} />
+      {/* Decorative soft ambient radial glow behind header (borderless) */}
 
-      {/* 2. Top Content Area */}
+      {/* 2. Top Brand Area */}
       <View
         style={[
           styles.topContentContainer,
@@ -54,19 +104,8 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
           },
         ]}
       >
-        {/* Animated Top Dots Indicator */}
         <Animated.View
-          entering={FadeInDown.duration(600).delay(100)}
-          style={styles.topIndicatorRow}
-        >
-          <View style={[styles.indicatorDot, styles.indicatorDotActive]} />
-          <View style={styles.indicatorDot} />
-          <View style={styles.indicatorDot} />
-        </Animated.View>
-
-        {/* Brand & Logo Section */}
-        <Animated.View
-          entering={FadeInDown.duration(700).delay(250)}
+          entering={FadeInDown.duration(700).delay(150)}
           style={styles.brandContainer}
         >
           <View style={styles.logoRow}>
@@ -74,8 +113,8 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
             <View style={styles.ecoIconContainer}>
               <MaterialIcons
                 name="eco"
-                size={38}
-                color={colors.primaryContainer}
+                size={36}
+                color={colors.primary}
               />
             </View>
           </View>
@@ -84,7 +123,6 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
             Your sustainable farming companion
           </Text>
 
-          {/* Learn • Practice • Grow Pillars Pill */}
           <View style={styles.pillarsPill}>
             <Text style={styles.pillarText}>Learn</Text>
             <View style={styles.pillarDot} />
@@ -95,77 +133,151 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
         </Animated.View>
       </View>
 
-      {/* 3. Tara Character sticking to bottom */}
-      <Animated.View
-        entering={FadeInUp.duration(850).delay(400)}
-        style={[
-          styles.characterContainer,
-          {
-            height: characterHeight,
-            width: characterWidth,
-          },
-        ]}
-        pointerEvents="none"
-      >
-        {/* Soft shadow directly underneath character's feet */}
-        <View style={styles.groundContactShadow} />
-
-        <Image
-          source={TARA_EXPRESSIONS["hi-wave"]}
-          style={styles.taraImage}
-          contentFit="contain"
-          contentPosition="bottom center"
-          accessibilityLabel="Tara, your friendly farming mentor waving warmly"
-        />
-      </Animated.View>
-
-      {/* 4. Bottom Land Blur & Green-to-Transparent Gradient Layer */}
-      <View style={styles.landLayerContainer} pointerEvents="box-none">
-        {/* Soft Frosted Blur at the horizon */}
-        <BlurView intensity={25} tint="light" style={styles.landBlur} />
-
-        {/* Lush Land Gradient (Transparent at top -> Vibrant Emerald Green at bottom) */}
-        <LinearGradient
-          colors={[
-            "rgba(247, 250, 245, 0)",
-            "rgba(148, 249, 144, 0.12)",
-            "rgba(76, 175, 80, 0.38)",
-            "rgba(27, 109, 36, 0.72)",
-            "rgba(0, 83, 19, 0.92)",
-          ]}
-          locations={[0, 0.22, 0.48, 0.76, 1]}
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-
-        {/* Organic Curved Land Silhouette Highlight */}
-        <View style={styles.landContourGlow} />
-
-        {/* 5. Footer CTA Button & Indicators */}
-        <Animated.View
-          entering={FadeIn.duration(800).delay(650)}
+      {/* 3. Full-Body Tara standing above the CTA, with a soft atmospheric green glow behind her */}
+      <View style={styles.characterArea}>
+        {/* Soft atmospheric green glow behind TARA */}
+        <AtmosphericGlow
+          size={500}
+          opacity={0.95}
+          tintColor="#4CAF50"
+          showParticles
+          particleDensity="medium"
+          animated
           style={[
-            styles.footerActionContainer,
+            styles.greenGlow,
             {
-              paddingBottom: Math.max(insets.bottom + spacing.stackMd, 28),
-              paddingHorizontal: spacing.marginMobile,
+              top: "45%",
+              marginTop: -250,
             },
           ]}
+        />
+
+        <Animated.View
+          entering={FadeInUp.duration(850).delay(300)}
+          style={[
+            styles.characterContainer,
+            {
+              height: characterHeight,
+              width: characterWidth,
+            },
+          ]}
+          pointerEvents="none"
+        >
+          {/* Black feathered ground contact shadow with increased opacity */}
+          <View
+            style={[
+              styles.groundContactShadow,
+              { width: characterWidth * 1.3, height: 28, bottom: -4 },
+            ]}
+          >
+            <Svg
+              width={characterWidth * 1.3}
+              height={28}
+              viewBox={`0 0 ${characterWidth * 1.3} 28`}
+              style={StyleSheet.absoluteFill}
+            >
+              <Defs>
+                <RadialGradient id="footShadowGrad" cx="50%" cy="50%" rx="50%" ry="50%">
+                  <Stop offset="0%" stopColor="#000000" stopOpacity={0.30} />
+                  <Stop offset="20%" stopColor="#000000" stopOpacity={0.22} />
+                  <Stop offset="45%" stopColor="#000000" stopOpacity={0.13} />
+                  <Stop offset="70%" stopColor="#000000" stopOpacity={0.05} />
+                  <Stop offset="88%" stopColor="#000000" stopOpacity={0.01} />
+                  <Stop offset="100%" stopColor="#000000" stopOpacity={0} />
+                </RadialGradient>
+              </Defs>
+              <Rect
+                x={0}
+                y={0}
+                width={characterWidth * 1.3}
+                height={28}
+                fill="url(#footShadowGrad)"
+              />
+            </Svg>
+          </View>
+            <Image
+              source={TARA_FULL_BODY_FRONT}
+              style={styles.taraImage}
+              contentFit="contain"
+              contentPosition="bottom center"
+              accessibilityLabel="Tara, your friendly farming mentor standing and welcoming you"
+            />
+          </Animated.View>
+
+          {/* Floating Badges (Leaf & Sparkle) */}
+          <RNAnimated.View
+            style={[
+              styles.floatingBadge,
+              styles.badgeTopLeft,
+              { transform: [{ translateY: badgeFloat }] },
+            ]}
+          >
+            <MaterialIcons name="eco" size={22} color={colors.primary} />
+          </RNAnimated.View>
+
+          <RNAnimated.View
+            style={[
+              styles.floatingBadge,
+              styles.badgeRight,
+              {
+                transform: [
+                  {
+                    translateY: floatAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, -10],
+                    }),
+                  },
+                ],
+                animationDelay: "400ms",
+              },
+            ]}
+          >
+            <MaterialIcons name="auto-awesome" size={24} color={colors.tertiary} />
+          </RNAnimated.View>
+
+          <RNAnimated.View
+            style={[
+              styles.floatingBadge,
+              styles.badgeBottomLeft,
+              {
+                transform: [
+                  {
+                    translateY: floatAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, -8],
+                    }),
+                  },
+                ],
+                animationDelay: "800ms",
+              },
+            ]}
+          >
+            <MaterialIcons name="local-florist" size={20} color={colors.secondary} />
+          </RNAnimated.View>
+        </View>
+
+      {/* 4. Footer CTA Button */}
+      <View
+        style={[
+          styles.footerActionContainer,
+          {
+            paddingBottom: Math.max(insets.bottom + spacing.stackMd, 28),
+            paddingHorizontal: spacing.marginMobile,
+          },
+        ]}
+      >
+        <Animated.View
+          entering={FadeIn.duration(800).delay(550)}
+          style={styles.ctaWrap}
         >
           <TactileButton
             title="Start Onboarding"
             icon="arrow-forward"
             variant="primary"
-            onPress={onStart}
+            onPress={handleStart}
             style={styles.ctaButton}
+            autoAdvanceProgress={buttonSplashAnim}
           />
-
-          {/* Three subtle pulsing dots below button */}
-          <View style={styles.bottomPulsingDots}>
-            <View style={[styles.pulseDot, { opacity: 0.9 }]} />
-            <View style={[styles.pulseDot, { opacity: 0.6 }]} />
-            <View style={[styles.pulseDot, { opacity: 0.35 }]} />
-          </View>
         </Animated.View>
       </View>
     </View>
@@ -179,37 +291,10 @@ const styles = StyleSheet.create({
     position: "relative",
     overflow: "hidden",
   },
-  topAura: {
-    position: "absolute",
-    top: -60,
-    alignSelf: "center",
-    width: 320,
-    height: 320,
-    borderRadius: rounded.full,
-    backgroundColor: "rgba(148, 249, 144, 0.18)",
-    opacity: 0.7,
-  },
   topContentContainer: {
     alignItems: "center",
     zIndex: 10,
     width: "100%",
-  },
-  topIndicatorRow: {
-    flexDirection: "row",
-    gap: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.stackMd,
-  },
-  indicatorDot: {
-    width: 6,
-    height: 6,
-    borderRadius: rounded.full,
-    backgroundColor: "rgba(0, 110, 28, 0.2)",
-  },
-  indicatorDotActive: {
-    width: 20,
-    backgroundColor: colors.primary,
   },
   brandContainer: {
     alignItems: "center",
@@ -219,57 +304,59 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-end",
     position: "relative",
-    paddingRight: 16,
+    paddingRight: 24,
+    marginLeft: 2, // Shifted 2px right
   },
   brandTitle: {
     ...typography.headlineLg,
-    fontSize: 62,
-    lineHeight: 68,
-    fontWeight: "900",
-    color: colors.primaryContainer,
-    letterSpacing: -2,
-    textShadowColor: "rgba(76, 175, 80, 0.25)",
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 16,
+    fontSize: 64,
+    lineHeight: 70,
+    fontWeight: "800",
+    color: colors.primary,
+    letterSpacing: -1.8,
+    includeFontPadding: false,
+    textShadowColor: "rgba(0, 110, 28, 0.14)",
+    textShadowOffset: { width: 0, height: 3 },
+    textShadowRadius: 14,
   },
   ecoIconContainer: {
     position: "absolute",
-    right: -10,
-    top: -2,
+    right: -12,
+    top: -4,
     transform: [{ rotate: "14deg" }],
   },
   tagline: {
     ...typography.bodyMd,
     color: colors.onSurfaceVariant,
     textAlign: "center",
-    marginTop: 6,
-    opacity: 0.85,
-    maxWidth: 260,
-    lineHeight: 22,
+    marginTop: 8,
+    opacity: 0.9,
+    maxWidth: 280,
+    lineHeight: 24,
     fontWeight: "500",
   },
   pillarsPill: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: spacing.stackLg,
-    backgroundColor: "rgba(255, 255, 255, 0.85)",
-    paddingVertical: 8,
-    paddingHorizontal: 18,
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    paddingVertical: 9,
+    paddingHorizontal: 20,
     borderRadius: rounded.full,
     borderWidth: 1,
-    borderColor: "rgba(111, 122, 107, 0.15)",
+    borderColor: "rgba(111, 122, 107, 0.18)",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
-    gap: 10,
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+    gap: 12,
   },
   pillarText: {
     ...typography.labelLg,
     color: colors.primary,
     fontWeight: "800",
-    letterSpacing: 1.6,
+    letterSpacing: 1.8,
     textTransform: "uppercase",
     fontSize: 12,
   },
@@ -280,14 +367,23 @@ const styles = StyleSheet.create({
     backgroundColor: colors.tertiaryContainer,
   },
 
-  // Character grounded at the bottom
-  characterContainer: {
-    position: "absolute",
-    bottom: 0,
-    alignSelf: "center",
+  // Full-body character standing above the CTA
+  characterArea: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "flex-end",
-    zIndex: 15,
+    paddingBottom: spacing.stackSm,
+    position: "relative",
+  },
+  greenGlow: {
+    position: "absolute",
+    top: "50%",
+    alignSelf: "center",
+  },
+  characterContainer: {
+    alignItems: "center",
+    justifyContent: "flex-end",
+    zIndex: 2,
   },
   taraImage: {
     width: "100%",
@@ -295,39 +391,44 @@ const styles = StyleSheet.create({
   },
   groundContactShadow: {
     position: "absolute",
-    bottom: 4,
-    width: "55%",
-    height: 18,
-    borderRadius: rounded.full,
-    backgroundColor: "rgba(0, 34, 4, 0.22)",
-    transform: [{ scaleX: 1.4 }],
+    bottom: 2,
+    alignSelf: "center",
   },
-
-  // Bottom Land Layer & Gradient
-  landLayerContainer: {
+  floatingBadge: {
     position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 220,
-    justifyContent: "flex-end",
-    zIndex: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1.5,
+    borderColor: "rgba(185, 228, 190, 0.6)",
+    shadowColor: "#002204",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 6,
+    zIndex: 10,
   },
-  landBlur: {
-    ...StyleSheet.absoluteFill,
-    opacity: 0.6,
+  badgeTopLeft: {
+    top: "28%",
+    left: "15%",
   },
-  landContourGlow: {
-    position: "absolute",
-    top: 0,
-    left: "-10%",
-    right: "-10%",
-    height: 2,
-    backgroundColor: "rgba(255, 255, 255, 0.4)",
-    shadowColor: "#94f990",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 10,
+  badgeRight: {
+    top: "52%",
+    right: "12%",
+    backgroundColor: "#F4FBEC",
+    borderColor: "rgba(168, 222, 172, 0.5)",
+  },
+  badgeBottomLeft: {
+    bottom: "10%",
+    left: "8%",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#FFF9F0",
+    borderColor: "rgba(255, 218, 168, 0.5)",
   },
 
   // CTA Section
@@ -338,6 +439,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 30,
   },
+  ctaWrap: {
+    width: "100%",
+  },
   ctaButton: {
     width: "100%",
     shadowColor: "#002204",
@@ -345,18 +449,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.28,
     shadowRadius: 16,
     elevation: 8,
-  },
-  bottomPulsingDots: {
-    flexDirection: "row",
-    gap: 6,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 12,
-  },
-  pulseDot: {
-    width: 5,
-    height: 5,
-    borderRadius: rounded.full,
-    backgroundColor: colors.white,
   },
 });

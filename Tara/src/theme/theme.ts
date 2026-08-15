@@ -93,46 +93,46 @@ export const rounded = {
 
 export const typography = {
   headlineLg: {
-    fontFamily: "Plus Jakarta Sans",
+    fontFamily: "PlusJakartaSans-Bold",
     fontSize: 30,
     fontWeight: "700" as const,
     lineHeight: 38,
     letterSpacing: -0.6,
   },
   headlineLgMobile: {
-    fontFamily: "Plus Jakarta Sans",
+    fontFamily: "PlusJakartaSans-Bold",
     fontSize: 24,
     fontWeight: "700" as const,
     lineHeight: 32,
     letterSpacing: -0.4,
   },
   headlineMd: {
-    fontFamily: "Plus Jakarta Sans",
+    fontFamily: "PlusJakartaSans-SemiBold",
     fontSize: 20,
     fontWeight: "600" as const,
     lineHeight: 28,
   },
   bodyLg: {
-    fontFamily: "Plus Jakarta Sans",
+    fontFamily: "PlusJakartaSans-Regular",
     fontSize: 18,
     fontWeight: "400" as const,
     lineHeight: 26,
   },
   bodyMd: {
-    fontFamily: "Plus Jakarta Sans",
+    fontFamily: "PlusJakartaSans-Regular",
     fontSize: 16,
     fontWeight: "400" as const,
     lineHeight: 24,
   },
   labelLg: {
-    fontFamily: "Plus Jakarta Sans",
+    fontFamily: "PlusJakartaSans-SemiBold",
     fontSize: 14,
     fontWeight: "600" as const,
     lineHeight: 20,
     letterSpacing: 0.14,
   },
   labelSm: {
-    fontFamily: "Plus Jakarta Sans",
+    fontFamily: "PlusJakartaSans-Medium",
     fontSize: 12,
     fontWeight: "500" as const,
     lineHeight: 16,
