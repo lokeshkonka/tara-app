@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { DashboardProvider } from "./DashboardContext";
+import { LearnProvider } from "./LearnContext";
 import { OnboardingProvider } from "./OnboardingContext";
 import { ProgressProvider } from "./ProgressContext";
 import { UserProvider } from "./UserContext";
@@ -11,7 +12,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       <UserProvider>
         <DashboardProvider>
           <ProgressProvider>
-            <OnboardingProvider>{children}</OnboardingProvider>
+            <LearnProvider>
+              <OnboardingProvider>{children}</OnboardingProvider>
+            </LearnProvider>
           </ProgressProvider>
         </DashboardProvider>
       </UserProvider>
@@ -24,4 +27,5 @@ export * from "./UserContext";
 export * from "./UpdateContext";
 export * from "./DashboardContext";
 export * from "./ProgressContext";
+export * from "./LearnContext";
 
