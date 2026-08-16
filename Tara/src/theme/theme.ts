@@ -69,6 +69,36 @@ export const colors = {
   transparent: "transparent",
 } as const;
 
+/**
+ * Semantic component colors — single source of truth for recurring surface
+ * treatments (cards, circular icon buttons, pill chips). Components must use
+ * these tokens instead of hard-coded hex values.
+ */
+export const componentColors = {
+  // Cards — Soft 3D Edge (1.5px outline + darker bottom edge)
+  cardBackground: "#ffffff",
+  cardBorder: "#becab9",
+  cardEdge: "#c7cfc6",
+
+  // Circular icon buttons — notification-bell treatment (uniform border)
+  iconButtonBackground: "#ffffff",
+  iconButtonBorder: "#becab9",
+  iconButtonIcon: "#3f4a3c",
+
+  // Pill chips — positive (green) & neutral
+  chipPositiveBackground: "#e8f5e9",
+  chipPositiveBorder: "rgba(27, 94, 32, 0.22)",
+  chipPositiveEdge: "rgba(27, 94, 32, 0.38)",
+  chipPositiveText: "#1b5e20",
+  chipNeutralBackground: "#f1f4ef",
+  chipNeutralBorder: "#dde3dc",
+  chipNeutralEdge: "#c7cfc6",
+  chipNeutralText: "#3f4a3c",
+
+  // Section headings & card titles (muted gray-green)
+  sectionTitle: "#3f4a3c",
+} as const;
+
 export const spacing = {
   unit: 4,
   stackSm: 8,
@@ -249,6 +279,7 @@ export const buttonStyles = {
 
 export const theme = {
   colors,
+  componentColors,
   spacing,
   rounded,
   typography,

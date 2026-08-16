@@ -12,19 +12,22 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TactileButton } from "../../components/ui/TactileButton";
 import { useAuth } from "../../auth/AuthProvider";
+import { useUser } from "../../context/UserContext";
 import { LANGUAGES_DATA } from "../../data/dummy/languagesData";
 import { colors, rounded, spacing, typography } from "../../theme/theme";
 
 export default function ProfileTab() {
-  const { signOut, user } = useAuth();
-  const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const { signOut, user: authUser } = useAuth();
+  const { user, updateUser } = useUser();
   const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
 
+  const selectedLanguage = user?.language || "en";
+  
   const selectedLang =
     LANGUAGES_DATA.find((lang) => lang.code === selectedLanguage) ??
     LANGUAGES_DATA[0];
 
-  const handleSelect = (lang: typeof LANGUAGES_DATA[number]) => {
+  const handleSelect = async (lang: typeof LANGUAGES_DATA[number]) => {
     if (lang.isComingSoon) {
       Alert.alert(
         "Coming Soon",
@@ -33,17 +36,19 @@ export default function ProfileTab() {
       );
       return;
     }
-    setSelectedLanguage(lang.code);
+    
+    // Update the language in the global user context
+    await updateUser({ language: lang.code });
     setLanguagePickerVisible(false);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Profile</Text>
-          {user && (
-            <Text style={styles.subtitle}>Logged in as {user.email || user.name || "User"}</Text>
+          {authUser && (
+            <Text style={styles.subtitle}>Logged in as {authUser.email || authUser.name || "User"}</Text>
           )}
         </View>
 

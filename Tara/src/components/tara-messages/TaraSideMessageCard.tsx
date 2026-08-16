@@ -11,19 +11,22 @@ import { Image, type ImageSource } from "expo-image";
 import { MaterialIcons } from "@expo/vector-icons";
 import type { AudioSource } from "expo-audio";
 import { useTaraAudio } from "../../hooks/useTaraAudio";
+import { useTranslation } from "../../hooks/useTranslation";
 import { TARA_EXPRESSIONS } from "../Tara/expressionMap";
 import type { TaraExpression } from "../Tara/Tara.types";
 import { AtmosphericGlow } from "../ui/AtmosphericGlow";
 import { colors, typography } from "../../theme/theme";
 
 const PULSE_DURATION = 950;
+const TARA_DRIFT_DURATION = 2600;
+const BUBBLE_FLOAT_DURATION = 3000;
 
-export interface TaraMessageCardHandle {
+export interface TaraSideMessageCardHandle {
   play: () => void;
   stop: () => void;
 }
 
-export interface TaraMessageCardProps {
+export interface TaraSideMessageCardProps {
   /** Optional custom headline title, e.g. "Namaste! I'm Tara." */
   title?: string;
   /** Message body or speech transcript */
@@ -40,13 +43,6 @@ export interface TaraMessageCardProps {
   showVoiceControl?: boolean;
   /** Display text rendering loader inside the message bubble */
   isLoading?: boolean;
-  /** Optional floating badges displayed on hero area */
-  floatingBadges?: {
-    icon: keyof typeof MaterialIcons.glyphMap;
-    color: string;
-    bgColor: string;
-    position: "top-right" | "bottom-left";
-  }[];
   onSpeechStart?: () => void;
   onSpeechEnd?: () => void;
   onVoicePress?: () => void;
@@ -160,15 +156,18 @@ const loaderStyles = StyleSheet.create({
 });
 
 /**
- * TaraMessageCard
+ * TaraSideMessageCard
  *
- * Polished character hero card with an organic speech dialogue bubble (proper curve + tail pointer)
- * and an interactive mic button with high-strength pulsating rhythm beat while audio plays.
+ * Horizontal character dialogue card: Tara sits on the LEFT with a soft
+ * atmospheric glow and drifts subtly left <-> right, while the curved speech
+ * bubble floats on the RIGHT (voice button + message) with a gentle top <-> bottom
+ * float. Shares the same background, voice player and pulse treatment as
+ * TaraMessageCard.
  */
-export const TaraMessageCard = forwardRef<
-  TaraMessageCardHandle,
-  TaraMessageCardProps
->(function TaraMessageCard(
+export const TaraSideMessageCard = forwardRef<
+  TaraSideMessageCardHandle,
+  TaraSideMessageCardProps
+>(function TaraSideMessageCard(
   {
     title,
     message,
@@ -178,7 +177,6 @@ export const TaraMessageCard = forwardRef<
     autoPlay = false,
     showVoiceControl = true,
     isLoading = false,
-    floatingBadges,
     onSpeechStart,
     onSpeechEnd,
     onVoicePress,
@@ -188,11 +186,16 @@ export const TaraMessageCard = forwardRef<
   const [displayedExpression, setDisplayedExpression] = useState(expression);
   const [fadingExpression, setFadingExpression] = useState(false);
 
-  // Keep messageAnim wrapper opacity at 1 to prevent black background blink
-  const [messageAnim] = useState(() => new Animated.Value(1));
   const [textFadeAnim] = useState(() => new Animated.Value(1));
   const [exprAnim] = useState(() => new Animated.Value(1));
   const [pulse] = useState(() => new Animated.Value(0));
+
+  // Subtle horizontal drift for Tara (left <-> right)
+  const [taraDrift] = useState(() => new Animated.Value(0));
+  // Subtle vertical float for the message bubble (top <-> bottom)
+  const [bubbleFloat] = useState(() => new Animated.Value(0));
+
+  const { t } = useTranslation();
 
   const { isPlaying, play, stop } = useTaraAudio(audioSource, {
     onStart: () => onSpeechStart?.(),
@@ -207,7 +210,7 @@ export const TaraMessageCard = forwardRef<
     }
   }, [autoPlay, audioSource, play]);
 
-  // Smooth inner text cross-fade animation without fading the outer white speech card container
+  // Smooth inner text cross-fade animation
   useEffect(() => {
     textFadeAnim.setValue(0.3);
     Animated.timing(textFadeAnim, {
@@ -235,11 +238,9 @@ export const TaraMessageCard = forwardRef<
     return () => clearTimeout(timer);
   }, [expression, displayedExpression, exprAnim]);
 
-  const speaking = isPlaying;
-
   // Punchy pulse beat animation while playing audio
   useEffect(() => {
-    if (!speaking) {
+    if (!isPlaying) {
       pulse.stopAnimation();
       pulse.setValue(0);
       return;
@@ -254,21 +255,21 @@ export const TaraMessageCard = forwardRef<
     );
     loop.start();
     return () => loop.stop();
-  }, [speaking, pulse]);
+  }, [isPlaying, pulse]);
 
-  const [floatAnim] = useState(() => new Animated.Value(0));
+  // Subtle left-right drift for Tara
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(floatAnim, {
+        Animated.timing(taraDrift, {
           toValue: 1,
-          duration: 2000,
+          duration: TARA_DRIFT_DURATION,
           useNativeDriver: true,
           easing: Easing.inOut(Easing.sin),
         }),
-        Animated.timing(floatAnim, {
+        Animated.timing(taraDrift, {
           toValue: 0,
-          duration: 2000,
+          duration: TARA_DRIFT_DURATION,
           useNativeDriver: true,
           easing: Easing.inOut(Easing.sin),
         }),
@@ -276,7 +277,39 @@ export const TaraMessageCard = forwardRef<
     );
     loop.start();
     return () => loop.stop();
-  }, [floatAnim]);
+  }, [taraDrift]);
+
+  // Subtle top-bottom float for the message bubble
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bubbleFloat, {
+          toValue: 1,
+          duration: BUBBLE_FLOAT_DURATION,
+          useNativeDriver: true,
+          easing: Easing.inOut(Easing.sin),
+        }),
+        Animated.timing(bubbleFloat, {
+          toValue: 0,
+          duration: BUBBLE_FLOAT_DURATION,
+          useNativeDriver: true,
+          easing: Easing.inOut(Easing.sin),
+        }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [bubbleFloat]);
+
+  const taraTranslateX = taraDrift.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -6],
+  });
+
+  const bubbleTranslateY = bubbleFloat.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -6],
+  });
 
   const ringScaleInner = pulse.interpolate({
     inputRange: [0, 1],
@@ -299,25 +332,6 @@ export const TaraMessageCard = forwardRef<
   const buttonScale = pulse.interpolate({
     inputRange: [0, 0.4, 0.7, 1],
     outputRange: [1, 1.15, 1.08, 1],
-  });
-
-  // Subtle wobble and beat for floating badges while speaking
-  const badgeWobble = pulse.interpolate({
-    inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
-    outputRange: ["0deg", "-6deg", "5deg", "-4deg", "3deg", "0deg"],
-  });
-  const badgeScale = pulse.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [1, 1.15, 1],
-  });
-  const badgeFloat = floatAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, -8],
-  });
-
-  const messageTranslateY = messageAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [8, 0],
   });
 
   const handleToggle = () => {
@@ -358,86 +372,24 @@ export const TaraMessageCard = forwardRef<
 
   return (
     <View style={styles.outerContainer}>
-      {/* 1. Character & Atmospheric Halo Area */}
-      <View style={styles.heroArea}>
-        {/* Ambient green atmospheric glow with sparkles and dynamic speech beat */}
-        <AtmosphericGlow
-          size={290}
-          opacity={0.95}
-          tintColor="#4CAF50"
-          showParticles
-          particleDensity="medium"
-          animated
-          isSpeaking={speaking}
-          style={styles.glowPosition}
-        />
-
-        {/* Tara Mascot Avatar */}
-        <View style={styles.avatarWrap}>
-          <Image
-            source={source}
-            style={styles.avatarImage}
-            contentFit="contain"
-            accessibilityLabel={`Tara ${displayedExpression}`}
+      <View style={styles.row}>
+        {/* 1. Character on the left with atmospheric halo */}
+        <View style={styles.heroArea}>
+          <AtmosphericGlow
+            size={160}
+            opacity={0.9}
+            tintColor="#4CAF50"
+            showParticles
+            particleDensity="medium"
+            animated
+            isSpeaking={isPlaying}
+            style={styles.glowPosition}
           />
-          {fadingExpression && expression !== displayedExpression && (
-            <Animated.View
-              pointerEvents="none"
-              style={[styles.avatarOverlay, { opacity: exprAnim }]}
-            >
-              <Image
-                source={image ?? TARA_EXPRESSIONS[expression]}
-                style={styles.avatarFill}
-                contentFit="contain"
-              />
-            </Animated.View>
-          )}
 
-          {/* Floating Badges */}
-          {floatingBadges?.map((badge, idx) => (
-            <Animated.View
-              key={idx}
-              style={[
-                styles.floatingBadge,
-                badge.position === "top-right"
-                  ? styles.badgeTopRight
-                  : styles.badgeBottomLeft,
-                { backgroundColor: badge.bgColor },
-                {
-                  transform: [
-                    { translateY: badgeFloat },
-                    { rotate: badgeWobble },
-                    { scale: badgeScale },
-                  ],
-                },
-              ]}
-            >
-              <MaterialIcons name={badge.icon} size={18} color={badge.color} />
-            </Animated.View>
-          ))}
-        </View>
-      </View>
-
-      {/* 2. Curved Dialogue Speech Bubble Container */}
-      <Animated.View
-        style={[
-          styles.speechBubbleWrapper,
-          {
-            opacity: messageAnim,
-            transform: [{ translateY: messageTranslateY }],
-          },
-        ]}
-      >
-        {/* Dialogue Bubble Tail / Pointer */}
-        <View style={styles.bubbleTailBorder} />
-        <View style={styles.bubbleTail} />
-
-        {/* Main Curved Dialogue Card */}
-        <View style={styles.speechCard}>
-          {/* Left: Punchy Pulsating Mic Audio Button */}
-          {showVoiceControl ? (
-            <View style={styles.buttonWrap}>
-              {speaking && (
+          {/* Floating voice control above Tara */}
+          {showVoiceControl && (
+            <View style={styles.voiceControlWrap}>
+              {isPlaying && (
                 <>
                   <Animated.View
                     style={[
@@ -463,44 +415,82 @@ export const TaraMessageCard = forwardRef<
                 <Pressable
                   onPress={handleToggle}
                   style={[
-                    styles.volumeButton,
-                    speaking && styles.volumeButtonActive,
+                    styles.voiceButton,
+                    isPlaying && styles.voiceButtonActive,
                   ]}
                   accessibilityRole="button"
-                  accessibilityLabel={speaking ? "Stop speech" : "Play speech"}
+                  accessibilityLabel={isPlaying ? t("tara.speech.stop") : t("tara.speech.play")}
                 >
                   <MaterialIcons
                     name="volume-up"
-                    size={24}
-                    color={speaking ? "#FFFFFF" : "#1B6D24"}
+                    size={20}
+                    color={isPlaying ? "#FFFFFF" : "#1B6D24"}
                   />
                 </Pressable>
               </Animated.View>
             </View>
-          ) : (
-            <View style={styles.nameBadge}>
-              <MaterialIcons name="volume-up" size={22} color="#1B6D24" />
-            </View>
           )}
 
-          {/* Center/Right: Speech Title & Body Text Stack */}
-          <Animated.View style={[styles.textStack, { opacity: textFadeAnim }]}>
-            {isLoading ? (
-              <TextRenderingLoader text="Tara is preparing response..." />
-            ) : (
-              <>
-                <Text style={styles.titleText}>{headerTitle}</Text>
-                <Text style={styles.bodyText}>{messageBody}</Text>
-              </>
+          {/* Tara Mascot Avatar - subtle left-right drift */}
+          <Animated.View
+            style={[
+              styles.avatarWrap,
+              { transform: [{ translateX: taraTranslateX }] },
+            ]}
+          >
+            <Image
+              source={source}
+              style={styles.avatarImage}
+              contentFit="contain"
+              accessibilityLabel={`Tara ${displayedExpression}`}
+            />
+            {fadingExpression && expression !== displayedExpression && (
+              <Animated.View
+                pointerEvents="none"
+                style={[styles.avatarOverlay, { opacity: exprAnim }]}
+              >
+                <Image
+                  source={image ?? TARA_EXPRESSIONS[expression]}
+                  style={styles.avatarFill}
+                  contentFit="contain"
+                />
+              </Animated.View>
             )}
           </Animated.View>
         </View>
-      </Animated.View>
+
+        {/* 2. Curved Dialogue Speech Bubble on the right - subtle top-bottom float */}
+        <Animated.View
+          style={[
+            styles.speechBubbleWrapper,
+            { transform: [{ translateY: bubbleTranslateY }] },
+          ]}
+        >
+          {/* Dialogue Bubble Tail / Pointer (points left toward Tara) */}
+          <View style={styles.bubbleTailBorder} />
+          <View style={styles.bubbleTail} />
+
+          {/* Main Curved Dialogue Card */}
+          <View style={styles.speechCard}>
+            {/* Speech Title & Body Text Stack */}
+            <Animated.View style={[styles.textStack, { opacity: textFadeAnim }]}>
+              {isLoading ? (
+                <TextRenderingLoader text={t("tara.loading")} />
+              ) : (
+                <>
+                  <Text style={styles.titleText}>{headerTitle}</Text>
+                  <Text style={styles.bodyText}>{messageBody}</Text>
+                </>
+              )}
+            </Animated.View>
+          </View>
+        </Animated.View>
+      </View>
     </View>
   );
 });
 
-export default TaraMessageCard;
+export default TaraSideMessageCard;
 
 const styles = StyleSheet.create({
   outerContainer: {
@@ -511,29 +501,35 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     borderWidth: 1.5,
     borderColor: "rgba(168, 222, 172, 0.45)",
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingTop: 8,
+    paddingBottom: 0,
     paddingHorizontal: 12,
     position: "relative",
     overflow: "hidden",
   },
-  heroArea: {
+  row: {
     width: "100%",
-    height: 190,
+    flexDirection: "row",
+    alignItems: "flex-end",
+  },
+
+  /* ---------- TARA (left) ---------- */
+  heroArea: {
+    width: 122,
+    height: 130,
     alignItems: "center",
     justifyContent: "flex-end",
     position: "relative",
-    marginBottom: -8,
   },
   glowPosition: {
     position: "absolute",
-    top: "32%",
+    top: "20%",
     alignSelf: "center",
-    marginTop: -145,
+    marginTop: -78,
   },
   avatarWrap: {
-    width: 195,
-    height: 195,
+    width: 116,
+    height: 116,
     alignItems: "center",
     justifyContent: "flex-end",
     position: "relative",
@@ -554,62 +550,44 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  floatingBadge: {
-    position: "absolute",
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.9)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    zIndex: 10,
-  },
-  badgeTopRight: {
-    top: 6,
-    right: 6,
-  },
-  badgeBottomLeft: {
-    bottom: 16,
-    left: 6,
-  },
 
-  // Speech Bubble with Tail Pointer
+  /* ---------- SPEECH BUBBLE (right) ---------- */
   speechBubbleWrapper: {
-    width: "100%",
+    flex: 1,
+    marginLeft: 2,
+    marginBottom: 12,
     position: "relative",
     alignItems: "center",
     zIndex: 10,
   },
   bubbleTailBorder: {
     position: "absolute",
-    top: -10,
+    left: -10,
+    top: "50%",
+    marginTop: -10,
     width: 0,
     height: 0,
-    borderLeftWidth: 11,
+    borderTopWidth: 10,
+    borderBottomWidth: 10,
     borderRightWidth: 11,
-    borderBottomWidth: 11,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-    borderBottomColor: "rgba(185, 228, 190, 0.8)",
+    borderTopColor: "transparent",
+    borderBottomColor: "transparent",
+    borderRightColor: "rgba(185, 228, 190, 0.8)",
     zIndex: 11,
   },
   bubbleTail: {
     position: "absolute",
-    top: -8.5,
+    left: -8.5,
+    top: "50%",
+    marginTop: -9,
     width: 0,
     height: 0,
-    borderLeftWidth: 10,
+    borderTopWidth: 9,
+    borderBottomWidth: 9,
     borderRightWidth: 10,
-    borderBottomWidth: 10,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-    borderBottomColor: "#FFFFFF",
+    borderTopColor: "transparent",
+    borderBottomColor: "transparent",
+    borderRightColor: "#FFFFFF",
     zIndex: 12,
   },
 
@@ -620,10 +598,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1.5,
     borderColor: "rgba(185, 228, 190, 0.6)",
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    flexDirection: "row",
-    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     shadowColor: "#002204",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
@@ -631,18 +607,21 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
 
-  // Mic Action Button
-  buttonWrap: {
-    position: "relative",
+  // Floating voice control in the top-left corner
+  voiceControlWrap: {
+    position: "absolute",
+    top: -2,
+    left: -2,
+    width: 38,
+    height: 38,
     alignItems: "center",
     justifyContent: "center",
-    width: 50,
-    height: 50,
+    zIndex: 15,
   },
-  volumeButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  voiceButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     backgroundColor: "#FFFFFF",
     borderWidth: 1.5,
     borderColor: "rgba(185, 228, 190, 0.75)",
@@ -654,7 +633,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  volumeButtonActive: {
+  voiceButtonActive: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
     shadowColor: colors.primary,
@@ -665,41 +644,28 @@ const styles = StyleSheet.create({
   },
   pulseRing: {
     position: "absolute",
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     borderWidth: 1.5,
     borderColor: colors.primary,
     backgroundColor: "rgba(76, 175, 80, 0.20)",
   },
 
-  nameBadge: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1.5,
-    borderColor: "rgba(185, 228, 190, 0.75)",
-  },
-
   textStack: {
-    flex: 1,
-    marginLeft: 14,
     justifyContent: "center",
   },
   titleText: {
     ...typography.labelLg,
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: "700",
     color: "#181C1A",
     marginBottom: 2,
   },
   bodyText: {
     ...typography.bodyMd,
-    fontSize: 12.5,
-    lineHeight: 18,
+    fontSize: 11,
+    lineHeight: 16,
     color: "#4F5D4C",
     fontWeight: "400",
   },

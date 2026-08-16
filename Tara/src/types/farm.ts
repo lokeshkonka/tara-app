@@ -1,3 +1,5 @@
+import type { ImageSource } from "expo-image";
+
 export interface FarmDetails {
   crops: string[];
   sizeAcres: number;
@@ -14,4 +16,6 @@ export interface PracticeItem {
   difficulty: "easy" | "medium" | "advanced";
   xpGain: number;
   completed: boolean;
+  image?: ImageSource;
+  durationMinutes?: number;
 }

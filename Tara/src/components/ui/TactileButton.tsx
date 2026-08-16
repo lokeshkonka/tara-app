@@ -30,6 +30,7 @@ interface TactileButtonProps {
   height?: number;
   depth?: number;
   borderRadius?: number;
+  paddingHorizontal?: number;
   autoAdvanceProgress?: Animated.Value;
   children?: ReactNode;
 }
@@ -47,6 +48,7 @@ export function TactileButton({
   height = 54,
   depth = 4.5,
   borderRadius = rounded.lg,
+  paddingHorizontal = 20,
   autoAdvanceProgress,
   children,
 }: TactileButtonProps) {
@@ -180,7 +182,7 @@ export function TactileButton({
         onPressOut={handlePressOut}
         disabled={disabled || loading}
         accessibilityRole="button"
-        accessibilityLabel={title}
+        accessibilityLabel={title || icon || "Button"}
         style={styles.pressableContainer}
       >
         {/* 1. Bottom 3D extruded foundation layer */}
@@ -204,6 +206,7 @@ export function TactileButton({
               backgroundColor: palette.face,
               borderRadius: borderRadius,
               height: height,
+              paddingHorizontal: paddingHorizontal,
               transform: [{ translateY }],
               borderWidth: palette.border !== "transparent" ? 1.5 : 0,
               borderColor: palette.border,
@@ -235,24 +238,26 @@ export function TactileButton({
                   name={icon}
                   size={20}
                   color={palette.text}
-                  style={styles.iconLeft}
+                  style={title ? styles.iconLeft : undefined}
                 />
               )}
-              <Text
-                style={[
-                  styles.buttonText,
-                  { color: palette.text },
-                  textStyle,
-                ]}
-              >
-                {title}
-              </Text>
+              {!!title && (
+                <Text
+                  style={[
+                    styles.buttonText,
+                    { color: palette.text },
+                    textStyle,
+                  ]}
+                >
+                  {title}
+                </Text>
+              )}
               {icon && iconPosition === "right" && (
                 <MaterialIcons
                   name={icon}
                   size={20}
                   color={palette.text}
-                  style={styles.iconRight}
+                  style={title ? styles.iconRight : undefined}
                 />
               )}
               {children}
