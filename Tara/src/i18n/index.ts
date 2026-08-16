@@ -52,7 +52,17 @@ export const translations = {
     "Biodiversity": "Biodiversity",
     "kg": "kg",
     "L": "L",
-    "pts": "pts"
+    "pts": "pts",
+
+    // Learn Tab
+    "learn.title": "Learn",
+    "learn.subtitle": "Bite-sized lessons on natural farming",
+
+    // Tara Speech
+    "tara.greeting.title": "Hi! I'm Tara.",
+    "tara.loading": "Tara is preparing response...",
+    "tara.speech.play": "Play speech",
+    "tara.speech.stop": "Stop speech"
   },
   hi: {
     // DashboardTopBar
@@ -107,7 +117,17 @@ export const translations = {
     "Biodiversity": "जैव विविधता",
     "kg": "किलो",
     "L": "लीटर",
-    "pts": "अंक"
+    "pts": "अंक",
+
+    // Learn Tab
+    "learn.title": "सीखें",
+    "learn.subtitle": "प्राकृतिक खेती के छोटे-छोटे सबक",
+
+    // Tara Speech
+    "tara.greeting.title": "नमस्ते! मैं तारा हूँ।",
+    "tara.loading": "तारा आपकी प्रतिक्रिया तैयार कर रही है...",
+    "tara.speech.play": "वाणी चलाएँ",
+    "tara.speech.stop": "वाणी रोकें"
   },
   mr: {
     // DashboardTopBar
@@ -162,7 +182,17 @@ export const translations = {
     "Biodiversity": "जैवविविधता",
     "kg": "किलो",
     "L": "लिटर",
-    "pts": "गुण"
+    "pts": "गुण",
+
+    // Learn Tab
+    "learn.title": "शिका",
+    "learn.subtitle": "नैसर्गिक शेतीचे छोटे धडे",
+
+    // Tara Speech
+    "tara.greeting.title": "नमस्कार! मी तारा आहे.",
+    "tara.loading": "तारा प्रतिसाद तयार करत आहे...",
+    "tara.speech.play": "आवाज चालू करा",
+    "tara.speech.stop": "आवाज थांबवा"
   },
   te: {
     // DashboardTopBar
@@ -217,7 +247,17 @@ export const translations = {
     "Biodiversity": "జీవవైవిధ్యం",
     "kg": "కిలోలు",
     "L": "లీటర్లు",
-    "pts": "పాయింట్లు"
+    "pts": "పాయింట్లు",
+
+    // Learn Tab
+    "learn.title": "నేర్చుకోండి",
+    "learn.subtitle": "సహజ వ్యవసాయంలో చిన్న పాఠాలు",
+
+    // Tara Speech
+    "tara.greeting.title": "నమస్కారం! నేను తారను.",
+    "tara.loading": "తారా మీ స్పందనను సిద్ధం చేస్తోంది...",
+    "tara.speech.play": "గొంతు వినిపించండి",
+    "tara.speech.stop": "గొంతు ఆపండి"
   },
   ml: {
     // DashboardTopBar
@@ -272,7 +312,17 @@ export const translations = {
     "Biodiversity": "ജൈവവൈവിധ്യം",
     "kg": "കിലോ",
     "L": "ലിറ്റർ",
-    "pts": "പോയിന്റുകൾ"
+    "pts": "പോയിന്റുകൾ",
+
+    // Learn Tab
+    "learn.title": "പഠിക്കുക",
+    "learn.subtitle": "പ്രകൃതികൃഷിയുടെ ചെറിയ പാഠങ്ങൾ",
+
+    // Tara Speech
+    "tara.greeting.title": "നമസ്കാരം! ഞാൻ താരയാണ്.",
+    "tara.loading": "താര നിങ്ങളുടെ പ്രതികരണം തയ്യാറാക്കുന്നു...",
+    "tara.speech.play": "ശബ്ദം പ്ലേ ചെയ്യുക",
+    "tara.speech.stop": "ശബ്ദം നിർത്തുക"
   }
 };
 
