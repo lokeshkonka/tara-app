@@ -1,17 +1,67 @@
 import { AuthAdapter, AuthResponse, AuthSession, AuthUser } from "./auth.types";
 import { authStorage } from "../storage/authStorage";
-import { ApiClient } from "../api/apiClient";
+import { ApiClient, setAuthRefreshHandler } from "../api/apiClient";
+
+interface BackendUser {
+  id: string;
+  email: string;
+  name: string;
+  avatarUrl?: string;
+  provider?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  profile?: { language?: string };
+}
+
+interface BackendSession {
+  user: BackendUser;
+  accessToken: string;
+  refreshToken?: string;
+}
+
+interface BackendResponse {
+  success: boolean;
+  message?: string;
+  session?: BackendSession;
+  user?: BackendUser;
+}
+
+function mapUser(user: BackendUser): AuthUser {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    avatarUrl: user.avatarUrl,
+    provider: "google",
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    profile: user.profile,
+  };
+}
+
+function toSession(session: BackendSession): AuthSession {
+  return {
+    user: mapUser(session.user),
+    accessToken: session.accessToken,
+    refreshToken: session.refreshToken,
+  };
+}
 
 export class BackendAuthAdapter implements AuthAdapter {
   async signInWithGoogle(idToken: string): Promise<AuthResponse> {
-    const response = await ApiClient.post<AuthResponse>("/auth/google", { idToken });
-    await authStorage.saveSession(response.session);
-    return response;
+    const response = await ApiClient.post<BackendResponse>("/api/auth/google", { idToken });
+    if (!response?.session) {
+      throw new Error(response?.message || "Sign-in failed: unexpected server response");
+    }
+    const session = toSession(response.session);
+    await authStorage.saveSession(session);
+    return { session };
   }
 
   async signOut(): Promise<void> {
     try {
-      await ApiClient.post("/auth/logout", {});
+      const session = await authStorage.getSession();
+      await ApiClient.post("/api/auth/logout", { refreshToken: session?.refreshToken });
     } catch (e) {
       console.warn("Failed to notify backend of logout", e);
     } finally {
@@ -21,8 +71,8 @@ export class BackendAuthAdapter implements AuthAdapter {
 
   async getCurrentUser(): Promise<AuthUser | null> {
     try {
-      const response = await ApiClient.get<{ user: AuthUser }>("/auth/me");
-      return response.user;
+      const response = await ApiClient.get<{ user: BackendUser }>("/api/auth/me");
+      return response?.user ? mapUser(response.user) : null;
     } catch (e) {
       console.error("Failed to get current user from backend", e);
       return null;
@@ -34,13 +84,17 @@ export class BackendAuthAdapter implements AuthAdapter {
     if (!session?.refreshToken) {
       return null;
     }
-    
+
     try {
-      const response = await ApiClient.post<AuthResponse>("/auth/refresh", {
+      const response = await ApiClient.post<BackendResponse>("/api/auth/refresh", {
         refreshToken: session.refreshToken,
       });
-      await authStorage.saveSession(response.session);
-      return response.session;
+      if (!response?.session) {
+        return null;
+      }
+      const newSession = toSession(response.session);
+      await authStorage.saveSession(newSession);
+      return newSession;
     } catch (e) {
       console.error("Failed to refresh session with backend", e);
       return null;
@@ -49,3 +103,8 @@ export class BackendAuthAdapter implements AuthAdapter {
 }
 
 export const backendAuth = new BackendAuthAdapter();
+
+setAuthRefreshHandler(async () => {
+  const newSession = await backendAuth.refreshSession();
+  return !!newSession;
+});

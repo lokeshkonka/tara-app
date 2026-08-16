@@ -11,7 +11,6 @@ import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-si
 import { AuthUser } from "./auth.types";
 import { authService } from "./auth.service";
 import { authStorage } from "../storage/authStorage";
-import { useOnboarding } from "../context/OnboardingContext";
 
 
 interface AuthContextValue {
@@ -32,7 +31,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const segments = useSegments();
-  const { state: onboardingState } = useOnboarding();
 
   useEffect(() => {
     if (process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID) {
@@ -109,6 +107,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       await authService.signOut();
+      try {
+        await GoogleSignin.signOut();
+      } catch (e) {
+        console.warn("Failed to sign out of Google", e);
+      }
       setUser(null);
     } catch (e) {
       console.error("Sign out failed", e);

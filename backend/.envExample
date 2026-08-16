@@ -1,0 +1,11 @@
+MONGODB_URI=mongodb: your_mongoDB_string
+
+GOOGLE_WEB_CLIENT_ID= your_clientID
+
+JWT_SECRET= jwt_secret
+JWT_EXPIRES_IN=15m
+
+JWT_REFRESH_SECRET=another_long_random_secret
+JWT_REFRESH_EXPIRES_IN=7d
+
+

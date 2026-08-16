@@ -90,7 +90,7 @@ export default function LoginScreen() {
           tintColor={colors.primaryContainer}
           showParticles={true}
           particleDensity="high"
-          style={StyleSheet.absoluteFillObject}
+          style={StyleSheet.absoluteFill}
         />
 
         {/* Top Section */}
