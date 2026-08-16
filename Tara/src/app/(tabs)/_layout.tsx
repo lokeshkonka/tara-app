@@ -96,7 +96,10 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
     <BlurView
       intensity={60}
       tint="light"
-      style={[styles.tabBarContainer, { paddingBottom: Math.max(insets.bottom, 12) }]}
+      style={[
+        styles.tabBarContainer,
+        { paddingBottom: Math.max(insets.bottom, 2) }
+      ]}
     >
       {state.routes.map((route: any, index: number) => {
         const { options } = descriptors[route.key];
@@ -174,7 +177,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(247, 250, 245, 0.78)",
-    paddingTop: 8,
+    paddingTop: 4,
     paddingHorizontal: 8,
     borderTopWidth: 1,
     borderTopColor: "rgba(24, 28, 26, 0.06)",

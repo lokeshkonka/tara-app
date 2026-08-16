@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { OnboardingHeader } from "../../components/onboarding/OnboardingHeader";
 import { SelectionCard } from "../../components/ui/SelectionCard";
 import { TactileButton } from "../../components/ui/TactileButton";
 import { useOnboarding } from "../../hooks/useOnboarding";
@@ -16,30 +17,41 @@ export function UserTypeScreen({ onContinue, onBack }: UserTypeScreenProps) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>What Best Describes You?</Text>
-          <Text style={styles.subtitle}>
-            {"We'll customize your daily farming wisdom based on your farming style."}
-          </Text>
-        </View>
+        <OnboardingHeader
+          currentStep={2}
+          totalSteps={3}
+          canGoBack
+          canSkip={false}
+          onBack={onBack}
+        />
 
         <ScrollView
-          contentContainerStyle={styles.list}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          bounces={false}
         >
-          {userTypes.map((type) => {
-            const isSelected = state.selectedUserType === type.id;
-            return (
-              <SelectionCard
-                key={type.id}
-                title={type.title}
-                subtitle={type.subtitle}
-                icon="nature-people"
-                selected={isSelected}
-                onPress={() => selectUserType(type.id)}
-              />
-            );
-          })}
+          <View style={styles.question}>
+            <Text style={styles.title}>What Best Describes You?</Text>
+            <Text style={styles.subtitle}>
+              {"We'll customize your daily farming wisdom based on your farming style."}
+            </Text>
+          </View>
+
+          <View style={styles.list}>
+            {userTypes.map((type) => {
+              const isSelected = state.selectedUserType === type.id;
+              return (
+                <SelectionCard
+                  key={type.id}
+                  title={type.title}
+                  subtitle={type.subtitle}
+                  icon="nature-people"
+                  selected={isSelected}
+                  onPress={() => selectUserType(type.id)}
+                />
+              );
+            })}
+          </View>
         </ScrollView>
 
         <View style={styles.footer}>
@@ -65,9 +77,13 @@ const styles = StyleSheet.create({
     maxWidth: 480,
     width: "100%",
     alignSelf: "center",
-    paddingHorizontal: spacing.marginMobile,
   },
-  header: {
+  scrollContent: {
+    paddingHorizontal: spacing.marginMobile,
+    paddingTop: spacing.stackSm,
+    paddingBottom: spacing.stackMd,
+  },
+  question: {
     marginTop: spacing.stackLg,
     marginBottom: spacing.stackMd,
     alignItems: "center",
@@ -81,12 +97,14 @@ const styles = StyleSheet.create({
     ...typography.bodyMd,
     color: colors.onSurfaceVariant,
     textAlign: "center",
-    marginTop: 6,
+    marginTop: spacing.stackSm,
   },
   list: {
     paddingVertical: spacing.stackSm,
   },
   footer: {
+    paddingHorizontal: spacing.marginMobile,
     paddingVertical: spacing.stackLg,
+    backgroundColor: colors.background,
   },
 });

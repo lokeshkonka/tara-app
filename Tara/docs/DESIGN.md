@@ -123,6 +123,30 @@ The palette is rooted in the natural lifecycle of a healthy farm.
 - **Warm Yellow (#FFD54F):** Inspired by Tara’s dupatta and the sun. Reserved strictly for rewards, streaks, and "delight" moments.
 - **White & Off-White (#FFFFFF, #F7FAF5):** The foundation of the "white-first" interface. White is used for cards and primary backgrounds, while the soft off-white creates subtle depth between containers.
 
+### Semantic Component Colors (`src/theme/theme.ts` → `componentColors`)
+
+Use these tokens instead of hard-coded hex values. They are the single source of truth for recurring surface treatments:
+
+| Token                          | Value                        | Used for                                       |
+| ------------------------------ | ---------------------------- | ---------------------------------------------- |
+| `cardBackground`               | `#ffffff`                    | Card surface                                   |
+| `cardBorder`                   | `#becab9` (outlineVariant)   | Card all-around `1.5px` outline                |
+| `cardEdge`                     | `#c7cfc6`                    | Card 3D bottom edge (3px)                      |
+| `iconButtonBackground`         | `#ffffff`                    | Circular icon button face                      |
+| `iconButtonBorder`             | `#becab9` (outlineVariant)   | Circular icon button uniform border (`1.5px`)  |
+| `iconButtonIcon`               | `#3f4a3c` (onSurfaceVariant) | Icons in circular buttons / badges             |
+| `chipPositiveBackground`       | `#e8f5e9`                    | Positive (green) pill chip face                |
+| `chipPositiveBorder`           | `rgba(27,94,32,0.22)`        | Positive chip outline                          |
+| `chipPositiveEdge`             | `rgba(27,94,32,0.38)`        | Positive chip 3D bottom edge                   |
+| `chipPositiveText`             | `#1b5e20`                    | Positive chip text & icon                      |
+| `chipNeutralBackground`        | `#f1f4ef` (surfaceContainerLow) | Neutral pill chip face                       |
+| `chipNeutralBorder`            | `#dde3dc`                    | Neutral chip outline                           |
+| `chipNeutralEdge`              | `#c7cfc6`                    | Neutral chip 3D bottom edge                    |
+| `chipNeutralText`              | `#3f4a3c`                    | Neutral chip text & icon                       |
+| `sectionTitle`                 | `#3f4a3c` (onSurfaceVariant) | Section headings & card titles (muted gray)    |
+
+**Rule:** Circle icon buttons, pill chips, cards, and section titles must reference `componentColors` (not raw hex) so the theme stays consistent.
+
 ## Typography
 
 **Plus Jakarta Sans** is the primary typeface for TARA. Located in `assets/Jakarta_Sans_font/`, it delivers the ideal balance between friendly approachable character-driven guidance and serious, trustworthy agricultural precision.
@@ -195,6 +219,16 @@ To maintain a premium feel, the design system avoids heavy shadows in favor of *
 
 - **Subtle Containers:** Depth is primarily created by placing white (#FFFFFF) cards on a soft-off-white (#F7FAF5) background. 
 - **Low-Contrast Outlines:** Instead of shadows, use 1px borders in a very light grey-green (#E8F0E5) to define card boundaries.
+- **Soft 3D Edge (Default Depth Treatment):** Interactive surfaces — cards, chips, tags, and compact icon buttons — use a *soft 3D edge* instead of flat outlines or heavy shadows:
+  - All-around border: `1.5px` in a light, low-contrast tint.
+    - Cards & neutral elements: `#E8F0E5` (or `#DDE3DC` on neutral faces).
+    - Green-tinted elements (XP / rewards): `rgba(27, 94, 32, 0.22)`.
+  - Bottom edge: `3px` in a slightly darker shade of the same hue to give a subtle extruded / button-like depth.
+    - Cards & neutral elements: `#C7CFC6`.
+    - Green-tinted elements: `rgba(27, 94, 32, 0.38)`.
+  - Radius: `9999px` (pill) for chips and icon buttons; `16px` (`rounded-lg`) for cards.
+  - Pressed / squish: bottom edge shrinks to `1.5px` and the surface translates down `2px` (translateY), matching the tactile button language.
+  - **Exception — circular icon buttons:** Small circular / pill *icon-only* buttons (e.g. chevron, bell, leaf badge) match the **notification bell** treatment: white face (`surfaceContainerLowest`), uniform `1.5px` border all around (including the bottom) in `outlineVariant` (`#BECAB9`), fully pill-shaped. Do **not** apply the darker `3px` bottom edge to these. The 3D edge is reserved for chips, tags, and full-width cards.
 - **State Elevation:** Only primary action buttons and "Reward" cards use a very soft, diffused ambient shadow (8% opacity, Dark Green tint) to signify they are interactable or special.
 - **Glassmorphism:** Use subtle backdrop blurs (20px) on fixed bottom navigation bars to keep the UI feeling light and airy.
 
@@ -271,6 +305,7 @@ Buttons in TARA feature a playful, satisfying **tactile "squishy" press** inspir
   - Opacity: `0.75`
 
 ### Cards
+- Apply the **Soft 3D Edge** treatment: `1.5px` all-around border (`#E8F0E5`) plus a `3px` darker bottom edge (`#C7CFC6`), radius `16px`, `16px` internal padding. Pressing squishes via translateY (see Elevation & Depth).
 - **Selection Card:**
   - **Unselected:** Background `#FFFFFF`, Border `1px solid #BECAB9`, Scale `1.0`.
   - **Selected:** Background `#F1F4EF`, Border `2px solid #4CAF50`, Light Green Tint glow `rgba(76, 175, 80, 0.12)`, Scale `1.02`.
@@ -294,6 +329,7 @@ Buttons in TARA feature a playful, satisfying **tactile "squishy" press** inspir
 ### Chips & Tags
 - Used for categories like "Soil Health", "Pest Control", or farm attributes.
 - Low-saturation versions of the brand colors (`#E8F5E9` background, `#1B5E20` text) to avoid competing with primary call-to-actions.
+- Shape: pill (`9999px`). Apply the **Soft 3D Edge** — `1.5px` outline + `3px` darker bottom edge in the chip's hue (e.g. green: `rgba(27, 94, 32, 0.22)` / `rgba(27, 94, 32, 0.38)`; neutral: `#DDE3DC` / `#C7CFC6`).
 
 ### Character Integration
 - **The "Tara" Mentor:** Tara is positioned in hero sections, partially overlapping cards, or appearing from the bottom of the screen during feedback cycles (Success/Error states).

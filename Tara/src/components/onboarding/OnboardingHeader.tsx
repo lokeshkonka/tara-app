@@ -3,7 +3,7 @@ import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "rea
 import { MaterialIcons } from "@expo/vector-icons";
 import { useOnboarding } from "../../hooks/useOnboarding";
 import { LANGUAGES_DATA } from "../../data/dummy/languagesData";
-import { colors, rounded, typography } from "../../theme/theme";
+import { colors, rounded, spacing, typography } from "../../theme/theme";
 import { StepIndicator } from "../ui/StepIndicator";
 
 interface OnboardingHeaderProps {
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.marginMobile,
     paddingVertical: 10,
     width: "100%",
   },
