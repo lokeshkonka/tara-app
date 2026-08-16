@@ -14,14 +14,8 @@ export const USER_TYPES_DATA: UserTypeOption[] = [
     icon: "landscape",
   },
   {
-    id: "homestead",
-    title: "Kitchen Gardener / Homesteader",
-    subtitle: "Growing healthy, chemical-free organic produce for family and community",
-    icon: "yard",
-  },
-  {
     id: "enthusiast",
-    title: "Agri Student & Enthusiast",
+    title: "Young Enthusiast",
     subtitle: "Learning natural farming wisdom and sustainable soil biology",
     icon: "school",
   },

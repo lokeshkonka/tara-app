@@ -22,8 +22,6 @@ import { RewardsScreen } from "./RewardsScreen";
 import { ReadyScreen } from "./ReadyScreen";
 import { LanguageScreen } from "./LanguageScreen";
 import { UserTypeScreen } from "./UserTypeScreen";
-import { FarmSetupScreen } from "./FarmSetupScreen";
-
 export function OnboardingNavigator() {
   const router = useRouter();
   const {
@@ -45,12 +43,12 @@ export function OnboardingNavigator() {
 
   const handleFinishAll = useCallback(async () => {
     await completeOnboarding();
-    router.replace("/starting" as any);
+    router.replace("/(tabs)" as any);
   }, [completeOnboarding, router]);
 
   const handleSkip = useCallback(async () => {
     await skipOnboarding();
-    router.replace("/starting" as any);
+    router.replace("/(tabs)" as any);
   }, [skipOnboarding, router]);
 
   const handleNext = useCallback(async () => {
@@ -78,7 +76,7 @@ export function OnboardingNavigator() {
         onMoveShouldSetPanResponder: (_, gestureState) => {
           return (
             internalStep >= 1 &&
-            internalStep <= 9 &&
+            internalStep <= 10 &&
             Math.abs(gestureState.dx) > 18 &&
             Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.4
           );
@@ -89,7 +87,7 @@ export function OnboardingNavigator() {
             if (internalStep === 8) {
               setDirection("next");
               setInternalStep(9);
-            } else if (internalStep < 10) {
+            } else if (internalStep < 9) { // Because 9 and 10 have their own continue buttons, we only allow swipe to next up to 8
               handleNext();
             }
           } else if (gestureState.dx > 45 && internalStep > 1) {
@@ -175,7 +173,7 @@ export function OnboardingNavigator() {
         );
       case 9:
         return (
-          <UserTypeScreen
+          <LanguageScreen
             onContinue={() => {
               setDirection("next");
               setInternalStep(10);
@@ -185,8 +183,8 @@ export function OnboardingNavigator() {
         );
       case 10:
         return (
-          <FarmSetupScreen
-            onComplete={handleFinishAll}
+          <UserTypeScreen
+            onContinue={handleFinishAll}
             onBack={handleBack}
           />
         );

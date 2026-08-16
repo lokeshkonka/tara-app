@@ -1,7 +1,7 @@
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { OnboardingHeader } from "../../components/onboarding/OnboardingHeader";
-import { TaraMessageCard } from "../../components/tara/TaraMessageCard";
+import { TaraMessageCard } from "../../components/tara-messages/TaraMessageCard";
 import { SelectionCard } from "../../components/ui/SelectionCard";
 import { TactileButton } from "../../components/ui/TactileButton";
 import { TARA_LANGUAGE_MESSAGE } from "../../data/dummy/taraLanguageContent";

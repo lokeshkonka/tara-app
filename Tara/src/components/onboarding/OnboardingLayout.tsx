@@ -12,7 +12,7 @@ import type { AudioSource } from "expo-audio";
 import { colors, spacing } from "../../theme/theme";
 import type { TaraExpression } from "../Tara/Tara.types";
 import { TactileButton, type ButtonVariant } from "../ui/TactileButton";
-import { TaraMessageCard } from "../tara/TaraMessageCard";
+import { TaraMessageCard } from "../tara-messages/TaraMessageCard";
 import { OnboardingHeader } from "./OnboardingHeader";
 
 interface OnboardingLayoutProps {

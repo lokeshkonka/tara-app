@@ -15,7 +15,7 @@ import * as Haptics from "expo-haptics";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors, rounded, typography } from "../../theme/theme";
 
-export type ButtonVariant = "primary" | "secondary" | "reward" | "ghost";
+export type ButtonVariant = "primary" | "secondary" | "reward" | "danger" | "ghost";
 
 interface TactileButtonProps {
   title: string;
@@ -107,6 +107,13 @@ export function TactileButton({
         return {
           face: "#CDA721", // Golden amber top face
           depth: "#7A5E00", // Deep amber 3D base
+          text: "#FFFFFF",
+          border: "transparent",
+        };
+      case "danger":
+        return {
+          face: "#D93025", // Red top face
+          depth: "#7B1113", // Dark red 3D base
           text: "#FFFFFF",
           border: "transparent",
         };

@@ -5,6 +5,7 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { UpdateAvailableModal } from "../components/updates/UpdateAvailableModal";
 import { AppProvider } from "../context/AppContext";
+import { AuthProvider } from "../auth/AuthProvider";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -29,15 +30,17 @@ export default function RootLayout() {
 
   return (
     <AppProvider>
-      <StatusBar style="dark" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: "#f7faf5" },
-          animation: "fade",
-        }}
-      />
-      <UpdateAvailableModal />
+      <AuthProvider>
+        <StatusBar style="dark" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: "#f7faf5" },
+            animation: "fade",
+          }}
+        />
+        <UpdateAvailableModal />
+      </AuthProvider>
     </AppProvider>
   );
 }

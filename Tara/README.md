@@ -54,3 +54,33 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Authentication Setup
+
+1. **How to create `.env`**:
+   Copy `.env.example` to `.env` in the root of the project.
+   
+2. **Required environment variables**:
+   - `EXPO_PUBLIC_GOOGLE_CLIENT_ID`: The Google Client ID created in Google Cloud Console.
+   - `EXPO_PUBLIC_AUTH_MODE`: Determines authentication behavior. Set to `local` for now.
+   - `EXPO_PUBLIC_API_BASE_URL`: Left blank while in local mode.
+
+3. **How to run the Expo app**:
+   Run `npm install` followed by `npx expo start`. Clear cache with `npx expo start -c` if env variables do not load.
+
+4. **How Google OAuth is configured**:
+   We use `expo-auth-session` for client-side Google login. The frontend invokes Google's OAuth UI and retrieves an `idToken`/`accessToken`.
+
+5. **How frontend/local auth works**:
+   When `EXPO_PUBLIC_AUTH_MODE=local`, the application simulates a backend. It takes the token from Google, (attempts to fetch user details from Google's userinfo endpoint), generates a local application session, and persists it to `expo-secure-store`. The entire app can function without a backend server.
+
+6. **How to switch to backend mode**:
+   Change your `.env` variables:
+   ```env
+   EXPO_PUBLIC_AUTH_MODE=backend
+   EXPO_PUBLIC_API_BASE_URL=https://api.yourbackend.com
+   ```
+
+7. **Where the backend authentication adapter lives**:
+   The backend adapter logic is encapsulated entirely within `src/auth/backendAuth.ts`. When the backend becomes available, only `backendAuth.ts` and `apiClient.ts` may need minor adjustments to match the actual backend API contract. No UI changes will be necessary.
+

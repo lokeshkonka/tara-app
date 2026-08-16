@@ -5,7 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/app-icon.png",
-    "scheme": "tara",
+    "scheme": [
+      "tara",
+      "com.googleusercontent.apps.82182901130-vrdmterhc7rpll7ektf90hdlrif5kkas",
+      "com.googleusercontent.apps.82182901130-mi199ifhh64bs7kntv3oehmh77u7jh2b"
+    ],
     "userInterfaceStyle": "automatic",
     "runtimeVersion": {
       "policy": "appVersion"
@@ -52,7 +56,8 @@
       "expo-video",
       "expo-font",
       "expo-status-bar",
-      "expo-updates"
+      "expo-updates",
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true,
