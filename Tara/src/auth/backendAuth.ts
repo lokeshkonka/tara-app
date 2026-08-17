@@ -100,6 +100,22 @@ export class BackendAuthAdapter implements AuthAdapter {
       return null;
     }
   }
+
+  async updatePreferences(language: string): Promise<AuthUser> {
+    const response = await ApiClient.put<BackendResponse>("/api/auth/preferences", { language });
+    if (!response?.user) {
+      throw new Error(response?.message || "Failed to update preferences");
+    }
+    const updatedUser = mapUser(response.user);
+
+    // Update the stored session so the local state reflects the new language
+    const existingSession = await authStorage.getSession();
+    if (existingSession) {
+      await authStorage.saveSession({ ...existingSession, user: updatedUser });
+    }
+
+    return updatedUser;
+  }
 }
 
 export const backendAuth = new BackendAuthAdapter();

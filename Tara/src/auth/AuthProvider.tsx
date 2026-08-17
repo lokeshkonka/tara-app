@@ -20,6 +20,7 @@ interface AuthContextValue {
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
+  updatePreferences: (language: string) => Promise<void>;
   error: string | null;
 }
 
@@ -133,6 +134,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updatePreferences = async (language: string) => {
+    const updatedUser = await authService.updatePreferences(language);
+    setUser(updatedUser);
+  };
+
   useEffect(() => {
     if (isLoading) return;
 
@@ -158,6 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithGoogle,
         signOut,
         refreshSession,
+        updatePreferences,
         error,
       }}
     >

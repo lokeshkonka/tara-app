@@ -17,11 +17,12 @@ import { LANGUAGES_DATA } from "../../data/dummy/languagesData";
 import { colors, rounded, spacing, typography } from "../../theme/theme";
 
 export default function ProfileTab() {
-  const { signOut, user: authUser } = useAuth();
+  const { signOut, user: authUser, updatePreferences } = useAuth();
   const { user, updateUser } = useUser();
   const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
 
-  const selectedLanguage = user?.language || "en";
+  // Prefer the backend-synced language from AuthUser, fall back to UserContext, then default
+  const selectedLanguage = authUser?.profile?.language || user?.language || "en";
   
   const selectedLang =
     LANGUAGES_DATA.find((lang) => lang.code === selectedLanguage) ??
@@ -36,10 +37,18 @@ export default function ProfileTab() {
       );
       return;
     }
-    
-    // Update the language in the global user context
-    await updateUser({ language: lang.code });
+
     setLanguagePickerVisible(false);
+
+    // Persist to backend + update both local contexts in parallel
+    await Promise.all([
+      updatePreferences(lang.code).catch((e) => {
+        console.warn("Failed to save language to backend", e);
+      }),
+      updateUser({ language: lang.code }).catch(() => {
+        // UserContext update failed silently — backend call is the source of truth
+      }),
+    ]);
   };
 
   return (

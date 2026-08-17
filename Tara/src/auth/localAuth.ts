@@ -75,6 +75,17 @@ export class LocalAuthAdapter implements AuthAdapter {
     const session = await authStorage.getSession();
     return session; // In local mode, session doesn't expire
   }
+
+  async updatePreferences(language: string): Promise<AuthUser> {
+    const session = await authStorage.getSession();
+    if (!session) throw new Error("No active session");
+    const updatedUser: AuthUser = {
+      ...session.user,
+      profile: { ...session.user?.profile, language },
+    };
+    await authStorage.saveSession({ ...session, user: updatedUser });
+    return updatedUser;
+  }
 }
 
 export const localAuth = new LocalAuthAdapter();

@@ -170,4 +170,52 @@ const logout = async (req, res) => {
     }
 };
 
-module.exports = { googleLogin, getCurrentUser, refreshSession, logout };
+// update preferences controller
+const updatePreferences = async (req, res) => {
+    try {
+        const { language } = req.body;
+
+        if (!language || typeof language !== 'string') {
+            return res.status(400).json({
+                success: false,
+                message: 'language is required and must be a string'
+            });
+        }
+
+        const allowed = ['en', 'hi', 'ml', 'te', 'ta', 'kn'];
+        if (!allowed.includes(language)) {
+            return res.status(400).json({
+                success: false,
+                message: `language must be one of: ${allowed.join(', ')}`
+            });
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user.userId,
+            { language },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Preferences updated',
+            user: toAuthUser(user)
+        });
+    } catch (error) {
+        console.error('Update Preferences Error:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+};
+
+module.exports = { googleLogin, getCurrentUser, refreshSession, logout, updatePreferences };

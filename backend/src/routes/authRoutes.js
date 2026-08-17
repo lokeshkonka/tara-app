@@ -16,4 +16,7 @@ router.post('/refresh', authController.refreshSession);
 // Logout (revokes the refresh token)
 router.post('/logout', authMiddleware, authController.logout);
 
+// Update user preferences (language)
+router.put('/preferences', authMiddleware, authController.updatePreferences);
+
 module.exports = router;

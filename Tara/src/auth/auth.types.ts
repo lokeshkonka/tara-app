@@ -31,4 +31,5 @@ export interface AuthAdapter {
   signOut(): Promise<void>;
   getCurrentUser(): Promise<AuthUser | null>;
   refreshSession(): Promise<AuthSession | null>;
+  updatePreferences(language: string): Promise<AuthUser>;
 }
