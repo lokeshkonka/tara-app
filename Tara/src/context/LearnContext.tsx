@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { learnRepository } from "../services";
-import type { LearnCategory, LearnLesson, LearnSummary } from "../types/learn";
+import type { LearnCategory, LearnLesson, LearnLessonDetail, LearnSummary } from "../types/learn";
 
 interface LearnContextValue {
   summary: LearnSummary | null;
@@ -17,6 +17,7 @@ interface LearnContextValue {
   error: string | null;
   refresh: () => Promise<void>;
   completeLesson: (lessonId: string) => Promise<void>;
+  getLessonDetail: (lessonId: string) => Promise<LearnLessonDetail | null>;
 }
 
 const LearnContext = createContext<LearnContextValue | null>(null);
@@ -61,13 +62,31 @@ export function LearnProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const getLessonDetail = useCallback(async (lessonId: string) => {
+    try {
+      return await learnRepository.getLessonDetail(lessonId);
+    } catch (err: unknown) {
+      console.warn("Failed to fetch lesson detail:", err);
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
     refresh();
   }, [refresh]);
 
   return (
     <LearnContext.Provider
-      value={{ summary, categories, lessons, isLoading, error, refresh, completeLesson }}
+      value={{
+        summary,
+        categories,
+        lessons,
+        isLoading,
+        error,
+        refresh,
+        completeLesson,
+        getLessonDetail,
+      }}
     >
       {children}
     </LearnContext.Provider>

@@ -81,10 +81,17 @@ export function LessonCard({
           </View>
         )}
 
-        {/* --- LEFT-ALIGNED CHIPS & XP PILL --- */}
+        {/* --- LEFT-ALIGNED CHIPS (ROW 1: XP, ROW 2: Category -> Levels -> Mins) --- */}
         <View style={styles.heroLeftChips}>
-          {/* Top Row: Category Chip + Level Badge Side by Side */}
+          {/* Row 1: XP Pill */}
+          <View style={styles.xpPill}>
+            <MaterialIcons name="star" size={13} color="#D97706" />
+            <Text style={styles.xpPillText}>+{lesson.xp} XP</Text>
+          </View>
+
+          {/* Row 2 (Below XP): Category -> Levels -> Mins */}
           <View style={styles.topChipsRow}>
+            {/* Category Chip */}
             <View
               style={[
                 styles.chip,
@@ -96,19 +103,23 @@ export function LessonCard({
               </Text>
             </View>
 
-            {/* Total Levels Badge beside Category Chip */}
+            {/* Total Levels Badge */}
             <View style={[styles.chip, styles.neutralChip]}>
               <MaterialIcons name="layers" size={12} color={componentColors.chipNeutralText} />
               <Text style={styles.neutralChipText}>
                 {t("learn.lessons.total", { total: totalLevels })}
               </Text>
             </View>
-          </View>
 
-          {/* Sub-row below category: XP Pill on the Left */}
-          <View style={styles.xpPill}>
-            <MaterialIcons name="star" size={13} color="#D97706" />
-            <Text style={styles.xpPillText}>+{lesson.xp} XP</Text>
+            {/* Duration Pill */}
+            {lesson.durationMinutes ? (
+              <View style={[styles.chip, styles.neutralChip]}>
+                <MaterialIcons name="schedule" size={12} color={componentColors.chipNeutralText} />
+                <Text style={styles.neutralChipText}>
+                  {t("lesson.detail.totalTime", { time: lesson.durationMinutes })}
+                </Text>
+              </View>
+            ) : null}
           </View>
         </View>
       </View>
@@ -170,7 +181,7 @@ const styles = StyleSheet.create({
     height: 145,
     position: "relative",
     padding: spacing.stackMd,
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
   },
 
   topRightCheck: {

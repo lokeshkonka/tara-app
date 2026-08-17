@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,10 +16,11 @@ import type { LearnLesson } from "../../types/learn";
 import { colors, componentColors, spacing, typography } from "../../theme/theme";
 
 export default function LearnTab() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { user, addXp } = useUser();
-  const { summary, categories, lessons, isLoading, completeLesson } = useLearn();
+  const { user } = useUser();
+  const { summary, categories, lessons, isLoading } = useLearn();
 
   const streakDays = user?.streakDays ?? 0;
   const todayXp = summary?.todayXp ?? 0;
@@ -79,11 +81,8 @@ export default function LearnTab() {
     [visibleLessons]
   );
 
-  const handleLessonAction = async (lesson: LearnLesson) => {
-    if (!lesson.isCompleted) {
-      await completeLesson(lesson.id);
-      await addXp(lesson.xp);
-    }
+  const handleLessonAction = (lesson: LearnLesson) => {
+    router.push(`/learn/lessons/${lesson.id}`);
   };
 
   const handleScroll = (event: any) => {

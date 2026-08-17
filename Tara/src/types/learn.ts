@@ -36,3 +36,38 @@ export interface LearnCategory {
   /** MaterialIcon name for the category chip */
   icon: string;
 }
+
+/** Individual learning outcome checklist item */
+export interface OutcomeItem {
+  id: string;
+  textKey: string;
+}
+
+/** Detail for each level node on the lesson timeline */
+export interface LevelNodeDetail {
+  id: string;
+  levelNumber: number;
+  titleKey: string;
+  descriptionKey: string;
+  durationMinutes: number;
+  xp: number;
+  status: "completed" | "inProgress" | "available" | "locked";
+  progressFraction: number; // 0..1
+}
+
+/** Full detailed payload for a selected lesson card */
+export interface LearnLessonDetail {
+  id: string;
+  categoryId: string;
+  titleKey: string;
+  descriptionKey: string;
+  durationMinutes: number;
+  totalLevels: number;
+  totalXp: number;
+  whyItMattersKey: string;
+  learningOutcomes: OutcomeItem[];
+  taraQuoteKey: string;
+  taraExpression: TaraExpression;
+  levels: LevelNodeDetail[];
+}
+

@@ -15,7 +15,7 @@ export type TaraExpression =
 export interface TaraProps {
   expression: TaraExpression;
   message: string;
-  audioSource: AudioSource;
+  audioSource?: AudioSource;
   showSpeech?: boolean;
   autoPlay?: boolean;
   onSpeechStart?: () => void;
