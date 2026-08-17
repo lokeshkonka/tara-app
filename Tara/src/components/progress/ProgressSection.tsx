@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, type ViewStyle } from "react-native";
-import { componentColors, spacing, typography } from "../../theme/theme";
+import { MaterialIcons } from "@expo/vector-icons";
+import { colors, componentColors, rounded, spacing, typography } from "../../theme/theme";
 import type { ProgressData } from "../../types/progress";
 import { BadgesRow } from "./BadgesRow";
 import { DailyGoal } from "./DailyGoal";
@@ -24,9 +25,15 @@ export function ProgressSection({
 
   return (
     <View style={[styles.container, style]}>
-      <Text style={styles.sectionTitle} numberOfLines={1} ellipsizeMode="tail">
-        {t("progress.title")}
-      </Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.sectionTitle} numberOfLines={1} ellipsizeMode="tail">
+          {t("progress.title")}
+        </Text>
+        <View style={styles.levelTag}>
+          <MaterialIcons name="insights" size={14} color="#15803D" />
+          <Text style={styles.levelTagText}>Live Stats</Text>
+        </View>
+      </View>
 
       <GreenScore
         score={data.greenScore}
@@ -53,12 +60,36 @@ const styles = StyleSheet.create({
     gap: spacing.stackMd,
   },
 
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.unit,
+  },
+
   sectionTitle: {
     ...typography.headlineMd,
     fontSize: 20,
     fontWeight: "700",
     color: componentColors.sectionTitle,
     letterSpacing: -0.3,
-    paddingHorizontal: spacing.unit,
+  },
+
+  levelTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#DCFCE7",
+    borderWidth: 1,
+    borderColor: "#BBF7D0",
+    borderRadius: rounded.full,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    gap: 4,
+  },
+
+  levelTagText: {
+    fontSize: 11.5,
+    fontWeight: "700",
+    color: "#15803D",
   },
 });
