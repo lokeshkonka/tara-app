@@ -66,7 +66,7 @@ export default function LearnTab() {
           lesson,
           categoryLabelKey: categoryById(lesson.categoryId)?.labelKey ?? "learn.category.all",
           chipTheme: getCategoryTheme(lesson.categoryId, categoryIndex),
-          totalLevels: levelCountByCategory[lesson.categoryId] ?? 1,
+          totalLevels: lesson.totalLevels ?? levelCountByCategory[lesson.categoryId] ?? 1,
         };
       });
   }, [lessons, selectedCategory, query, categories, levelCountByCategory, t]);

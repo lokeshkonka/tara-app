@@ -1,9 +1,12 @@
 import { LEARN_CATEGORIES, LEARN_LESSONS, LEARN_SUMMARY } from "../../data/dummy/learnData";
+import { FARMING_BASICS_PACKAGE } from "../../data/lessons/farmingBasicsPackage";
+import { adaptLessonPackage } from "../../data/lessons/lessonPackageAdapter";
 import {
   LEVEL_DEFINITIONS_REGISTRY,
   SOIL_HEALTH_LESSON_BASE,
   SOIL_HEALTH_TIMELINE_LEVELS,
 } from "../../data/lessons/soilHealthLesson";
+import { UNDERSTANDING_SOIL_HEALTH_PACKAGE } from "../../data/lessons/UnderstandingSoilHealth2package";
 import { learnStorage } from "../../storage/learnStorage";
 import type {
   LearnCategory,
@@ -40,19 +43,37 @@ export class DummyLearnRepository implements ILearnRepository {
 
     return this.lessons.map((lesson) => {
       if (lesson.id === "soil-level-1" || lesson.categoryId === "soil") {
-        const isLevel1Done = stored.completedLevelIds.includes("soil-level-1");
-        const isLevel2Done = stored.completedLevelIds.includes("soil-level-2");
         const completedCount = stored.completedLevelIds.filter((id) =>
           id.startsWith("soil-level-")
         ).length;
-        const progress = Math.min(1, completedCount / 15);
+        const totalLevels = lesson.totalLevels ?? 5;
+        const progress = Math.min(1, completedCount / totalLevels);
+        const isCompleted = completedCount >= totalLevels;
 
         return {
           ...lesson,
-          isCompleted: isLevel1Done,
-          progress: progress > 0 ? progress : isLevel1Done ? 0.07 : 0,
+          totalLevels,
+          isCompleted,
+          progress,
         };
       }
+
+      if (lesson.id === "farming-basics" || lesson.categoryId === "basics") {
+        const completedCount = stored.completedLevelIds.filter((id) =>
+          id.startsWith("basics-level-")
+        ).length;
+        const totalLevels = lesson.totalLevels ?? 10;
+        const progress = Math.min(1, completedCount / totalLevels);
+        const isCompleted = completedCount >= totalLevels;
+
+        return {
+          ...lesson,
+          totalLevels,
+          isCompleted,
+          progress,
+        };
+      }
+
       return lesson;
     });
   }
@@ -61,47 +82,21 @@ export class DummyLearnRepository implements ILearnRepository {
     await delay(40);
     const stored = await learnStorage.getProgress();
 
-    // Map dynamic status from storage
-    const dynamicLevels: LevelNodeDetail[] = SOIL_HEALTH_TIMELINE_LEVELS.map(
-      (level, index) => {
-        const isCompleted = stored.completedLevelIds.includes(level.id);
-        const isUnlocked =
-          stored.unlockedLevelIds.includes(level.id) ||
-          index === 0 ||
-          (index > 0 &&
-            stored.completedLevelIds.includes(
-              SOIL_HEALTH_TIMELINE_LEVELS[index - 1].id
-            ));
+    const pkg =
+      lessonId === "farming-basics" || lessonId.startsWith("basics-")
+        ? FARMING_BASICS_PACKAGE
+        : UNDERSTANDING_SOIL_HEALTH_PACKAGE;
 
-        let status: LevelNodeDetail["status"] = "locked";
-        let progressFraction = 0;
-
-        if (isCompleted) {
-          status = "completed";
-          progressFraction = 1;
-        } else if (isUnlocked) {
-          // Check if it's currently in progress
-          const prevCompleted =
-            index === 0 ||
-            stored.completedLevelIds.includes(
-              SOIL_HEALTH_TIMELINE_LEVELS[index - 1].id
-            );
-          status = prevCompleted ? "available" : "inProgress";
-          progressFraction = 0;
-        }
-
-        return {
-          ...level,
-          status,
-          progressFraction,
-        };
-      }
+    const { detail } = adaptLessonPackage(
+      pkg,
+      "en",
+      new Set(stored.completedLevelIds),
+      new Set(stored.unlockedLevelIds)
     );
 
     return {
-      ...SOIL_HEALTH_LESSON_BASE,
+      ...detail,
       id: lessonId,
-      levels: dynamicLevels,
     };
   }
 
@@ -135,27 +130,46 @@ export class DummyLearnRepository implements ILearnRepository {
 
   async getLevelDefinition(
     levelId: string,
-    _lang: string = "en"
+    lang: string = "en"
   ): Promise<LevelDefinition | null> {
     await delay(40);
+
+    // Check Farming Basics Package
+    if (levelId.startsWith("basics-")) {
+      const { levelDefinitions } = adaptLessonPackage(FARMING_BASICS_PACKAGE, lang);
+      if (levelDefinitions[levelId]) {
+        return levelDefinitions[levelId];
+      }
+    }
+
+    // Check Soil Health Package
+    const { levelDefinitions } = adaptLessonPackage(
+      UNDERSTANDING_SOIL_HEALTH_PACKAGE,
+      lang
+    );
+
+    if (levelDefinitions[levelId]) {
+      return levelDefinitions[levelId];
+    }
+
     if (LEVEL_DEFINITIONS_REGISTRY[levelId]) {
       return LEVEL_DEFINITIONS_REGISTRY[levelId];
     }
 
     // Default fallback to Level 1
-    return LEVEL_DEFINITIONS_REGISTRY["soil-level-1"] ?? null;
+    return levelDefinitions["soil-level-1"] ?? null;
   }
 
   async completeLevelStep(levelId: string, xpEarned: number): Promise<void> {
     await delay(40);
 
-    // Calculate next level to unlock automatically
-    const match = levelId.match(/soil-level-(\d+)/);
     let nextLevelId: string | undefined;
-    let badgeTitle = "Soil Explorer";
+    let badgeTitle = "Agri Explorer";
 
-    if (match) {
-      const currentNum = parseInt(match[1], 10);
+    // Handle Soil Level Progress
+    const soilMatch = levelId.match(/soil-level-(\d+)/);
+    if (soilMatch) {
+      const currentNum = parseInt(soilMatch[1], 10);
       if (currentNum < 5) {
         nextLevelId = `soil-level-${currentNum + 1}`;
       } else {
@@ -163,6 +177,19 @@ export class DummyLearnRepository implements ILearnRepository {
         badgeTitle = "Soil Guardian";
         await this.completeLesson("soil-level-1");
         await this.completeLesson("soil-basics");
+      }
+    }
+
+    // Handle Basics Level Progress (10 Levels)
+    const basicsMatch = levelId.match(/basics-level-(\d+)/);
+    if (basicsMatch) {
+      const currentNum = parseInt(basicsMatch[1], 10);
+      if (currentNum < 10) {
+        nextLevelId = `basics-level-${currentNum + 1}`;
+      } else {
+        nextLevelId = undefined;
+        badgeTitle = "Master Agri-Pioneer";
+        await this.completeLesson("farming-basics");
       }
     }
 

@@ -14,7 +14,7 @@ const LEARN_PROGRESS_KEY = "tara_learn_progress_v1";
 
 const DEFAULT_PROGRESS: StoredLearnProgress = {
   completedLevelIds: [],
-  unlockedLevelIds: ["soil-level-1"],
+  unlockedLevelIds: ["soil-level-1", "basics-level-1"],
   totalXpEarned: 0,
   levelAccuracies: {},
   unlockedBadgeIds: [],

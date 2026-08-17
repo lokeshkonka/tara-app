@@ -81,19 +81,28 @@ export function LessonCard({
           </View>
         )}
 
-        {/* --- LEFT-ALIGNED CHIPS (ROW 1: XP, ROW 2: Category -> Levels -> Mins) --- */}
+        {/* --- LEFT-ALIGNED CHIPS (ROW 1: XP & Status, ROW 2: Category -> Levels -> Mins) --- */}
         <View style={styles.heroLeftChips}>
-          {/* Row 1: XP Pill & Level Step Badge */}
+          {/* Row 1: XP Pill & Completion Status */}
           <View style={styles.topChipsRow}>
             <View style={styles.xpPill}>
               <MaterialIcons name="star" size={13} color="#D97706" />
-              <Text style={styles.xpPillText}>+{lesson.xp} XP</Text>
+              <Text style={styles.xpPillText}>+{lesson.xp} XP Total</Text>
             </View>
 
-            <View style={styles.stepBadge}>
-              <MaterialIcons name="eco" size={12} color="#15803D" />
-              <Text style={styles.stepBadgeText}>Level {lesson.level} • Step 1</Text>
-            </View>
+            {lesson.isCompleted && (
+              <View style={[styles.statusPill, styles.statusCompletedPill]}>
+                <MaterialIcons name="check-circle" size={12} color="#15803D" />
+                <Text style={styles.statusCompletedText}>Completed</Text>
+              </View>
+            )}
+
+            {!lesson.isCompleted && lesson.progress > 0 && (
+              <View style={[styles.statusPill, styles.statusProgressPill]}>
+                <MaterialIcons name="timelapse" size={12} color="#B45309" />
+                <Text style={styles.statusProgressText}>In Progress</Text>
+              </View>
+            )}
           </View>
 
           {/* Row 2 (Below XP): Category -> Levels -> Mins */}
@@ -114,7 +123,7 @@ export function LessonCard({
             <View style={[styles.chip, styles.neutralChip]}>
               <MaterialIcons name="layers" size={12} color={componentColors.chipNeutralText} />
               <Text style={styles.neutralChipText}>
-                {t("learn.lessons.total", { total: totalLevels })}
+                {lesson.totalLevels ?? totalLevels} Levels
               </Text>
             </View>
 
@@ -134,16 +143,42 @@ export function LessonCard({
       {/* --- BOTTOM CONTENT SECTION --- */}
       <View style={styles.contentSection}>
         <Text style={styles.title} numberOfLines={2}>
-          {t(lesson.titleKey, titleParams)}
+          {t(lesson.titleKey)}
         </Text>
 
         <Text style={styles.description} numberOfLines={2}>
-          {t(lesson.descriptionKey, descriptionParams)}
+          {t(lesson.descriptionKey)}
         </Text>
+
+        {/* Dynamic Progress Bar when in progress */}
+        {!lesson.isCompleted && lesson.progress > 0 && (
+          <View style={styles.progressSection}>
+            <View style={styles.progressHeader}>
+              <Text style={styles.progressLabel}>Lesson Progress</Text>
+              <Text style={styles.progressFractionText}>
+                {Math.round(lesson.progress * 100)}%
+              </Text>
+            </View>
+            <View style={styles.progressBarBg}>
+              <View
+                style={[
+                  styles.progressBarFill,
+                  { width: `${Math.min(100, lesson.progress * 100)}%`, backgroundColor: chipTheme.solid },
+                ]}
+              />
+            </View>
+          </View>
+        )}
 
         {/* Category-Themed 3D Push Button */}
         <TactileButton
-          title={lesson.isCompleted ? t("lesson.review") : t("lesson.start")}
+          title={
+            lesson.isCompleted
+              ? t("lesson.review")
+              : lesson.progress > 0
+              ? "Continue Lesson"
+              : t("lesson.start")
+          }
           icon={lesson.isCompleted ? "replay" : "arrow-forward"}
           iconPosition="right"
           faceColor={chipTheme.solid}
@@ -256,6 +291,35 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#D97706",
   },
+  statusPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: rounded.full,
+    gap: 3,
+    borderWidth: 1,
+  },
+  statusCompletedPill: {
+    backgroundColor: "#DCFCE7",
+    borderColor: "#BBF7D0",
+  },
+  statusCompletedText: {
+    ...typography.labelSm,
+    fontSize: 11,
+    fontWeight: "800",
+    color: "#15803D",
+  },
+  statusProgressPill: {
+    backgroundColor: "#FEF3C7",
+    borderColor: "#FDE68A",
+  },
+  statusProgressText: {
+    ...typography.labelSm,
+    fontSize: 11,
+    fontWeight: "800",
+    color: "#B45309",
+  },
   stepBadge: {
     flexDirection: "row",
     alignItems: "center",
@@ -272,6 +336,39 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "800",
     color: "#15803D",
+  },
+
+  progressSection: {
+    marginTop: 10,
+    gap: 4,
+  },
+  progressHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  progressLabel: {
+    ...typography.labelSm,
+    fontSize: 11.5,
+    fontWeight: "700",
+    color: colors.onSurfaceVariant,
+  },
+  progressFractionText: {
+    ...typography.labelSm,
+    fontSize: 11.5,
+    fontWeight: "800",
+    color: colors.primary,
+  },
+  progressBarBg: {
+    width: "100%",
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.surfaceContainer,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    borderRadius: 3,
   },
 
   neutralChip: {

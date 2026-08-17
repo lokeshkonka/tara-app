@@ -295,7 +295,7 @@ function TimelineNodeItem({
 
   const handleCircleClick = () => {
     if (node.status === "locked") return;
-    setShowBubble((prev) => !prev);
+    onPress();
   };
 
   const handleBubbleClick = () => {

@@ -19,8 +19,8 @@ export function LessonTimeline({ levels, onSelectLevel }: LessonTimelineProps) {
 
   const journeyNodes: JourneyTimelineNode[] = levels.map((level) => ({
     id: level.id,
-    title: t(level.titleKey),
-    subtitle: level.durationMinutes ? `${level.durationMinutes} min` : undefined,
+    title: level.title || (level.titleKey ? t(level.titleKey) : `Level ${level.levelNumber}`),
+    subtitle: level.description || (level.durationMinutes ? `${level.durationMinutes} min` : undefined),
     status:
       level.status === "inProgress"
         ? "active"

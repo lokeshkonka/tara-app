@@ -108,8 +108,8 @@ export default function LessonDetailScreen() {
       >
         {/* Hero Header */}
         <LessonDetailHeader
-          title={t(detail.titleKey)}
-          description={t(detail.descriptionKey)}
+          title={detail.title || (detail.titleKey ? t(detail.titleKey) : "")}
+          description={detail.description || (detail.descriptionKey ? t(detail.descriptionKey) : "")}
           categoryId={detail.categoryId}
           categoryLabelKey={`learn.category.${detail.categoryId}`}
           durationMinutes={detail.durationMinutes}
@@ -123,8 +123,10 @@ export default function LessonDetailScreen() {
           {/* Overview Card */}
           <LessonOverview
             whyItMattersKey={detail.whyItMattersKey}
+            whyItMattersText={detail.whyItMattersText}
             learningOutcomes={detail.learningOutcomes}
             taraQuoteKey={detail.taraQuoteKey}
+            taraQuoteText={detail.taraQuoteText}
             taraExpression={detail.taraExpression}
           />
 
@@ -132,16 +134,15 @@ export default function LessonDetailScreen() {
           {detail.levels.every((l) => l.status === "completed") && (
             <View style={styles.completedBadgeWrap}>
               <BadgeRewardItem
-                title="Soil Guardian Badge Unlocked"
+                title="Lesson Badge Unlocked"
                 icon="eco"
-                badgeId="soil-guardian"
+                badgeId="lesson-badge"
               />
             </View>
           )}
 
           {/* Timeline */}
           <View style={styles.timelineSection}>
-            <Text style={styles.sectionHeading}>{t("lesson.detail.learningJourney")}</Text>
             <LessonTimeline levels={detail.levels} onSelectLevel={handleSelectLevel} />
           </View>
 

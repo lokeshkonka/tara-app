@@ -27,6 +27,7 @@ export interface LearnLesson {
   /** 0..1 completion progress */
   progress: number;
   isCompleted: boolean;
+  totalLevels?: number;
 }
 
 /** Lesson category. `labelKey` is an i18n key; the backend sends keys, not raw text. */
@@ -41,6 +42,7 @@ export interface LearnCategory {
 export interface OutcomeItem {
   id: string;
   textKey: string;
+  text?: string;
 }
 
 /** Detail for each level node on the lesson timeline */
@@ -48,7 +50,9 @@ export interface LevelNodeDetail {
   id: string;
   levelNumber: number;
   titleKey: string;
+  title?: string;
   descriptionKey: string;
+  description?: string;
   durationMinutes: number;
   xp: number;
   status: "completed" | "inProgress" | "available" | "locked";
@@ -60,13 +64,17 @@ export interface LearnLessonDetail {
   id: string;
   categoryId: string;
   titleKey: string;
+  title?: string;
   descriptionKey: string;
+  description?: string;
   durationMinutes: number;
   totalLevels: number;
   totalXp: number;
   whyItMattersKey: string;
+  whyItMattersText?: string;
   learningOutcomes: OutcomeItem[];
   taraQuoteKey: string;
+  taraQuoteText?: string;
   taraExpression: TaraExpression;
   levels: LevelNodeDetail[];
 }
@@ -127,9 +135,10 @@ export interface ConceptCardPhase {
   taraDialogue: string;
   taraExpression?: TaraExpression;
   audioSource?: any;
+  taraAudio?: any;
   explanation?: TopicExplanation;
-  progressiveHighlights: string[];
-  transitionText: string;
+  progressiveHighlights?: string[];
+  transitionText?: string;
   cards: ConceptCard[];
 }
 
@@ -171,6 +180,7 @@ export interface MatchPhase {
   pairs: MatchPair[];
   xp?: number;
   taraDialogue?: string;
+  taraAudio?: any;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: string;
 }
@@ -178,7 +188,8 @@ export interface MatchPhase {
 export interface ScenarioChallengeOption {
   id: string;
   label: string;
-  title: string;
+  title?: string;
+  text?: string;
   subtitle?: string;
   icon?: string;
   isCorrect: boolean;
@@ -202,6 +213,7 @@ export interface ScenarioChallengePhase {
   rounds: ScenarioChallengeRound[];
   xp?: number;
   taraDialogue?: string;
+  taraAudio?: any;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: string;
 }
@@ -227,6 +239,7 @@ export interface MemoryPhase {
   pairs: MemoryConceptPair[];
   xp?: number;
   taraDialogue?: string;
+  taraAudio?: any;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: string;
 }
@@ -256,6 +269,7 @@ export interface DecisionChoicePhase {
   rounds: DecisionChoiceRound[];
   xp?: number;
   taraDialogue?: string;
+  taraAudio?: any;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: string;
 }
@@ -269,6 +283,7 @@ export interface RewardPhase {
   badgeDescription?: string;
   badgeImage?: any;
   taraDialogue: string;
+  taraAudio?: any;
   taraExpression?: TaraExpression;
 }
 
@@ -287,7 +302,7 @@ export interface LevelDefinition {
   lessonId: string;
   levelNumber: number;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   xpReward: number;
   phases: LevelPhase[];
 }

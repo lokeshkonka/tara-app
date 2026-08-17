@@ -27,6 +27,7 @@ export const MatchPhaseScreen: React.FC<MatchPhaseScreenProps> = ({
   onScroll,
 }) => {
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const handleMatchComplete = () => {
     setIsCompleted(true);
@@ -42,6 +43,7 @@ export const MatchPhaseScreen: React.FC<MatchPhaseScreenProps> = ({
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled={true}
+        scrollEnabled={!isDragging}
         keyboardShouldPersistTaps="handled"
         onScroll={onScroll}
         scrollEventThrottle={16}
@@ -68,6 +70,7 @@ export const MatchPhaseScreen: React.FC<MatchPhaseScreenProps> = ({
             instructions={phase.instructions}
             pairs={phase.pairs}
             onComplete={handleMatchComplete}
+            onDragStateChange={setIsDragging}
           />
         </View>
 
