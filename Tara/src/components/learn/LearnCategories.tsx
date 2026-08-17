@@ -4,7 +4,7 @@ import { useTranslation } from "../../hooks/useTranslation";
 import type { LearnCategory } from "../../types/learn";
 import { colors, componentColors, rounded, spacing, typography } from "../../theme/theme";
 import { SquishyButton } from "../dashboard/DashboardTopBar";
-import { LEARN_THEMES } from "./LearnTheme";
+import { getCategoryTheme } from "./LearnTheme";
 
 interface LearnCategoriesProps {
   categories: LearnCategory[];
@@ -30,7 +30,7 @@ export function LearnCategories({
       >
         {categories.map((category, index) => {
           const selected = category.id === selectedId;
-          const theme = LEARN_THEMES[index % LEARN_THEMES.length];
+          const theme = getCategoryTheme(category.id, index);
           return (
             <SquishyButton
               key={category.id}

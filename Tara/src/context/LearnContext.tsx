@@ -16,6 +16,7 @@ interface LearnContextValue {
   isLoading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
+  completeLesson: (lessonId: string) => Promise<void>;
 }
 
 const LearnContext = createContext<LearnContextValue | null>(null);
@@ -46,13 +47,27 @@ export function LearnProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const completeLesson = useCallback(async (lessonId: string) => {
+    try {
+      const updated = await learnRepository.completeLesson(lessonId);
+      setLessons((prev) =>
+        prev.map((item) => (item.id === lessonId ? updated : item))
+      );
+      setSummary((prev) =>
+        prev ? { ...prev, todayXp: prev.todayXp + updated.xp } : prev
+      );
+    } catch (err: unknown) {
+      console.warn("Failed to complete lesson:", err);
+    }
+  }, []);
+
   useEffect(() => {
     refresh();
   }, [refresh]);
 
   return (
     <LearnContext.Provider
-      value={{ summary, categories, lessons, isLoading, error, refresh }}
+      value={{ summary, categories, lessons, isLoading, error, refresh, completeLesson }}
     >
       {children}
     </LearnContext.Provider>

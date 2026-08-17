@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from "react";
-import { Image } from "expo-image";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable, StyleSheet, Text, View, Animated } from "react-native";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "../../hooks/useTranslation";
 import type { LearnLesson } from "../../types/learn";
-import { colors, componentColors, rounded, spacing, typography, shadows } from "../../theme/theme";
+import { colors, componentColors, rounded, spacing, typography } from "../../theme/theme";
 import { TactileButton } from "../ui/TactileButton";
 import type { LearnChipTheme } from "./LearnTheme";
 
@@ -40,17 +40,17 @@ export function LessonCard({
   const categoryLabel = t(categoryLabelKey);
   const titleParams = { part: lesson.level, category: categoryLabel };
   const descriptionParams = { category: categoryLabel };
-  
+
   const bgImage = CATEGORY_BACKGROUNDS[lesson.categoryId];
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={onPress ?? onStartPress}
       accessibilityRole="button"
       accessibilityLabel={`${t(lesson.titleKey, titleParams)}. ${categoryLabel}`}
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
-      {/* --- TOP BANNER (Image + Chips) --- */}
+      {/* --- TOP HERO BANNER WITH LAYER-MERGE GRADIENT --- */}
       <View style={styles.heroSection}>
         {bgImage ? (
           <Image
@@ -61,57 +61,76 @@ export function LessonCard({
         ) : (
           <View style={[StyleSheet.absoluteFill, { backgroundColor: chipTheme.tint }]} />
         )}
-        
-        {/* Subtle dark overlay for text readability at the top */}
+
+        {/* Seamless Image-to-Background Gradient Merge */}
         <LinearGradient
-          colors={["rgba(0,0,0,0.6)", "rgba(0,0,0,0)"]}
+          colors={[
+            "rgba(0,0,0,0.42)",
+            "rgba(255,255,255,0.08)",
+            "rgba(255,255,255,0.72)",
+            "#FFFFFF",
+          ]}
+          locations={[0, 0.4, 0.78, 1]}
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={styles.topChips}>
-          <View style={[styles.chip, { backgroundColor: chipTheme.tint, borderColor: chipTheme.border }]}>
-            <Text style={[styles.chipText, { color: chipTheme.text }]}>
-              {categoryLabel}
-            </Text>
+        {/* --- TOP-RIGHT CORNER TICK MARK BADGE --- */}
+        {lesson.isCompleted && (
+          <View style={styles.topRightCheck}>
+            <MaterialIcons name="check" size={15} color="#FFFFFF" />
           </View>
-          
-          <View style={[styles.chip, styles.neutralChip]}>
-            <MaterialIcons name="layers" size={12} color={componentColors.chipNeutralText} />
-            <Text style={styles.neutralChipText}>
-              {totalLevels} Levels
-            </Text>
-          </View>
+        )}
 
-          {lesson.isCompleted && (
-            <View style={[styles.chip, styles.positiveChip, { paddingHorizontal: 6 }]}>
-              <MaterialIcons name="check-circle" size={14} color={componentColors.chipPositiveText} />
+        {/* --- LEFT-ALIGNED CHIPS & XP PILL --- */}
+        <View style={styles.heroLeftChips}>
+          {/* Top Row: Category Chip + Level Badge Side by Side */}
+          <View style={styles.topChipsRow}>
+            <View
+              style={[
+                styles.chip,
+                { backgroundColor: chipTheme.tint, borderColor: chipTheme.border },
+              ]}
+            >
+              <Text style={[styles.chipText, { color: chipTheme.text }]}>
+                {categoryLabel}
+              </Text>
             </View>
-          )}
-        </View>
 
+            {/* Total Levels Badge beside Category Chip */}
+            <View style={[styles.chip, styles.neutralChip]}>
+              <MaterialIcons name="layers" size={12} color={componentColors.chipNeutralText} />
+              <Text style={styles.neutralChipText}>
+                {t("learn.lessons.total", { total: totalLevels })}
+              </Text>
+            </View>
+          </View>
+
+          {/* Sub-row below category: XP Pill on the Left */}
+          <View style={styles.xpPill}>
+            <MaterialIcons name="star" size={13} color="#D97706" />
+            <Text style={styles.xpPillText}>+{lesson.xp} XP</Text>
+          </View>
+        </View>
       </View>
 
-      {/* --- BOTTOM CONTENT --- */}
+      {/* --- BOTTOM CONTENT SECTION --- */}
       <View style={styles.contentSection}>
-        <View style={styles.titleRow}>
-          <Text style={styles.title} numberOfLines={2}>
-            {t(lesson.titleKey, titleParams)}
-          </Text>
-          
-          <View style={styles.xpBadge}>
-            <MaterialIcons name="star" size={16} color="#D97706" />
-            <Text style={styles.xpText}>{lesson.xp} XP</Text>
-          </View>
-        </View>
+        <Text style={styles.title} numberOfLines={2}>
+          {t(lesson.titleKey, titleParams)}
+        </Text>
 
         <Text style={styles.description} numberOfLines={2}>
           {t(lesson.descriptionKey, descriptionParams)}
         </Text>
 
+        {/* Category-Themed 3D Push Button */}
         <TactileButton
           title={lesson.isCompleted ? t("lesson.review") : t("lesson.start")}
           icon={lesson.isCompleted ? "replay" : "arrow-forward"}
           iconPosition="right"
+          faceColor={chipTheme.solid}
+          depthColor={chipTheme.solidEdge}
+          textColor="#FFFFFF"
           onPress={onStartPress ?? (() => {})}
           height={48}
           depth={4}
@@ -127,50 +146,103 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 480,
-    backgroundColor: componentColors.cardBackground,
+    backgroundColor: "#FFFFFF",
     borderRadius: rounded.xl,
     borderWidth: 1.5,
     borderColor: componentColors.cardBorder,
     borderBottomWidth: 4,
     borderBottomColor: componentColors.cardEdge,
-    overflow: "hidden", 
+    overflow: "hidden",
+    shadowColor: "#1B5E20",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
   },
   cardPressed: {
-    opacity: 0.95,
+    opacity: 0.96,
     transform: [{ translateY: 2 }],
     borderBottomWidth: 2,
-    marginTop: 2, // Compensate for reduced bottom border
+    marginTop: 2,
   },
 
   heroSection: {
-    height: 120, // Tall header for the beautiful imagery
+    height: 145,
     position: "relative",
     padding: spacing.stackMd,
+    justifyContent: "space-between",
   },
 
-  topChips: {
-    flexDirection: "row",
-    gap: spacing.stackSm,
-    flexWrap: "wrap",
+  topRightCheck: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#16A34A",
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    elevation: 4,
+    zIndex: 10,
+  },
+
+  heroLeftChips: {
+    gap: 6,
+    alignItems: "flex-start",
     zIndex: 2,
   },
+
+  topChipsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    flexWrap: "wrap",
+  },
+
   chip: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 4.5,
     borderRadius: rounded.full,
     borderWidth: 1,
     gap: 4,
   },
   chipText: {
     ...typography.labelSm,
-    fontSize: 11,
+    fontSize: 11.5,
     fontWeight: "800",
   },
+
+  xpPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FEF3C7",
+    borderWidth: 1,
+    borderColor: "#FDE68A",
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: rounded.full,
+    gap: 3,
+  },
+  xpPillText: {
+    ...typography.labelSm,
+    fontSize: 11,
+    fontWeight: "800",
+    color: "#D97706",
+  },
+
   neutralChip: {
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
     borderColor: "rgba(255, 255, 255, 1)",
+    paddingVertical: 3.5,
   },
   neutralChipText: {
     ...typography.labelSm,
@@ -178,23 +250,15 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#3f4a3c",
   },
-  positiveChip: {
-    backgroundColor: componentColors.chipPositiveBackground,
-    borderColor: componentColors.chipPositiveBorder,
-  },
 
   contentSection: {
-    padding: spacing.stackMd,
+    paddingHorizontal: spacing.stackMd,
+    paddingTop: 2,
+    paddingBottom: spacing.stackMd,
+    backgroundColor: "#FFFFFF",
   },
 
-  titleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: spacing.stackSm,
-  },
   title: {
-    flex: 1,
     ...typography.headlineMd,
     fontSize: 18,
     lineHeight: 24,
@@ -202,35 +266,17 @@ const styles = StyleSheet.create({
     color: componentColors.sectionTitle,
     letterSpacing: -0.3,
   },
-  
-  xpBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FEF3C7", // Bright amber for XP
-    borderWidth: 1,
-    borderColor: "#FDE68A",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: rounded.full,
-    gap: 4,
-  },
-  xpText: {
-    ...typography.labelSm,
-    fontSize: 12,
-    fontWeight: "800",
-    color: "#D97706",
-  },
 
   description: {
-    marginTop: spacing.stackSm,
+    marginTop: 6,
     color: colors.onSurfaceVariant,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13.5,
+    lineHeight: 19,
     fontWeight: "500",
   },
 
   cta: {
-    marginTop: spacing.stackLg,
+    marginTop: spacing.stackMd,
   },
 
   // Skeleton Styles
@@ -243,7 +289,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: rounded.full,
     backgroundColor: colors.surfaceVariant,
-    marginTop: spacing.stackLg,
+    marginTop: spacing.stackMd,
   },
 });
 
@@ -269,17 +315,32 @@ export function LessonCardSkeleton() {
 
   return (
     <View style={styles.card}>
-      <Animated.View style={[styles.heroSection, { backgroundColor: colors.surfaceVariant, opacity: pulseAnim }]} />
-      
-      <View style={styles.contentSection}>
-        <View style={styles.titleRow}>
-          <Animated.View style={[styles.skeletonLine, { width: "60%", height: 24, opacity: pulseAnim }]} />
-          <Animated.View style={[styles.skeletonLine, { width: 60, height: 24, borderRadius: rounded.full, opacity: pulseAnim }]} />
-        </View>
+      <Animated.View
+        style={[
+          styles.heroSection,
+          { backgroundColor: colors.surfaceVariant, opacity: pulseAnim },
+        ]}
+      />
 
-        <Animated.View style={[styles.skeletonLine, { width: "100%", marginTop: spacing.stackMd, opacity: pulseAnim }]} />
-        <Animated.View style={[styles.skeletonLine, { width: "80%", marginTop: 8, opacity: pulseAnim }]} />
-        
+      <View style={styles.contentSection}>
+        <Animated.View
+          style={[
+            styles.skeletonLine,
+            { width: "70%", height: 22, opacity: pulseAnim },
+          ]}
+        />
+        <Animated.View
+          style={[
+            styles.skeletonLine,
+            { width: "100%", marginTop: spacing.stackSm, opacity: pulseAnim },
+          ]}
+        />
+        <Animated.View
+          style={[
+            styles.skeletonLine,
+            { width: "85%", marginTop: 6, opacity: pulseAnim },
+          ]}
+        />
         <Animated.View style={[styles.skeletonButton, { opacity: pulseAnim }]} />
       </View>
     </View>

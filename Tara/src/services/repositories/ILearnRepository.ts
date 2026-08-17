@@ -4,4 +4,5 @@ export interface ILearnRepository {
   getSummary(): Promise<LearnSummary>;
   getCategories(): Promise<LearnCategory[]>;
   getLessons(): Promise<LearnLesson[]>;
+  completeLesson(lessonId: string): Promise<LearnLesson>;
 }

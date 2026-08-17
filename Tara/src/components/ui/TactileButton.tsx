@@ -21,6 +21,10 @@ interface TactileButtonProps {
   title: string;
   onPress: () => void;
   variant?: ButtonVariant;
+  faceColor?: string;
+  depthColor?: string;
+  borderColor?: string;
+  textColor?: string;
   icon?: keyof typeof MaterialIcons.glyphMap;
   iconPosition?: "left" | "right";
   disabled?: boolean;
@@ -39,6 +43,10 @@ export function TactileButton({
   title,
   onPress,
   variant = "primary",
+  faceColor,
+  depthColor,
+  borderColor,
+  textColor,
   icon,
   iconPosition = "right",
   disabled = false,
@@ -87,7 +95,7 @@ export function TactileButton({
     outputRange: [0, depth],
   });
 
-  // Pick color palette based on variant
+  // Pick color palette based on variant or custom colors
   const getPalette = () => {
     if (disabled) {
       return {
@@ -95,6 +103,14 @@ export function TactileButton({
         depth: "#C7CDC4",
         text: "#8F9A8C",
         border: "transparent",
+      };
+    }
+    if (faceColor && depthColor) {
+      return {
+        face: faceColor,
+        depth: depthColor,
+        text: textColor ?? "#FFFFFF",
+        border: borderColor ?? "transparent",
       };
     }
     switch (variant) {

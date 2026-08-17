@@ -1,21 +1,24 @@
 import { useMemo, useRef, useState } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LearnCategories } from "../../components/learn/LearnCategories";
+import { LearnEmptyState } from "../../components/learn/LearnEmptyState";
 import { LearnHeader } from "../../components/learn/LearnHeader";
 import { LearnSearchFilter } from "../../components/learn/LearnSearchFilter";
 import { LessonCard } from "../../components/learn/LessonCard";
-import { LEARN_THEMES } from "../../components/learn/LearnTheme";
+import { getCategoryTheme } from "../../components/learn/LearnTheme";
 import { useLearn } from "../../context/LearnContext";
 import { useUser } from "../../context/UserContext";
 import { useTranslation } from "../../hooks/useTranslation";
+import type { LearnLesson } from "../../types/learn";
 import { colors, componentColors, spacing, typography } from "../../theme/theme";
 
 export default function LearnTab() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { user } = useUser();
-  const { summary, categories, lessons, isLoading } = useLearn();
+  const { user, addXp } = useUser();
+  const { summary, categories, lessons, isLoading, completeLesson } = useLearn();
 
   const streakDays = user?.streakDays ?? 0;
   const todayXp = summary?.todayXp ?? 0;
@@ -38,31 +41,50 @@ export default function LearnTab() {
     return counts;
   }, [lessons]);
 
-  const visibleLessons = lessons
-    .filter((lesson) => {
-      if (selectedCategory !== "all" && lesson.categoryId !== selectedCategory) {
-        return false;
-      }
-      if (query.trim().length > 0) {
-        const haystack = `${t(lesson.titleKey)} ${t(lesson.descriptionKey)}`.toLowerCase();
-        if (!haystack.includes(query.trim().toLowerCase())) {
+  const visibleLessons = useMemo(() => {
+    return lessons
+      .filter((lesson) => {
+        if (selectedCategory !== "all" && lesson.categoryId !== selectedCategory) {
           return false;
         }
-      }
-      return true;
-    })
-    .map((lesson) => {
-      const categoryIndex = Math.max(
-        0,
-        categories.findIndex((c) => c.id === lesson.categoryId)
-      );
-      return {
-        lesson,
-        categoryLabelKey: categoryById(lesson.categoryId)?.labelKey ?? "learn.category.all",
-        chipTheme: LEARN_THEMES[categoryIndex % LEARN_THEMES.length],
-        totalLevels: levelCountByCategory[lesson.categoryId] ?? 1,
-      };
-    });
+        if (query.trim().length > 0) {
+          const haystack = `${t(lesson.titleKey)} ${t(lesson.descriptionKey)}`.toLowerCase();
+          if (!haystack.includes(query.trim().toLowerCase())) {
+            return false;
+          }
+        }
+        return true;
+      })
+      .map((lesson) => {
+        const categoryIndex = Math.max(
+          0,
+          categories.findIndex((c) => c.id === lesson.categoryId)
+        );
+        return {
+          lesson,
+          categoryLabelKey: categoryById(lesson.categoryId)?.labelKey ?? "learn.category.all",
+          chipTheme: getCategoryTheme(lesson.categoryId, categoryIndex),
+          totalLevels: levelCountByCategory[lesson.categoryId] ?? 1,
+        };
+      });
+  }, [lessons, selectedCategory, query, categories, levelCountByCategory, t]);
+
+  const activeLessons = useMemo(
+    () => visibleLessons.filter((item) => !item.lesson.isCompleted),
+    [visibleLessons]
+  );
+
+  const learnedLessons = useMemo(
+    () => visibleLessons.filter((item) => item.lesson.isCompleted),
+    [visibleLessons]
+  );
+
+  const handleLessonAction = async (lesson: LearnLesson) => {
+    if (!lesson.isCompleted) {
+      await completeLesson(lesson.id);
+      await addXp(lesson.xp);
+    }
+  };
 
   const handleScroll = (event: any) => {
     const currentY = event.nativeEvent.contentOffset.y;
@@ -139,20 +161,55 @@ export default function LearnTab() {
           onSelect={setSelectedCategory}
         />
 
-        {visibleLessons.length > 0 && (
+        {visibleLessons.length > 0 ? (
           <View style={styles.lessonsSection}>
-            <Text style={styles.lessonsTitle}>{t("learn.lessons.title")}</Text>
+            {/* Active / In-progress Lessons */}
+            {activeLessons.length > 0 && (
+              <View style={styles.groupSection}>
+                <Text style={styles.lessonsTitle}>{t("learn.lessons.title")}</Text>
 
-            {visibleLessons.map(({ lesson, categoryLabelKey, chipTheme, totalLevels }) => (
-              <LessonCard
-                key={lesson.id}
-                lesson={lesson}
-                categoryLabelKey={categoryLabelKey}
-                chipTheme={chipTheme}
-                totalLevels={totalLevels}
-              />
-            ))}
+                {activeLessons.map(({ lesson, categoryLabelKey, chipTheme, totalLevels }) => (
+                  <LessonCard
+                    key={lesson.id}
+                    lesson={lesson}
+                    categoryLabelKey={categoryLabelKey}
+                    chipTheme={chipTheme}
+                    totalLevels={totalLevels}
+                    onStartPress={() => handleLessonAction(lesson)}
+                  />
+                ))}
+              </View>
+            )}
+
+            {/* Learned Lessons Section */}
+            {learnedLessons.length > 0 && (
+              <View style={styles.groupSection}>
+                <View style={styles.learnedTitleRow}>
+                  <MaterialIcons name="verified" size={22} color="#16A34A" />
+                  <Text style={styles.lessonsTitle}>{t("learn.lessons.learnedTitle")}</Text>
+                </View>
+
+                {learnedLessons.map(({ lesson, categoryLabelKey, chipTheme, totalLevels }) => (
+                  <LessonCard
+                    key={lesson.id}
+                    lesson={lesson}
+                    categoryLabelKey={categoryLabelKey}
+                    chipTheme={chipTheme}
+                    totalLevels={totalLevels}
+                    onStartPress={() => handleLessonAction(lesson)}
+                  />
+                ))}
+              </View>
+            )}
           </View>
+        ) : (
+          <LearnEmptyState
+            categoryLabel={
+              selectedCategory !== "all"
+                ? t(categoryById(selectedCategory)?.labelKey ?? "")
+                : undefined
+            }
+          />
         )}
       </ScrollView>
     </SafeAreaView>
@@ -174,14 +231,23 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: spacing.marginMobile,
-    paddingBottom: spacing.stackMd,
+    paddingBottom: spacing.stackLg,
     gap: spacing.stackMd,
   },
   lessonsSection: {
     width: "100%",
     maxWidth: 480,
     alignSelf: "center",
+    gap: spacing.stackLg,
+  },
+  groupSection: {
+    width: "100%",
     gap: spacing.stackMd,
+  },
+  learnedTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   lessonsTitle: {
     ...typography.headlineMd,
@@ -190,6 +256,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: componentColors.sectionTitle,
     letterSpacing: -0.3,
-    marginBottom: spacing.stackSm,
+    marginBottom: 2,
   },
 });
+
