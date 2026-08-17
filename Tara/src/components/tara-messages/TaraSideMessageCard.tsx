@@ -1,7 +1,8 @@
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import {
   Animated,
   Easing,
+  LayoutAnimation,
   Pressable,
   StyleSheet,
   Text,
@@ -15,7 +16,7 @@ import { useTranslation } from "../../hooks/useTranslation";
 import { TARA_EXPRESSIONS } from "../Tara/expressionMap";
 import type { TaraExpression } from "../Tara/Tara.types";
 import { AtmosphericGlow } from "../ui/AtmosphericGlow";
-import { colors, typography } from "../../theme/theme";
+import { colors, componentColors, rounded, typography } from "../../theme/theme";
 
 const PULSE_DURATION = 950;
 const TARA_DRIFT_DURATION = 2600;
@@ -27,7 +28,7 @@ export interface TaraSideMessageCardHandle {
 }
 
 export interface TaraSideMessageCardProps {
-  /** Optional custom headline title, e.g. "Namaste! I'm Tara." */
+  /** Optional custom headline title */
   title?: string;
   /** Message body or speech transcript */
   message: string;
@@ -158,11 +159,9 @@ const loaderStyles = StyleSheet.create({
 /**
  * TaraSideMessageCard
  *
- * Horizontal character dialogue card: Tara sits on the LEFT with a soft
- * atmospheric glow and drifts subtly left <-> right, while the curved speech
- * bubble floats on the RIGHT (voice button + message) with a gentle top <-> bottom
- * float. Shares the same background, voice player and pulse treatment as
- * TaraMessageCard.
+ * Horizontal character dialogue card: Adapts dynamically based on:
+ * 1. Single-line vs Two-line vs Multi-line (with Read More expander)
+ * 2. Voice ON vs Voice OFF compact sizing
  */
 export const TaraSideMessageCard = forwardRef<
   TaraSideMessageCardHandle,
@@ -185,6 +184,7 @@ export const TaraSideMessageCard = forwardRef<
 ) {
   const [displayedExpression, setDisplayedExpression] = useState(expression);
   const [fadingExpression, setFadingExpression] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const [textFadeAnim] = useState(() => new Animated.Value(1));
   const [exprAnim] = useState(() => new Animated.Value(1));
@@ -196,6 +196,10 @@ export const TaraSideMessageCard = forwardRef<
   const [bubbleFloat] = useState(() => new Animated.Value(0));
 
   const { t } = useTranslation();
+
+  const hasVoice = Boolean(showVoiceControl && audioSource);
+  const isLongMessage = message.length > 125;
+  const isSingleLine = message.length < 48 && !title;
 
   const { isPlaying, play, stop } = useTaraAudio(audioSource, {
     onStart: () => onSpeechStart?.(),
@@ -303,12 +307,12 @@ export const TaraSideMessageCard = forwardRef<
 
   const taraTranslateX = taraDrift.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -6],
+    outputRange: [0, -5],
   });
 
   const bubbleTranslateY = bubbleFloat.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -6],
+    outputRange: [0, -4],
   });
 
   const ringScaleInner = pulse.interpolate({
@@ -343,51 +347,33 @@ export const TaraSideMessageCard = forwardRef<
     onVoicePress?.();
   };
 
+  const handleToggleExpand = () => {
+    try {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    } catch {}
+    setIsExpanded((prev) => !prev);
+  };
+
   const source = image ?? TARA_EXPRESSIONS[displayedExpression];
 
-  // Parse title and subtitle gracefully if not passed explicitly
-  const { headerTitle, messageBody } = useMemo(() => {
-    if (title) {
-      return { headerTitle: title, messageBody: message };
-    }
-    if (message.startsWith("Namaste! I'm Tara.")) {
-      const remaining = message.replace("Namaste! I'm Tara.", "").trim();
-      return {
-        headerTitle: "Namaste! I'm Tara.",
-        messageBody: remaining || "Your companion on the journey to sustainable and prosperous farming.",
-      };
-    }
-    const firstPeriod = message.indexOf(".");
-    if (firstPeriod > 0 && firstPeriod < 30) {
-      return {
-        headerTitle: message.slice(0, firstPeriod + 1),
-        messageBody: message.slice(firstPeriod + 1).trim(),
-      };
-    }
-    return {
-      headerTitle: "Namaste! I'm Tara.",
-      messageBody: message,
-    };
-  }, [title, message]);
-
   return (
-    <View style={styles.outerContainer}>
+    <View style={[styles.outerContainer, hasVoice ? styles.outerWithVoice : styles.outerCompact]}>
       <View style={styles.row}>
-        {/* 1. Character on the left with atmospheric halo */}
-        <View style={styles.heroArea}>
+        {/* 1. Character on the left - stays anchored at bottom */}
+        <View style={[styles.heroArea, hasVoice ? styles.heroWithVoice : styles.heroCompact]}>
           <AtmosphericGlow
-            size={160}
-            opacity={0.9}
+            size={hasVoice ? 150 : 130}
+            opacity={0.85}
             tintColor="#4CAF50"
-            showParticles
-            particleDensity="medium"
+            showParticles={hasVoice}
+            particleDensity="low"
             animated
             isSpeaking={isPlaying}
-            style={styles.glowPosition}
+            style={hasVoice ? styles.glowWithVoice : styles.glowCompact}
           />
 
-          {/* Floating voice control above Tara */}
-          {showVoiceControl && (
+          {/* Floating voice control above Tara (only when voice audio exists) */}
+          {hasVoice && (
             <View style={styles.voiceControlWrap}>
               {isPlaying && (
                 <>
@@ -423,7 +409,7 @@ export const TaraSideMessageCard = forwardRef<
                 >
                   <MaterialIcons
                     name="volume-up"
-                    size={20}
+                    size={19}
                     color={isPlaying ? "#FFFFFF" : "#1B6D24"}
                   />
                 </Pressable>
@@ -431,7 +417,7 @@ export const TaraSideMessageCard = forwardRef<
             </View>
           )}
 
-          {/* Tara Mascot Avatar - subtle left-right drift */}
+          {/* Tara Mascot Avatar - anchored at bottom */}
           <Animated.View
             style={[
               styles.avatarWrap,
@@ -459,27 +445,58 @@ export const TaraSideMessageCard = forwardRef<
           </Animated.View>
         </View>
 
-        {/* 2. Curved Dialogue Speech Bubble on the right - subtle top-bottom float */}
+        {/* 2. Curved Dialogue Speech Bubble on the right */}
         <Animated.View
           style={[
             styles.speechBubbleWrapper,
+            isSingleLine && styles.speechBubbleWrapperSingleLine,
             { transform: [{ translateY: bubbleTranslateY }] },
           ]}
         >
-          {/* Dialogue Bubble Tail / Pointer (points left toward Tara) */}
-          <View style={styles.bubbleTailBorder} />
-          <View style={styles.bubbleTail} />
+          {/* Main Curved Dialogue Card (Adapts to Single-Line, Two-Line, and Multi-Line) */}
+          <View
+            style={[
+              styles.speechCard,
+              isSingleLine && styles.speechCardSingleLine,
+              isLongMessage && styles.speechCardLong,
+            ]}
+          >
+            {/* Seamless Pointer Tail pointing to Tara */}
+            <View
+              style={[
+                styles.bubblePointer,
+                isSingleLine && styles.bubblePointerSingleLine,
+              ]}
+            />
 
-          {/* Main Curved Dialogue Card */}
-          <View style={styles.speechCard}>
-            {/* Speech Title & Body Text Stack */}
             <Animated.View style={[styles.textStack, { opacity: textFadeAnim }]}>
               {isLoading ? (
                 <TextRenderingLoader text={t("tara.loading")} />
               ) : (
                 <>
-                  <Text style={styles.titleText}>{headerTitle}</Text>
-                  <Text style={styles.bodyText}>{messageBody}</Text>
+                  {!!title && <Text style={styles.titleText}>{title}</Text>}
+                  <Text
+                    numberOfLines={isLongMessage && !isExpanded ? 2 : undefined}
+                    style={[
+                      styles.bodyText,
+                      isSingleLine && styles.bodyTextSingleLine,
+                    ]}
+                  >
+                    {message}
+                  </Text>
+
+                  {/* Expand / Load More Button for 3+ Line Messages */}
+                  {isLongMessage && (
+                    <Pressable
+                      onPress={handleToggleExpand}
+                      style={styles.expandButton}
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.expandButtonText}>
+                        {isExpanded ? "Show Less ▴" : "Read More ▾"}
+                      </Text>
+                    </Pressable>
+                  )}
                 </>
               )}
             </Animated.View>
@@ -498,14 +515,20 @@ const styles = StyleSheet.create({
     maxWidth: 480,
     alignSelf: "center",
     backgroundColor: "#F3F8F1",
-    borderRadius: 28,
+    borderRadius: 24,
     borderWidth: 1.5,
     borderColor: "rgba(168, 222, 172, 0.45)",
-    paddingTop: 8,
-    paddingBottom: 0,
     paddingHorizontal: 12,
     position: "relative",
     overflow: "hidden",
+  },
+  outerWithVoice: {
+    paddingTop: 8,
+    paddingBottom: 0,
+  },
+  outerCompact: {
+    paddingTop: 6,
+    paddingBottom: 0,
   },
   row: {
     width: "100%",
@@ -515,21 +538,32 @@ const styles = StyleSheet.create({
 
   /* ---------- TARA (left) ---------- */
   heroArea: {
-    width: 122,
-    height: 130,
+    width: 90,
     alignItems: "center",
     justifyContent: "flex-end",
     position: "relative",
   },
-  glowPosition: {
+  heroWithVoice: {
+    height: 118,
+  },
+  heroCompact: {
+    height: 94,
+  },
+  glowWithVoice: {
     position: "absolute",
     top: "20%",
     alignSelf: "center",
-    marginTop: -78,
+    marginTop: -75,
+  },
+  glowCompact: {
+    position: "absolute",
+    top: "30%",
+    alignSelf: "center",
+    marginTop: -65,
   },
   avatarWrap: {
-    width: 116,
-    height: 116,
+    width: 90,
+    height: 90,
     alignItems: "center",
     justifyContent: "flex-end",
     position: "relative",
@@ -554,74 +588,86 @@ const styles = StyleSheet.create({
   /* ---------- SPEECH BUBBLE (right) ---------- */
   speechBubbleWrapper: {
     flex: 1,
-    marginLeft: 2,
-    marginBottom: 12,
+    marginLeft: 3,
+    marginBottom: 8,
     position: "relative",
-    alignItems: "center",
+    justifyContent: "center",
     zIndex: 10,
   },
-  bubbleTailBorder: {
-    position: "absolute",
-    left: -10,
-    top: "50%",
-    marginTop: -10,
-    width: 0,
-    height: 0,
-    borderTopWidth: 10,
-    borderBottomWidth: 10,
-    borderRightWidth: 11,
-    borderTopColor: "transparent",
-    borderBottomColor: "transparent",
-    borderRightColor: "rgba(185, 228, 190, 0.8)",
-    zIndex: 11,
-  },
-  bubbleTail: {
-    position: "absolute",
-    left: -8.5,
-    top: "50%",
-    marginTop: -9,
-    width: 0,
-    height: 0,
-    borderTopWidth: 9,
-    borderBottomWidth: 9,
-    borderRightWidth: 10,
-    borderTopColor: "transparent",
-    borderBottomColor: "transparent",
-    borderRightColor: "#FFFFFF",
-    zIndex: 12,
+  speechBubbleWrapperSingleLine: {
+    marginBottom: 0,
+    alignSelf: "center",
   },
 
-  // Curved Dialogue Card
+  // Base Curved Dialogue Card (2-Line standard)
   speechCard: {
     width: "100%",
+    minHeight: 44,
     backgroundColor: "#FFFFFF",
-    borderRadius: 24,
+    borderRadius: 18,
     borderWidth: 1.5,
-    borderColor: "rgba(185, 228, 190, 0.6)",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    borderColor: "rgba(185, 228, 190, 0.75)",
+    paddingVertical: 9,
+    paddingHorizontal: 13,
+    justifyContent: "center",
     shadowColor: "#002204",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
     elevation: 3,
+    position: "relative",
+  },
+
+  // Single-Line Variant
+  speechCardSingleLine: {
+    minHeight: 38,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+  },
+
+  // Long Multi-Line Variant
+  speechCardLong: {
+    paddingVertical: 10,
+  },
+
+  // Seamless Pointer Tail
+  bubblePointer: {
+    position: "absolute",
+    left: -6.5,
+    top: "50%",
+    marginTop: -6,
+    width: 12,
+    height: 12,
+    backgroundColor: "#FFFFFF",
+    borderLeftWidth: 1.5,
+    borderBottomWidth: 1.5,
+    borderColor: "rgba(185, 228, 190, 0.75)",
+    transform: [{ rotate: "45deg" }],
+    zIndex: 12,
+  },
+  bubblePointerSingleLine: {
+    left: -5.5,
+    marginTop: -5,
+    width: 10,
+    height: 10,
   },
 
   // Floating voice control in the top-left corner
   voiceControlWrap: {
     position: "absolute",
-    top: -2,
-    left: -2,
-    width: 38,
-    height: 38,
+    top: 0,
+    left: 0,
+    width: 36,
+    height: 36,
     alignItems: "center",
     justifyContent: "center",
     zIndex: 15,
   },
   voiceButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: "#FFFFFF",
     borderWidth: 1.5,
     borderColor: "rgba(185, 228, 190, 0.75)",
@@ -644,9 +690,9 @@ const styles = StyleSheet.create({
   },
   pulseRing: {
     position: "absolute",
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 1.5,
     borderColor: colors.primary,
     backgroundColor: "rgba(76, 175, 80, 0.20)",
@@ -664,9 +710,28 @@ const styles = StyleSheet.create({
   },
   bodyText: {
     ...typography.bodyMd,
+    fontSize: 13.5,
+    lineHeight: 18.5,
+    color: "#181C1A",
+    fontWeight: "600",
+  },
+  bodyTextSingleLine: {
+    fontSize: 13,
+    lineHeight: 17,
+    fontWeight: "600",
+  },
+  expandButton: {
+    alignSelf: "flex-end",
+    marginTop: 4,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    backgroundColor: "#E8F5E9",
+    borderRadius: rounded.full,
+  },
+  expandButtonText: {
+    ...typography.labelSm,
     fontSize: 11,
-    lineHeight: 16,
-    color: "#4F5D4C",
-    fontWeight: "400",
+    fontWeight: "700",
+    color: "#2E7D32",
   },
 });

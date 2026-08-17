@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { learnRepository } from "../services";
-import type { LearnCategory, LearnLesson, LearnLessonDetail, LearnSummary } from "../types/learn";
+import type { LearnCategory, LearnLesson, LearnLessonDetail, LearnSummary, LevelDefinition } from "../types/learn";
 
 interface LearnContextValue {
   summary: LearnSummary | null;
@@ -18,6 +18,8 @@ interface LearnContextValue {
   refresh: () => Promise<void>;
   completeLesson: (lessonId: string) => Promise<void>;
   getLessonDetail: (lessonId: string) => Promise<LearnLessonDetail | null>;
+  getLevelDefinition: (levelId: string, lang?: string) => Promise<LevelDefinition | null>;
+  completeLevelStep: (levelId: string, xpEarned: number) => Promise<void>;
 }
 
 const LearnContext = createContext<LearnContextValue | null>(null);
@@ -71,6 +73,26 @@ export function LearnProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const getLevelDefinition = useCallback(async (levelId: string, lang?: string) => {
+    try {
+      return await learnRepository.getLevelDefinition(levelId, lang);
+    } catch (err: unknown) {
+      console.warn("Failed to fetch level definition:", err);
+      return null;
+    }
+  }, []);
+
+  const completeLevelStep = useCallback(async (levelId: string, xpEarned: number) => {
+    try {
+      await learnRepository.completeLevelStep(levelId, xpEarned);
+      setSummary((prev) =>
+        prev ? { ...prev, todayXp: prev.todayXp + xpEarned } : prev
+      );
+    } catch (err: unknown) {
+      console.warn("Failed to complete level step:", err);
+    }
+  }, []);
+
   useEffect(() => {
     refresh();
   }, [refresh]);
@@ -86,12 +108,15 @@ export function LearnProvider({ children }: { children: ReactNode }) {
         refresh,
         completeLesson,
         getLessonDetail,
+        getLevelDefinition,
+        completeLevelStep,
       }}
     >
       {children}
     </LearnContext.Provider>
   );
 }
+
 
 export function useLearn() {
   const context = useContext(LearnContext);

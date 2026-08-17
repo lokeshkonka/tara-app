@@ -3,6 +3,7 @@ import { Animated, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { DashboardTopBar } from "../../components/dashboard/DashboardTopBar";
+import { HomeActiveLevelStepCard } from "../../components/dashboard/HomeActiveLevelStepCard";
 import { HomeTodaysPracticeCard } from "../../components/dashboard/HomeTodaysPracticeCard";
 import { ProgressSection } from "../../components/progress/ProgressSection";
 import TaraHomeBanner from "../../components/dashboard/TaraHomeBanner";
@@ -87,6 +88,7 @@ export default function HomeTab() {
         scrollEventThrottle={16}
       >
         <TaraHomeBanner />
+        <HomeActiveLevelStepCard />
         {todaysPractice && !isLoading && (
           <HomeTodaysPracticeCard practice={todaysPractice} />
         )}

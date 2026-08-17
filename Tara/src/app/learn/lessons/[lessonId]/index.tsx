@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LessonDetailHeader } from "../../../../components/learn/detail/LessonDetailHeader";
 import { LessonOverview } from "../../../../components/learn/detail/LessonOverview";
 import { LessonTimeline } from "../../../../components/learn/detail/LessonTimeline";
 import { getCategoryTheme } from "../../../../components/learn/LearnTheme";
+import { BadgeRewardItem } from "../../../../components/learn/level/LevelCompleteCard";
 import { TactileButton } from "../../../../components/ui/TactileButton";
 import { useLearn } from "../../../../context/LearnContext";
 import { useUser } from "../../../../context/UserContext";
 import { useTranslation } from "../../../../hooks/useTranslation";
 import { colors, componentColors, rounded, spacing, typography } from "../../../../theme/theme";
+import { learnStorage } from "../../../../storage/learnStorage";
 import type { LearnLessonDetail, LevelNodeDetail } from "../../../../types/learn";
 
 export default function LessonDetailScreen() {
@@ -19,53 +21,28 @@ export default function LessonDetailScreen() {
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
   const { t } = useTranslation();
   const { addXp } = useUser();
-  const { getLessonDetail, completeLesson } = useLearn();
+  const { getLessonDetail, completeLesson, refresh } = useLearn();
 
   const [detail, setDetail] = useState<LearnLessonDetail | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchDetail() {
-      if (!lessonId) return;
-      setIsLoading(true);
-      const res = await getLessonDetail(lessonId);
-      if (isMounted) {
-        setDetail(res);
-        setIsLoading(false);
-      }
-    }
-    fetchDetail();
-    return () => {
-      isMounted = false;
-    };
+  const fetchDetail = useCallback(async () => {
+    if (!lessonId) return;
+    const res = await getLessonDetail(lessonId);
+    setDetail(res);
+    setIsLoading(false);
   }, [lessonId, getLessonDetail]);
 
-  const handleSelectLevel = async (level: LevelNodeDetail) => {
+  useFocusEffect(
+    useCallback(() => {
+      fetchDetail();
+      refresh();
+    }, [fetchDetail, refresh])
+  );
+
+  const handleSelectLevel = (level: LevelNodeDetail) => {
     if (level.status === "locked") return;
-    
-    // Simulate interactive level action/completion
-    Alert.alert(
-      `Level ${level.levelNumber}: ${t(level.titleKey)}`,
-      t(level.descriptionKey) + `\n\nEarn +${level.xp} XP upon completion!`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: level.status === "completed" ? "Review Level" : "Start Level",
-          onPress: async () => {
-            if (level.status !== "completed") {
-              await completeLesson(level.id);
-              await addXp(level.xp);
-              // Refresh detail
-              if (lessonId) {
-                const updated = await getLessonDetail(lessonId);
-                if (updated) setDetail(updated);
-              }
-            }
-          },
-        },
-      ]
-    );
+    router.push(`/learn/level/${level.id}`);
   };
 
   const handleBack = () => {
@@ -101,6 +78,25 @@ export default function LessonDetailScreen() {
     detail.levels.find((l) => l.status === "available") ||
     detail.levels[0];
 
+  const handleResetProgress = () => {
+    Alert.alert(
+      "Reset Lesson Progress?",
+      "This will reset completed levels so you can practice this lesson from Level 1 again.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: async () => {
+            await learnStorage.resetProgress();
+            await fetchDetail();
+            await refresh();
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ScrollView
@@ -124,7 +120,7 @@ export default function LessonDetailScreen() {
         />
 
         <View style={styles.bodyWrapper}>
-          {/* Overview ("Why It Matters" + Outcomes + Tara Quote) */}
+          {/* Overview Card */}
           <LessonOverview
             whyItMattersKey={detail.whyItMattersKey}
             learningOutcomes={detail.learningOutcomes}
@@ -132,31 +128,75 @@ export default function LessonDetailScreen() {
             taraExpression={detail.taraExpression}
           />
 
-          {/* Lesson Timeline Component */}
-          <LessonTimeline levels={detail.levels} onSelectLevel={handleSelectLevel} />
+          {/* Completed Lesson Mastered Badge Banner */}
+          {detail.levels.every((l) => l.status === "completed") && (
+            <View style={styles.completedBadgeWrap}>
+              <BadgeRewardItem
+                title="Soil Guardian Badge Unlocked"
+                icon="eco"
+                badgeId="soil-guardian"
+              />
+            </View>
+          )}
 
-          {/* Primary Action Button */}
+          {/* Timeline */}
+          <View style={styles.timelineSection}>
+            <Text style={styles.sectionHeading}>{t("lesson.detail.learningJourney")}</Text>
+            <LessonTimeline levels={detail.levels} onSelectLevel={handleSelectLevel} />
+          </View>
+
+          {/* Action CTA */}
           {activeLevel && (
             <TactileButton
               title={
-                activeLevel.status === "completed"
-                  ? t("lesson.detail.reviewLevel", { level: activeLevel.levelNumber })
+                detail.levels.every((l) => l.status === "completed")
+                  ? "Review Lesson (Level 1)"
                   : activeLevel.status === "inProgress"
                   ? t("lesson.detail.continueLevel", { level: activeLevel.levelNumber })
                   : t("lesson.detail.startLevel", { level: activeLevel.levelNumber })
               }
-              icon="arrow-forward"
+              icon={detail.levels.every((l) => l.status === "completed") ? "replay" : "arrow-forward"}
               iconPosition="right"
-              faceColor={chipTheme.solid}
-              depthColor={chipTheme.solidEdge}
+              faceColor={
+                detail.levels.every((l) => l.status === "completed")
+                  ? "#16A34A"
+                  : chipTheme.solid
+              }
+              depthColor={
+                detail.levels.every((l) => l.status === "completed")
+                  ? "#15803D"
+                  : chipTheme.solidEdge
+              }
               textColor="#FFFFFF"
               height={52}
               depth={4}
               borderRadius={rounded.full}
-              onPress={() => handleSelectLevel(activeLevel)}
+              onPress={() =>
+                handleSelectLevel(
+                  detail.levels.every((l) => l.status === "completed")
+                    ? detail.levels[0]
+                    : activeLevel
+                )
+              }
               style={styles.mainCta}
             />
           )}
+
+          {/* Reset Progress Section */}
+          <View style={styles.resetWrapper}>
+            <TactileButton
+              title="Reset Lesson Progress"
+              icon="restart-alt"
+              iconPosition="left"
+              faceColor="#FFF1F2"
+              depthColor="#FECDD3"
+              textColor="#E11D48"
+              height={44}
+              depth={3}
+              borderRadius={rounded.full}
+              onPress={handleResetProgress}
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -209,5 +249,13 @@ const styles = StyleSheet.create({
   },
   mainCta: {
     marginTop: spacing.stackSm,
+  },
+  completedBadgeWrap: {
+    marginBottom: -spacing.stackSm,
+  },
+  resetWrapper: {
+    marginTop: spacing.stackSm,
+    marginBottom: spacing.stackMd,
+    alignItems: "center",
   },
 });

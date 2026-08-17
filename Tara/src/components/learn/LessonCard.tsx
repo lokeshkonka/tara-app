@@ -83,10 +83,17 @@ export function LessonCard({
 
         {/* --- LEFT-ALIGNED CHIPS (ROW 1: XP, ROW 2: Category -> Levels -> Mins) --- */}
         <View style={styles.heroLeftChips}>
-          {/* Row 1: XP Pill */}
-          <View style={styles.xpPill}>
-            <MaterialIcons name="star" size={13} color="#D97706" />
-            <Text style={styles.xpPillText}>+{lesson.xp} XP</Text>
+          {/* Row 1: XP Pill & Level Step Badge */}
+          <View style={styles.topChipsRow}>
+            <View style={styles.xpPill}>
+              <MaterialIcons name="star" size={13} color="#D97706" />
+              <Text style={styles.xpPillText}>+{lesson.xp} XP</Text>
+            </View>
+
+            <View style={styles.stepBadge}>
+              <MaterialIcons name="eco" size={12} color="#15803D" />
+              <Text style={styles.stepBadgeText}>Level {lesson.level} • Step 1</Text>
+            </View>
           </View>
 
           {/* Row 2 (Below XP): Category -> Levels -> Mins */}
@@ -248,6 +255,23 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "800",
     color: "#D97706",
+  },
+  stepBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#DCFCE7",
+    borderWidth: 1,
+    borderColor: "#BBF7D0",
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: rounded.full,
+    gap: 3,
+  },
+  stepBadgeText: {
+    ...typography.labelSm,
+    fontSize: 11,
+    fontWeight: "800",
+    color: "#15803D",
   },
 
   neutralChip: {

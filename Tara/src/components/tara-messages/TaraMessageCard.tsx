@@ -1,11 +1,17 @@
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import {
   Animated,
   Easing,
+  LayoutAnimation,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
+  TouchableOpacity,
+  UIManager,
   View,
+  type NativeSyntheticEvent,
+  type TextLayoutEventData,
 } from "react-native";
 import { Image, type ImageSource } from "expo-image";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -47,6 +53,10 @@ export interface TaraMessageCardProps {
     bgColor: string;
     position: "top-right" | "bottom-left";
   }[];
+  /** Optional custom styling for the message body text */
+  bodyTextStyle?: any;
+  /** Optional container style overrides */
+  containerStyle?: any;
   onSpeechStart?: () => void;
   onSpeechEnd?: () => void;
   onVoicePress?: () => void;
@@ -163,7 +173,8 @@ const loaderStyles = StyleSheet.create({
  * TaraMessageCard
  *
  * Polished character hero card with an organic speech dialogue bubble (proper curve + tail pointer)
- * and an interactive mic button with high-strength pulsating rhythm beat while audio plays.
+ * featuring a floating voice control button at the top-left corner so the message body fills
+ * the whole speech bubble container smoothly.
  */
 export const TaraMessageCard = forwardRef<
   TaraMessageCardHandle,
@@ -179,6 +190,8 @@ export const TaraMessageCard = forwardRef<
     showVoiceControl = true,
     isLoading = false,
     floatingBadges,
+    bodyTextStyle,
+    containerStyle,
     onSpeechStart,
     onSpeechEnd,
     onVoicePress,
@@ -188,15 +201,49 @@ export const TaraMessageCard = forwardRef<
   const [displayedExpression, setDisplayedExpression] = useState(expression);
   const [fadingExpression, setFadingExpression] = useState(false);
 
-  // Keep messageAnim wrapper opacity at 1 to prevent black background blink
   const [messageAnim] = useState(() => new Animated.Value(1));
   const [textFadeAnim] = useState(() => new Animated.Value(1));
   const [exprAnim] = useState(() => new Animated.Value(1));
   const [pulse] = useState(() => new Animated.Value(0));
 
+  const triggerSubtleAnim = () => {
+    try {
+      LayoutAnimation.configureNext({
+        duration: 350,
+        create: {
+          type: LayoutAnimation.Types.easeInEaseOut,
+          property: LayoutAnimation.Properties.opacity,
+        },
+        update: {
+          type: LayoutAnimation.Types.easeInEaseOut,
+        },
+      });
+    } catch (e) {}
+  };
+
+  const [isVoiceFinished, setIsVoiceFinished] = useState<boolean>(false);
+  const [sentenceIndex, setSentenceIndex] = useState<number>(0);
+  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+
+  const triggerTextFade = useCallback(() => {
+    textFadeAnim.setValue(0.15);
+    Animated.timing(textFadeAnim, {
+      toValue: 1,
+      duration: 350,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [textFadeAnim]);
+
   const { isPlaying, play, stop } = useTaraAudio(audioSource, {
-    onStart: () => onSpeechStart?.(),
-    onEnd: () => onSpeechEnd?.(),
+    onStart: () => {
+      onSpeechStart?.();
+    },
+    onEnd: () => {
+      setIsVoiceFinished(true);
+      triggerTextFade();
+      onSpeechEnd?.();
+    },
   });
 
   useImperativeHandle(ref, () => ({ play, stop }), [play, stop]);
@@ -207,37 +254,107 @@ export const TaraMessageCard = forwardRef<
     }
   }, [autoPlay, audioSource, play]);
 
-  // Smooth inner text cross-fade animation without fading the outer white speech card container
-  useEffect(() => {
-    textFadeAnim.setValue(0.3);
-    Animated.timing(textFadeAnim, {
-      toValue: 1,
-      duration: 220,
-      useNativeDriver: true,
-    }).start();
-  }, [message, textFadeAnim]);
+  const source = image ?? TARA_EXPRESSIONS[displayedExpression];
 
-  // Expression cross-fade
+  const { headerTitle, messageBody } = useMemo(() => {
+    if (title !== undefined) {
+      return { headerTitle: title, messageBody: message };
+    }
+    if (message.startsWith("Namaste! I'm Tara.")) {
+      const remaining = message.replace("Namaste! I'm Tara.", "").trim();
+      return {
+        headerTitle: "Namaste! I'm Tara.",
+        messageBody: remaining || "Your companion on the journey to sustainable and prosperous farming.",
+      };
+    }
+    return {
+      headerTitle: "TARA",
+      messageBody: message,
+    };
+  }, [title, message]);
+
+  // Split message into lines for line-by-line narration while voice plays
+  const sentences = useMemo(() => {
+    if (!messageBody) return [];
+    if (messageBody.includes("\n\n")) {
+      return messageBody.split("\n\n").map((s) => s.trim()).filter(Boolean);
+    }
+    const matches = messageBody.match(/[^.!?।]+[.!?।]+/g);
+    if (!matches || matches.length === 0) return [messageBody];
+    return matches.map((s) => s.trim());
+  }, [messageBody]);
+
+  // Handle line transitions as voice audio progresses
   useEffect(() => {
-    if (expression === displayedExpression) return;
-    setFadingExpression(true);
+    if (!isPlaying || !audioSource || isVoiceFinished || sentences.length <= 1) {
+      return;
+    }
+
+    const totalChars = messageBody.length || 1;
+    let timerId: NodeJS.Timeout | null = null;
+
+    const scheduleNext = (currentIdx: number) => {
+      if (currentIdx >= sentences.length - 1) return;
+      const currentSentence = sentences[currentIdx];
+      const durationMs = Math.max(
+        3200,
+        Math.floor((currentSentence.length / totalChars) * 16500)
+      );
+
+      timerId = setTimeout(() => {
+        const nextIdx = currentIdx + 1;
+        triggerTextFade();
+        setSentenceIndex(nextIdx);
+        scheduleNext(nextIdx);
+      }, durationMs);
+    };
+
+    scheduleNext(sentenceIndex);
+
+    return () => {
+      if (timerId) clearTimeout(timerId);
+    };
+  }, [isPlaying, audioSource, isVoiceFinished, sentences, messageBody, sentenceIndex, triggerTextFade]);
+
+  // If voice is done, voice is off, or single line: display full paragraph
+  const displayedText = useMemo(() => {
+    if (isVoiceFinished || !isPlaying || !audioSource || sentences.length <= 1) {
+      return messageBody;
+    }
+    return sentences[sentenceIndex] || messageBody;
+  }, [isVoiceFinished, isPlaying, audioSource, sentences, sentenceIndex, messageBody]);
+
+  const targetExpression = expression || "happy";
+
+  const [displayedExpr, setDisplayedExpr] = useState<TaraExpression>(targetExpression);
+  const [prevExpr, setPrevExpr] = useState<TaraExpression | null>(null);
+
+  // Smooth fade-in text animation on initial load or message change
+  useEffect(() => {
+    triggerTextFade();
+  }, [messageBody, triggerTextFade]);
+
+  // Expression cross-fade + micro-elastic scale animation when expression prop changes
+  useEffect(() => {
+    if (targetExpression === displayedExpr) return;
+    setPrevExpr(displayedExpr);
+    setDisplayedExpr(targetExpression);
     exprAnim.setValue(0);
+
     Animated.timing(exprAnim, {
       toValue: 1,
-      duration: 250,
+      duration: 380,
+      easing: Easing.out(Easing.back(1.2)),
       useNativeDriver: true,
-    }).start();
-    const timer = setTimeout(() => {
-      setDisplayedExpression(expression);
-      setFadingExpression(false);
-      exprAnim.setValue(1);
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [expression, displayedExpression, exprAnim]);
+    }).start(({ finished }) => {
+      if (finished) {
+        setPrevExpr(null);
+      }
+    });
+  }, [targetExpression, displayedExpr, exprAnim]);
 
   const speaking = isPlaying;
 
-  // Punchy pulse beat animation while playing audio
   useEffect(() => {
     if (!speaking) {
       pulse.stopAnimation();
@@ -301,7 +418,6 @@ export const TaraMessageCard = forwardRef<
     outputRange: [1, 1.15, 1.08, 1],
   });
 
-  // Subtle wobble and beat for floating badges while speaking
   const badgeWobble = pulse.interpolate({
     inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
     outputRange: ["0deg", "-6deg", "5deg", "-4deg", "3deg", "0deg"],
@@ -323,75 +439,88 @@ export const TaraMessageCard = forwardRef<
   const handleToggle = () => {
     if (isPlaying) {
       stop();
+      setIsVoiceFinished(true);
+      triggerTextFade();
     } else {
       play();
     }
     onVoicePress?.();
   };
 
-  const source = image ?? TARA_EXPRESSIONS[displayedExpression];
-
-  // Parse title and subtitle gracefully if not passed explicitly
-  const { headerTitle, messageBody } = useMemo(() => {
-    if (title) {
-      return { headerTitle: title, messageBody: message };
-    }
-    if (message.startsWith("Namaste! I'm Tara.")) {
-      const remaining = message.replace("Namaste! I'm Tara.", "").trim();
-      return {
-        headerTitle: "Namaste! I'm Tara.",
-        messageBody: remaining || "Your companion on the journey to sustainable and prosperous farming.",
-      };
-    }
-    const firstPeriod = message.indexOf(".");
-    if (firstPeriod > 0 && firstPeriod < 30) {
-      return {
-        headerTitle: message.slice(0, firstPeriod + 1),
-        messageBody: message.slice(firstPeriod + 1).trim(),
-      };
-    }
-    return {
-      headerTitle: "Namaste! I'm Tara.",
-      messageBody: message,
-    };
-  }, [title, message]);
-
   return (
-    <View style={styles.outerContainer}>
+    <View style={[styles.outerContainer, containerStyle]}>
       {/* 1. Character & Atmospheric Halo Area */}
       <View style={styles.heroArea}>
-        {/* Ambient green atmospheric glow with sparkles and dynamic speech beat */}
-        <AtmosphericGlow
-          size={290}
-          opacity={0.95}
-          tintColor="#4CAF50"
-          showParticles
-          particleDensity="medium"
-          animated
-          isSpeaking={speaking}
-          style={styles.glowPosition}
-        />
-
-        {/* Tara Mascot Avatar */}
-        <View style={styles.avatarWrap}>
-          <Image
-            source={source}
-            style={styles.avatarImage}
-            contentFit="contain"
-            accessibilityLabel={`Tara ${displayedExpression}`}
+        <View style={styles.glowClipper}>
+          <AtmosphericGlow
+            size={320}
+            opacity={0.95}
+            tintColor="#4CAF50"
+            showParticles
+            particleDensity="medium"
+            animated
+            isSpeaking={speaking}
+            style={styles.glowPosition}
           />
-          {fadingExpression && expression !== displayedExpression && (
+        </View>
+
+        {/* Tara Mascot Avatar with subtle pop & cross-fade expression transition */}
+        <Animated.View
+          style={[
+            styles.avatarWrap,
+            {
+              transform: [
+                {
+                  scale: exprAnim.interpolate({
+                    inputRange: [0, 0.4, 1],
+                    outputRange: [0.94, 1.05, 1.0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          {prevExpr && (
             <Animated.View
               pointerEvents="none"
-              style={[styles.avatarOverlay, { opacity: exprAnim }]}
+              style={[
+                styles.avatarOverlay,
+                {
+                  opacity: exprAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 0],
+                  }),
+                },
+              ]}
             >
               <Image
-                source={image ?? TARA_EXPRESSIONS[expression]}
-                style={styles.avatarFill}
+                source={TARA_EXPRESSIONS[prevExpr]}
+                style={styles.avatarImage}
                 contentFit="contain"
               />
             </Animated.View>
           )}
+
+          <Animated.View
+            style={{
+              width: "100%",
+              height: "100%",
+              opacity: prevExpr
+                ? exprAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 1],
+                  })
+                : 1,
+            }}
+          >
+            <Image
+              source={image ?? TARA_EXPRESSIONS[displayedExpr]}
+              style={styles.avatarImage}
+              contentFit="contain"
+              accessibilityLabel={`Tara ${displayedExpr}`}
+            />
+          </Animated.View>
+        </Animated.View>
 
           {/* Floating Badges */}
           {floatingBadges?.map((badge, idx) => (
@@ -416,7 +545,6 @@ export const TaraMessageCard = forwardRef<
             </Animated.View>
           ))}
         </View>
-      </View>
 
       {/* 2. Curved Dialogue Speech Bubble Container */}
       <Animated.View
@@ -434,9 +562,9 @@ export const TaraMessageCard = forwardRef<
 
         {/* Main Curved Dialogue Card */}
         <View style={styles.speechCard}>
-          {/* Left: Punchy Pulsating Mic Audio Button */}
-          {showVoiceControl ? (
-            <View style={styles.buttonWrap}>
+          {/* Floating Voice Control Button in Top-Left Corner */}
+          {showVoiceControl && (
+            <View style={styles.floatingVoiceContainer}>
               {speaking && (
                 <>
                   <Animated.View
@@ -471,26 +599,65 @@ export const TaraMessageCard = forwardRef<
                 >
                   <MaterialIcons
                     name="volume-up"
-                    size={24}
+                    size={20}
                     color={speaking ? "#FFFFFF" : "#1B6D24"}
                   />
                 </Pressable>
               </Animated.View>
             </View>
-          ) : (
-            <View style={styles.nameBadge}>
-              <MaterialIcons name="volume-up" size={22} color="#1B6D24" />
-            </View>
           )}
 
-          {/* Center/Right: Speech Title & Body Text Stack */}
+          {/* Full-Width Message Body */}
           <Animated.View style={[styles.textStack, { opacity: textFadeAnim }]}>
             {isLoading ? (
               <TextRenderingLoader text="Tara is preparing response..." />
             ) : (
               <>
-                <Text style={styles.titleText}>{headerTitle}</Text>
-                <Text style={styles.bodyText}>{messageBody}</Text>
+                {headerTitle ? (
+                  <Text style={styles.titleText}>
+                    {headerTitle}
+                  </Text>
+                ) : null}
+                <Pressable onPress={handleToggle}>
+                  <Text
+                    style={[styles.bodyText, bodyTextStyle]}
+                    numberOfLines={
+                      isVoiceFinished || !isPlaying
+                        ? isExpanded
+                          ? undefined
+                          : 3
+                        : undefined
+                    }
+                  >
+                    {displayedText}
+                  </Text>
+                </Pressable>
+
+                {(isVoiceFinished || !isPlaying) && messageBody.length > 90 && (
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    style={styles.loadMoreButton}
+                    onPress={() => {
+                      try {
+                        LayoutAnimation.configureNext(
+                          LayoutAnimation.Presets.easeInEaseOut
+                        );
+                      } catch {}
+                      setIsExpanded((prev) => !prev);
+                    }}
+                  >
+                    <Text style={styles.loadMoreText}>
+                      {isExpanded ? "Show Less" : "Load More"}
+                    </Text>
+                    <MaterialIcons
+                      name={
+                        isExpanded ? "keyboard-arrow-up" : "keyboard-arrow-down"
+                      }
+                      size={16}
+                      color={colors.primary}
+                    />
+                  </TouchableOpacity>
+                )}
               </>
             )}
           </Animated.View>
@@ -515,29 +682,40 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     paddingHorizontal: 12,
     position: "relative",
-    overflow: "hidden",
+    overflow: "visible",
   },
   heroArea: {
     width: "100%",
-    height: 190,
-    alignItems: "center",
-    justifyContent: "flex-end",
-    position: "relative",
-    marginBottom: -8,
-  },
-  glowPosition: {
-    position: "absolute",
-    top: "32%",
-    alignSelf: "center",
-    marginTop: -145,
-  },
-  avatarWrap: {
-    width: 195,
     height: 195,
     alignItems: "center",
     justifyContent: "flex-end",
     position: "relative",
-    zIndex: 2,
+    marginBottom: -8,
+    overflow: "visible",
+  },
+  glowClipper: {
+    position: "absolute",
+    top: -12,
+    left: -12,
+    right: -12,
+    bottom: 0,
+    overflow: "hidden",
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
+  },
+  glowPosition: {
+    position: "absolute",
+    top: "50%",
+    alignSelf: "center",
+    marginTop: -160,
+  },
+  avatarWrap: {
+    width: 190,
+    height: 190,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    position: "relative",
+    zIndex: 5,
   },
   avatarImage: {
     width: "100%",
@@ -579,12 +757,13 @@ const styles = StyleSheet.create({
     left: 6,
   },
 
-  // Speech Bubble with Tail Pointer
+  // Speech Bubble Container
   speechBubbleWrapper: {
     width: "100%",
     position: "relative",
     alignItems: "center",
     zIndex: 10,
+    marginTop: 4,
   },
   bubbleTailBorder: {
     position: "absolute",
@@ -621,9 +800,8 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: "rgba(185, 228, 190, 0.6)",
     paddingVertical: 14,
-    paddingHorizontal: 14,
-    flexDirection: "row",
-    alignItems: "center",
+    paddingHorizontal: 16,
+    position: "relative",
     shadowColor: "#002204",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
@@ -631,28 +809,31 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
 
-  // Mic Action Button
-  buttonWrap: {
-    position: "relative",
+  // Floating Voice Control Button on Top-Left Edge
+  floatingVoiceContainer: {
+    position: "absolute",
+    top: -16,
+    left: 14,
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
-    width: 50,
-    height: 50,
+    zIndex: 25,
   },
   volumeButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     backgroundColor: "#FFFFFF",
     borderWidth: 1.5,
-    borderColor: "rgba(185, 228, 190, 0.75)",
+    borderColor: "rgba(185, 228, 190, 0.85)",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#002204",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.12,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 4,
   },
   volumeButtonActive: {
     backgroundColor: colors.primary,
@@ -661,46 +842,55 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 5,
   },
   pulseRing: {
     position: "absolute",
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     borderWidth: 1.5,
     borderColor: colors.primary,
     backgroundColor: "rgba(76, 175, 80, 0.20)",
   },
 
-  nameBadge: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1.5,
-    borderColor: "rgba(185, 228, 190, 0.75)",
-  },
-
+  // Full-Width Text Stack
   textStack: {
-    flex: 1,
-    marginLeft: 14,
+    width: "100%",
     justifyContent: "center",
+    paddingTop: 10,
   },
   titleText: {
     ...typography.labelLg,
-    fontSize: 15,
-    fontWeight: "700",
+    fontSize: 16,
+    fontWeight: "800",
     color: "#181C1A",
-    marginBottom: 2,
+    marginBottom: 4,
   },
   bodyText: {
     ...typography.bodyMd,
-    fontSize: 12.5,
-    lineHeight: 18,
-    color: "#4F5D4C",
+    fontSize: 13.5,
+    lineHeight: 20,
+    color: "#3F4A3C",
     fontWeight: "400",
+  },
+  cursorText: {
+    color: colors.primaryContainer,
+    fontWeight: "800",
+  },
+  loadMoreButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-end",
+    marginTop: 4,
+    paddingVertical: 3,
+    paddingHorizontal: 4,
+    gap: 3,
+  },
+  loadMoreText: {
+    ...typography.labelSm,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.primary,
   },
 });
