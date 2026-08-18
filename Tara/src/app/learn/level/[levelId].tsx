@@ -52,7 +52,7 @@ export default function LevelExperienceScreen() {
   const [conceptViewState, setConceptViewState] = useState<"overview" | "cards">("overview");
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
 
-  const totalSteps = levelDef ? levelDef.phases.length : 4;
+  const totalSteps = levelDef && Array.isArray(levelDef.phases) ? levelDef.phases.length : 4;
   const activeStepNumber = currentPhaseIndex + 1;
   const progressRatio = totalSteps > 0 ? activeStepNumber / totalSteps : 0.25;
 
@@ -196,7 +196,7 @@ export default function LevelExperienceScreen() {
     );
   }
 
-  if (!levelDef || levelDef.phases.length === 0) {
+  if (!levelDef || !Array.isArray(levelDef.phases) || levelDef.phases.length === 0) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <Text style={styles.errorText}>Level data not available</Text>

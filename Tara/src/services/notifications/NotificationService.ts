@@ -25,13 +25,13 @@ class NotificationService {
           importance: Notifications.AndroidImportance.HIGH,
           vibrationPattern: [0, 250, 250, 250],
           lightColor: "#006E1C",
-          sound: "default",
+          sound: null,
         });
 
         await Notifications.setNotificationChannelAsync("tara_community_alerts", {
           name: "Community & Q&A Alerts",
           importance: Notifications.AndroidImportance.DEFAULT,
-          sound: "default",
+          sound: null,
         });
       }
 

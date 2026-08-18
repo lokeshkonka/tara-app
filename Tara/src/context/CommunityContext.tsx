@@ -74,6 +74,7 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     useState<UserImpactMetrics>(DUMMY_USER_IMPACT);
   const [panchayatImpact, setPanchayatImpact] =
     useState<PanchayatImpactMetrics>(DUMMY_PANCHAYAT_IMPACT);
+  const [isHydrated, setIsHydrated] = useState<boolean>(false);
   const [leaderboard, setLeaderboard] =
     useState<LeaderboardFarmer[]>(DUMMY_LEADERBOARD);
   const [activeStoryPlayingId, setActiveStoryPlayingId] = useState<
@@ -115,6 +116,7 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
         setActivePanchayatId((prev) =>
           p.some((x) => x.id === prev) ? prev : (p[0]?.id ?? prev)
         );
+        setIsHydrated(true);
       } catch (e) {
         console.warn("Failed to load community data from backend", e);
       }
@@ -125,9 +127,11 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     };
   }, [authUser]);
 
-  // Panchayat impact follows the selected panchayat.
+  // Panchayat impact follows the selected panchayat. Only fires once community
+  // data has hydrated from the backend — before that, activePanchayatId is a
+  // dummy placeholder the server cannot resolve.
   useEffect(() => {
-    if (!authUser || !panchayats.some((p) => p.id === activePanchayatId)) {
+    if (!authUser || !isHydrated || !panchayats.some((p) => p.id === activePanchayatId)) {
       return;
     }
     let cancelled = false;
@@ -140,7 +144,7 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [authUser, activePanchayatId, panchayats]);
+  }, [authUser, isHydrated, activePanchayatId, panchayats]);
 
   const switchPanchayat = useCallback((id: string) => {
     setActivePanchayatId(id);

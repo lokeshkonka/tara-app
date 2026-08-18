@@ -118,7 +118,15 @@ class ApiClient {
         }
 
         const json: ApiResponse<T> = await response.json();
-        const responseData = json.data ?? (json as unknown as T);
+        // Unwrap the { success, data } envelope. `data` may legitimately be
+        // null (e.g. a level with no schema payload), so check for the
+        // envelope shape explicitly instead of `json.data ?? json` — the
+        // nullish coalescing would otherwise return the whole envelope object
+        // for null data and break callers expecting a real null.
+        const responseData =
+          json && typeof json === "object" && "success" in json && "data" in json
+            ? json.data
+            : (json as unknown as T);
 
         // Update offline cache for successful GET responses
         if (isGet && useCache) {

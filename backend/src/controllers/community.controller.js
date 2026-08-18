@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/user.model');
 const FarmProfile = require('../models/farmProfile.model');
 const Panchayat = require('../models/panchayat.model');
@@ -312,6 +313,13 @@ const getUserImpact = async (req, res) => {
 // GET /api/v1/community/impact/panchayat/:panchayatId
 const getPanchayatImpact = async (req, res) => {
     try {
+        // Guard against malformed ids: findById throws a CastError on a
+        // non-ObjectId string, which would surface as a 500. The mobile app
+        // can transiently pass a placeholder id before community data hydrates.
+        if (!mongoose.isValidObjectId(req.params.panchayatId)) {
+            return res.status(404).json({ success: false, message: 'Panchayat not found' });
+        }
+
         const panchayat = await Panchayat.findById(req.params.panchayatId);
         if (!panchayat) {
             return res.status(404).json({ success: false, message: 'Panchayat not found' });
