@@ -6,8 +6,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { TODAYS_PRACTICE } from "../data/dummy/dashboardData";
 import { dashboardRepository } from "../services";
 import type { PracticeItem } from "../types/farm";
+import { useAuth } from "../auth/AuthProvider";
 
 interface DashboardContextValue {
   todaysPractice: PracticeItem | null;
@@ -22,7 +24,10 @@ interface DashboardContextValue {
 const DashboardContext = createContext<DashboardContextValue | null>(null);
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
-  const [todaysPractice, setTodaysPractice] = useState<PracticeItem | null>(null);
+  const { user: authUser } = useAuth();
+  const [todaysPractice, setTodaysPractice] = useState<PracticeItem | null>(
+    TODAYS_PRACTICE
+  );
   const [completedPractices, setCompletedPractices] = useState(0);
   const [totalPractices, setTotalPractices] = useState(0);
   const [xpEarnedThisWeek, setXpEarnedThisWeek] = useState(0);
@@ -39,15 +44,19 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       setXpEarnedThisWeek(summary.xpEarnedThisWeek);
       setError(null);
     } catch (err: unknown) {
+      // Offline/unauthenticated: keep the dummy defaults so the Home screen
+      // never renders empty.
       setError(err instanceof Error ? err.message : "Failed to load dashboard");
     } finally {
       setIsLoading(false);
     }
   }, []);
 
+  // Hydrate from the backend once signed in. Dummy data is the initial state.
   useEffect(() => {
+    if (!authUser) return;
     refresh();
-  }, [refresh]);
+  }, [authUser, refresh]);
 
   return (
     <DashboardContext.Provider

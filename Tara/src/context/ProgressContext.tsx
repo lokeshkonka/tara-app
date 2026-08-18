@@ -6,8 +6,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { DEFAULT_PROGRESS } from "../data/dummy/progressData";
 import { progressRepository } from "../services";
 import type { ProgressData } from "../types/progress";
+import { useAuth } from "../auth/AuthProvider";
 
 interface ProgressContextValue {
   progress: ProgressData | null;
@@ -19,7 +21,10 @@ interface ProgressContextValue {
 const ProgressContext = createContext<ProgressContextValue | null>(null);
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
-  const [progress, setProgress] = useState<ProgressData | null>(null);
+  const { user: authUser } = useAuth();
+  const [progress, setProgress] = useState<ProgressData | null>(
+    DEFAULT_PROGRESS
+  );
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,15 +35,19 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setProgress(data);
       setError(null);
     } catch (err: unknown) {
+      // Offline/unauthenticated: keep the dummy defaults so the Progress
+      // section never renders empty.
       setError(err instanceof Error ? err.message : "Failed to load progress");
     } finally {
       setIsLoading(false);
     }
   }, []);
 
+  // Hydrate from the backend once signed in. Dummy data is the initial state.
   useEffect(() => {
+    if (!authUser) return;
     refresh();
-  }, [refresh]);
+  }, [authUser, refresh]);
 
   return (
     <ProgressContext.Provider
