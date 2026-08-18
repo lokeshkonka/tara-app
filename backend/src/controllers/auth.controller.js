@@ -1,5 +1,6 @@
 const User = require('../models/user.model');
 const RefreshToken = require('../models/refreshToken.model');
+const Device = require('../models/device.model');
 const verifyGoogleToken = require('../services/googleAuth');
 const { hashRefreshToken } = require('../services/jwtService');
 const { createSession } = require('../services/sessionService');
@@ -44,6 +45,16 @@ const googleLogin = async (req, res) => {
             profilePicture: googleUser.profilePicture,
             // Default language
             language: 'en'
+        });
+
+        // PHASE 1: seed a default device so the Security > Active devices list
+        // has an entry for a brand-new account.
+        await Device.create({
+            userId: newUser._id,
+            name: 'Mobile Device',
+            type: 'mobile',
+            location: '',
+            lastActive: new Date()
         });
 
         const session = await createSession(newUser);
@@ -193,7 +204,7 @@ const updatePreferences = async (req, res) => {
         const user = await User.findByIdAndUpdate(
             req.user.userId,
             { language },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!user) {
