@@ -17,6 +17,8 @@ export interface LearnLesson {
   level: number;
   titleKey: string;
   descriptionKey: string;
+  title?: string;
+  description?: string;
   /** Links to a LearnCategory id */
   categoryId: string;
   /** Tara expression shown on the lesson card avatar */
@@ -180,9 +182,11 @@ export interface MatchPhase {
   pairs: MatchPair[];
   xp?: number;
   taraDialogue?: string;
+  audioSource?: any;
   taraAudio?: any;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: string;
+  taraSuccessAudioSource?: any;
 }
 
 export interface ScenarioChallengeOption {
@@ -213,9 +217,11 @@ export interface ScenarioChallengePhase {
   rounds: ScenarioChallengeRound[];
   xp?: number;
   taraDialogue?: string;
+  audioSource?: any;
   taraAudio?: any;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: string;
+  taraSuccessAudioSource?: any;
 }
 
 export interface MemoryConceptPairItem {
@@ -239,9 +245,11 @@ export interface MemoryPhase {
   pairs: MemoryConceptPair[];
   xp?: number;
   taraDialogue?: string;
+  audioSource?: any;
   taraAudio?: any;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: string;
+  taraSuccessAudioSource?: any;
 }
 
 export interface DecisionChoiceOption {
@@ -269,9 +277,11 @@ export interface DecisionChoicePhase {
   rounds: DecisionChoiceRound[];
   xp?: number;
   taraDialogue?: string;
+  audioSource?: any;
   taraAudio?: any;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: string;
+  taraSuccessAudioSource?: any;
 }
 
 export interface AIInterviewConcept {
@@ -318,6 +328,7 @@ export interface AIInterviewPhase {
   taraAudio?: any;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: string;
+  taraSuccessAudioSource?: any;
   questions: AIInterviewQuestion[];
 }
 
@@ -330,6 +341,7 @@ export interface RewardPhase {
   badgeDescription?: string;
   badgeImage?: any;
   taraDialogue: string;
+  audioSource?: any;
   taraAudio?: any;
   taraExpression?: TaraExpression;
 }
@@ -342,9 +354,11 @@ export interface FaceVerificationPhase {
   instructions?: string;
   totalXp?: number;
   taraDialogue?: string;
+  audioSource?: any;
   taraAudio?: any;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: string;
+  taraSuccessAudioSource?: any;
 }
 
 export type LevelPhase =

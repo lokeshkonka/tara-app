@@ -18,4 +18,12 @@ export interface PracticeItem {
   completed: boolean;
   image?: ImageSource;
   durationMinutes?: number;
+  stepsCount?: number;
+  levelNumber?: number;
+  totalLevels?: number;
+  completedLevels?: number;
+  remainingLevels?: number;
+  lessonId?: string;
+  lessonTitle?: string;
+  levelId?: string;
 }

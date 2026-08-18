@@ -1,4 +1,5 @@
 import type { LessonPackageDefinition } from "../../types/lessonSchema";
+import { UNDERSTANDING_SOIL_HEALTH_AUDIO } from "./understandingSoilHealthAudio";
 
 /**
  * UNDERSTANDING SOIL HEALTH — 5 COMPLETE LEVELS (3 TO 4 PHASES PER LEVEL)
@@ -11,7 +12,7 @@ import type { LessonPackageDefinition } from "../../types/lessonSchema";
  * - Level 5 (4 phases): Concept Cards (4 cards) ➔ Decision Game (4 rounds) ➔ MCQ (2 questions) ➔ Reward (Soil Guardian Final Trophy)
  */
 export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
-  id: "soil-level-1",
+  id: "understanding-soil-health",
   categoryId: "soil",
   title: {
     en: "Understanding Soil Health",
@@ -111,6 +112,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
         {
           type: "conceptCards",
           id: "soil-level-1-concepts",
+          taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-1"]?.["soil-level-1-concepts-dialogue"],
           title: {
             en: "What is Soil?",
             hi: "मिट्टी क्या है?",
@@ -162,6 +164,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
           cards: [
             {
               id: "card-air",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-1"]?.["soil-level-1-concepts-card-card-air"],
               title: { en: "Air", hi: "हवा", te: "గాలి", ml: "വായു" },
               icon: "air",
               color: "#81D4FA",
@@ -169,6 +172,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
             },
             {
               id: "card-water",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-1"]?.["soil-level-1-concepts-card-card-water"],
               title: { en: "Water", hi: "पानी", te: "నీరు", ml: "വെള്ളം" },
               icon: "water-drop",
               color: "#29B6F6",
@@ -176,6 +180,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
             },
             {
               id: "card-nutrients",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-1"]?.["soil-level-1-concepts-card-card-nutrients"],
               title: { en: "Nutrients", hi: "पोषक तत्व", te: "పోషకాలు", ml: "പോഷകങ്ങൾ" },
               icon: "eco",
               color: "#4CAF50",
@@ -183,6 +188,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
             },
             {
               id: "card-organic-matter",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-1"]?.["soil-level-1-concepts-card-card-organic-matter"],
               title: { en: "Organic Matter", hi: "जैविक पदार्थ", te: "సేంద్రీయ పదార్థం", ml: "ജൈവവസ്തുക്കൾ" },
               icon: "compost",
               color: "#8D6E63",
@@ -190,6 +196,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
             },
             {
               id: "card-living-organisms",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-1"]?.["soil-level-1-concepts-card-card-living-organisms"],
               title: { en: "Living Organisms", hi: "जीवित जीव", te: "సజీవ జీవులు", ml: "സൂക്ഷ്മജീവികൾ" },
               icon: "bug-report",
               color: "#7E57C2",
@@ -198,38 +205,161 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
           ],
         },
 
-        // Phase 2: MCQ Quiz
+                // Phase 2: MCQ Quiz (2 Questions, 4 Options Each)
         {
           type: "mcq",
           id: "soil-level-1-mcq",
-          totalXp: 10,
+          totalXp: 15,
           questions: [
             {
               id: "q1-components",
               question: {
-                en: "What is found inside healthy living soil?",
-                hi: "स्वस्थ जीवित मिट्टी के अंदर क्या पाया जाता है?",
-                te: "ఆరోగ్యకరమైన సజీవ నేలలో ఏముంటుంది?",
-                ml: "ആരോഗ്യമുള്ള മണ്ണിൽ എന്തെല്ലാമാണ് അടങ്ങിയിരിക്കുന്നത്?",
+                en: "What essential elements make up healthy living soil?",
+                hi: "स्वस्थ जीवित मिट्टी में कौन से आवश्यक तत्व होते हैं?",
+                te: "ఆరోగ్యకరమైన సజీవ నేలలో ఏ ముఖ్యమైన అంశాలు ఉంటాయి?",
+                ml: "ആരോഗ്യമുള്ള മണ്ണിൽ അടങ്ങിയിരിക്കുന്ന പ്രധാന ഘടകങ്ങൾ ഏതെല്ലാമാണ്?",
               },
-              xp: 10,
+              xp: 8,
               options: [
                 {
                   id: "opt-1a",
-                  text: { en: "Only dead dirt", hi: "केवल निर्जीव धूल", te: "కేవలం మట్టి మాత్రమే", ml: "വെറും മണ്ണ് മാത്രം" },
-                  isCorrect: false,
-                  explanation: { en: "Soil is a dynamic living habitat, not just dead dirt.", hi: "मिट्टी केवल धूल नहीं है, यह एक जीवित घर है।", te: "నేల కేవలం మట్టి కాదు, ఒక సజీవ వ్యవస్థ.", ml: "മണ്ണ് വെറുമൊരു മണ്ണല്ല." },
+                  text: {
+                    en: "Air, water, minerals, organic matter, and living microorganisms",
+                    hi: "हवा, पानी, खनिज, जैविक पदार्थ और जीवित सूक्ष्मजीव",
+                    te: "గాలి, నీరు, ఖనిజాలు, సేంద్రీయ పదార్థం మరియు సూక్ష్మజీవులు",
+                    ml: "വായു, ജലം, ധാതുക്കൾ, ജൈവാംശം, സൂക്ഷ്മജീവികൾ",
+                  },
+                  isCorrect: true,
+                  explanation: {
+                    en: "Correct! Healthy soil is a balanced living mixture of mineral particles, pore spaces (air & water), organic matter, and billions of microbes.",
+                    hi: "बिल्कुल सही! स्वस्थ मिट्टी खनिज, हवा, पानी, जैविक पदार्थ और सूक्ष्मजीवों का एक संतुलित जीवित मिश्रण है।",
+                    te: "సరిగ్గా చెప్పారు! నేలలో ఖనిజాలు, గాలి, నీరు, సేంద్రీయ పదార్థాలు మరియు సూక్ష్మజీవులు సమతుల్యంగా ఉంటాయి.",
+                    ml: "ശരിയാണ്! ധാതുക്കൾ, വായു, ജലം, ജൈവാംശം, സൂക്ഷ്മജീവികൾ എന്നിവയുടെ സന്തുലിത മിശ്രിതമാണ് നല്ല മണ്ണ്.",
+                  },
                 },
                 {
                   id: "opt-1b",
                   text: {
-                    en: "Air, water, nutrients, organic matter, and living organisms",
-                    hi: "हवा, पानी, पोषक तत्व, जैविक पदार्थ और जीवित जीव",
-                    te: "గాలి, నీరు, పోషకాలు, సేంద్రీయ పదార్థాలు మరియు జీవులు",
-                    ml: "വായു, വെള്ളം, പോഷകങ്ങൾ, ജൈവവസ്തുക്കൾ, സൂക്ഷ്മജീവികൾ",
+                    en: "Only dry crushed stone and dead dust particles",
+                    hi: "केवल सूखी कुचली हुई रेत और धूल के कण",
+                    te: "కేవలం ఎండిన రాతి పొడి మరియు దుమ్ము",
+                    ml: "വെറും ഉണങ്ങിയ പൊടിയും കല്ലും മാത്രം",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Crushed stone alone cannot support plant life without biology, water, and organic matter.",
+                    hi: "बिना जैविक पदार्थ और सूक्ष्मजीवों के केवल पत्थर पौधों को पोषण नहीं दे सकते।",
+                    te: "జీవం మరియు సేంద్రీయ పదార్థం లేకుండా రాతి పొడి పంటలకు ఉపయోగపడదు.",
+                    ml: "ജീവജാലങ്ങളില്ലാത്ത വെറും പൊടിയിൽ സസ്യങ്ങൾ വളരില്ല.",
+                  },
+                },
+                {
+                  id: "opt-1c",
+                  text: {
+                    en: "Pure chemical fertilizer crystals without any moisture",
+                    hi: "बिना नमी के शुद्ध रासायनिक उर्वरक के दाने",
+                    te: "తేమ లేని రసాయన ఎరువుల గుళికలు",
+                    ml: "ഈർപ്പമില്ലാത്ത വെറും രാസവളങ്ങൾ മാത്രം",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Synthetic fertilizer crystals are not soil; soil requires natural biology and structure.",
+                    hi: "रासायनिक उर्वरक मिट्टी नहीं होते; मिट्टी को प्राकृतिक संरचना की आवश्यकता होती है।",
+                    te: "రసాయన ఎరువులు నేల కాదు; నేలకు సహజ పోషకాలు కావాలి.",
+                    ml: "രാസവളങ്ങൾ മണ്ണല്ല; മണ്ണിൽ സ്വാഭാവിക ഘടന ആവശ്യമാണ്.",
+                  },
+                },
+                {
+                  id: "opt-1d",
+                  text: {
+                    en: "Compacted plastic and synthetic pesticide residue",
+                    hi: "दबा हुआ प्लास्टिक और कीटनाशक अवशेष",
+                    te: "ప్లాస్టిక్ మరియు పురుగుమందుల అవశేషాలు",
+                    ml: "പ്ലാസ്റ്റിക്കും കീടനാശിനികളും നിറഞ്ഞ അവശിഷ്ടം",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Plastic residues pollute and suffocate soil ecosystems instead of nourishing them.",
+                    hi: "प्लास्टिक अवशेष मिट्टी के पारिस्थितिकी तंत्र को नुकसान पहुंचाते हैं।",
+                    te: "ప్లాస్టిక్ నేలను పాడుచేస్తుంది.",
+                    ml: "പ്ലാസ്റ്റിക് മണ്ണിന്റെ ആരോഗ്യത്തെ നശിപ്പിക്കുന്നു.",
+                  },
+                },
+              ],
+            },
+            {
+              id: "q2-soil-air",
+              question: {
+                en: "Why are open pores (air and water channels) critical inside the soil?",
+                hi: "मिट्टी के अंदर हवा और पानी के रास्ते (छिद्र) क्यों आवश्यक हैं?",
+                te: "నేల లోపల గాలి మరియు నీటి రంధ్రాలు ఎందుకు అవసరం?",
+                ml: "മണ്ണിലെ വായുസഞ്ചാരവും ജലവും എന്തിനാണ് ആവശ്യമായി വരുന്നത്?",
+              },
+              xp: 7,
+              options: [
+                {
+                  id: "opt-2a",
+                  text: {
+                    en: "They allow plant roots to breathe and absorb dissolved moisture and nutrients",
+                    hi: "वे पौधों की जड़ों को सांस लेने और नमी व पोषक तत्व सोखने में मदद करते हैं",
+                    te: "ఇవి వేర్లు శ్వాస తీసుకోవడానికి మరియు పోషకాలను పీల్చుకోవడానికి సహాయపడతాయి",
+                    ml: "വേരുകൾക്ക് ശ്വസിക്കാനും വെള്ളവും വളവും വലിച്ചെടുക്കാനും സഹായിക്കുന്നു",
                   },
                   isCorrect: true,
-                  explanation: { en: "Correct! Healthy soil combines all 5 essential living elements.", hi: "बिल्कुल सही! स्वस्थ मिट्टी में ये सभी 5 तत्व होते हैं।", te: "సరిగ్గా చెప్పారు! నేలలో ఈ 5 అంశాలు ఉంటాయి.", ml: "തികച്ചും ശരി!" },
+                  explanation: {
+                    en: "Correct! Plant roots and beneficial microbes need oxygen and water pathways to stay alive and thrive.",
+                    hi: "बिल्कुल सही! जड़ों और लाभकारी रोगाणुओं को जीवित रहने के लिए ऑक्सीजन और पानी की आवश्यकता होती है।",
+                    te: "సరిగ్గా చెప్పారు! వేర్లు మరియు సూక్ష్మజీవులు బతకడానికి ఆక్సిజన్ మరియు నీరు అవసరం.",
+                    ml: "ശരിയാണ്! വേരുകൾക്കും സൂക്ഷ്മജീവികൾക്കും ജീവിക്കാൻ വായുവും വെള്ളവും ആവശ്യമാണ്.",
+                  },
+                },
+                {
+                  id: "opt-2b",
+                  text: {
+                    en: "They make the ground collapse and prevent plants from standing upright",
+                    hi: "वे जमीन को कमजोर कर देते हैं जिससे पौधे गिर जाते हैं",
+                    te: "ఇవి నేలను బలహీనపరిచి మొక్కలు పడిపోయేలా చేస్తాయి",
+                    ml: "ഇവ മണ്ണിലെ ബലം കുറച്ച് ചെടികൾ വീണുപോകാൻ കാരണമാകുന്നു",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Good soil structure with crumb pores actually anchors roots firmly.",
+                    hi: "भुरभुरी मिट्टी की संरचना जड़ों को मजबूती से पकड़ने में मदद करती है।",
+                    te: "మంచి నేల నిర్మాణం వేర్లను గట్టిగా పట్టి ఉంచుతుంది.",
+                    ml: "നല്ല മണ്ണിലെ ഘടന വേരുകൾക്ക് ഉറപ്പ് നൽകുന്നു.",
+                  },
+                },
+                {
+                  id: "opt-2c",
+                  text: {
+                    en: "They evaporate all water immediately leaving the soil bone dry",
+                    hi: "वे तुरंत सारा पानी सुखा देते हैं जिससे जमीन बंजर हो जाती है",
+                    te: "ఇవి నేలలోని నీటిని వెంటనే ఆవిరి చేస్తాయి",
+                    ml: "ഇവ വെള്ളമെല്ലാം പെട്ടെന്ന് വറ്റിച്ചു കളയുന്നു",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Pores act like a sponge, storing capillary moisture for dry periods.",
+                    hi: "छिद्र स्पंज की तरह काम करते हैं और सूखे के समय नमी बनाए रखते हैं।",
+                    te: "రంధ్రాలు స్పాంజ్ లాగా పనిచేసి తేమను నిల్వ చేస్తాయి.",
+                    ml: "മണ്ണിലെ സുഷിരങ്ങൾ സ്പോഞ്ച് പോലെ ഈർപ്പം ശേഖരിച്ചു വെക്കുന്നു.",
+                  },
+                },
+                {
+                  id: "opt-2d",
+                  text: {
+                    en: "They attract harmful rodents and underground pests",
+                    hi: "वे हानिकारक चूहों और कीटों को आकर्षित करते हैं",
+                    te: "ఇవి హానికరమైన కీటకాలను ఆకర్షిస్తాయి",
+                    ml: "ഇവ ഉപദ്രവകാരികളായ ജീവികളെ ആകർഷിക്കുന്നു",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Micro-pores are microscopic channels for roots and water, not large rodent holes.",
+                    hi: "सूक्ष्म छिद्र जड़ों और पानी के लिए होते हैं, कीटों के लिए नहीं।",
+                    te: "సూక్ష్మ రంధ్రాలు వేర్లు మరియు నీటి ప్రవాహానికి మాత్రమే ఉపయోగపడతాయి.",
+                    ml: "സൂക്ഷ്മ സുഷിരങ്ങൾ വേരുകൾക്കും ജലത്തിനും വേണ്ടിയുള്ളതാണ്.",
+                  },
                 },
               ],
             },
@@ -240,6 +370,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
         {
           type: "reward",
           id: "soil-level-1-reward",
+          taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-1"]?.["soil-level-1-reward-dialogue"],
           xp: 20,
           badgeTitle: { en: "Soil Explorer", hi: "मृदा खोजकर्ता", te: "నేల అన్వేషకుడు", ml: "മണ്ണ് അറിവ്" },
           badgeIcon: "eco",
@@ -275,6 +406,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
         {
           type: "conceptCards",
           id: "soil-alive-concept-cards",
+          taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-2"]?.["soil-alive-concept-cards-dialogue"],
           title: { en: "Soil Is Alive", hi: "मिट्टी जीवित है", te: "నేల సజీవమైనది", ml: "മണ്ണ് ജീവനുള്ളതാണ്" },
           taraDialogue: {
             en: "Look at the soil beneath your feet. It may seem quiet and still, but it is full of life! Tiny organisms, earthworms, plant roots, air, water, and organic matter all interact inside the soil.",
@@ -313,6 +445,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
           cards: [
             {
               id: "card-soil-alive",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-2"]?.["soil-alive-concept-cards-card-card-soil-alive"],
               title: { en: "Soil Is Alive", hi: "मिट्टी जीवित है", te: "నేల సజీవమైనది", ml: "മണ്ണ് ജീവനുള്ളതാണ്" },
               icon: "public",
               color: "#4CAF50",
@@ -320,6 +453,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
             },
             {
               id: "card-earthworms",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-2"]?.["soil-alive-concept-cards-card-card-earthworms"],
               title: { en: "Meet the Earthworm", hi: "केंचुए से मिलें", te: "వానపాము", ml: "ഞാഞ്ഞൂൽ" },
               icon: "waves",
               color: "#8D6E63",
@@ -327,6 +461,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
             },
             {
               id: "card-microorganisms",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-2"]?.["soil-alive-concept-cards-card-card-microorganisms"],
               title: { en: "The Tiny Workers", hi: "सूक्ष्म श्रमिक", te: "సూక్ష్మజీవులు", ml: "സൂക്ഷ്മ പ്രവർത്തകർ" },
               icon: "scatter-plot",
               color: "#0284C7",
@@ -353,6 +488,8 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
         {
           type: "match",
           id: "soil-alive-matchup",
+          taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-2"]?.["soil-alive-matchup-dialogue"],
+          taraSuccessAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-2"]?.["soil-alive-matchup-success"],
           title: { en: "Who Does What?", hi: "कौन क्या करता है?", te: "ఎవరు ఏమి చేస్తారు?", ml: "ആര് എന്ത് ചെയ്യുന്നു?" },
           instructions: { en: "Connect each soil friend with their role in the community.", hi: "प्रत्येक जीव को उसके कार्य से मिलाएं।", te: "సరైన పాత్రతో జతపరచండి.", ml: "യോജിച്ചവ തമ്മിൽ ചേർക്കുക." },
           xp: 30,
@@ -383,41 +520,161 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
           ],
         },
 
-        // Phase 3: MCQ Quiz
+                // Phase 3: MCQ Quiz (2 Questions, 4 Options Each)
         {
           type: "mcq",
-          id: "soil-alive-mcq",
-          totalXp: 50,
+          id: "soil-level-2-mcq",
+          totalXp: 15,
           questions: [
             {
-              id: "q1-why-alive",
-              question: { en: "Why do we say that soil is alive?", hi: "मिट्टी को जीवित क्यों कहा जाता है?", te: "నేలను సజీవమైనది అని ఎందుకు అంటారు?", ml: "മണ്ണിനെ ജീവനുള്ളത് എന്ന് പറയുന്നത് എന്തുകൊണ്ട്?" },
-              xp: 25,
+              id: "q1-living-soil",
+              question: {
+                en: "Why is fertile soil classified as a living ecosystem rather than just dirt?",
+                hi: "उपजाऊ मिट्टी को केवल धूल मानने के बजाय एक जीवित पारिस्थितिकी तंत्र क्यों माना जाता है?",
+                te: "సారవంతమైన నేలను కేవలం మట్టిగా కాకుండా సజీవ పర్యావరణంగా ఎందుకు పరిగణిస్తారు?",
+                ml: "ഫലഭൂയിഷ്ഠമായ മണ്ണിനെ വെറുമൊരു മണ്ണായി കാണാതെ ജീവനുള്ള ഒരു വ്യവസ്ഥയായി കാണുന്നത് എന്തുകൊണ്ട്?",
+              },
+              xp: 8,
               options: [
                 {
-                  id: "opt-1a",
-                  text: { en: "Because soil can walk", hi: "क्योंकि मिट्टी चल सकती है", te: "నేల నడవగలదు కాబట్టి", ml: "മണ്ണിന് നടക്കാൻ കഴിയുന്നതുകൊണ്ട്" },
-                  isCorrect: false,
-                  explanation: { en: "Soil doesn't walk, but living organisms move within it.", hi: "मिट्टी नहीं चलती, लेकिन जीव इसके अंदर चलते हैं।", te: "నేల నడవదు, కానీ జీవులు అందులో కదులుతాయి.", ml: "മണ്ണല്ല, അതിലെ ജീവികളാണ് ചലിക്കുന്നത്." },
+                  id: "opt-l2-1a",
+                  text: {
+                    en: "It is teeming with earthworms, mycorrhizal fungi, and billions of microbes actively recycling nutrients",
+                    hi: "यह केंचुओं, कवक और करोड़ों सूक्ष्मजीवों से भरी होती है जो सक्रिय रूप से पोषक तत्वों का चक्रण करते हैं",
+                    te: "ఇది వానపాములు, శిలీంధ్రాలు మరియు కోట్లాది సూక్ష్మజీవులతో నిండి ఉండి పోషకాలను అందిస్తుంది",
+                    ml: "ഞാഞ്ഞൂലുകൾ, ഫംഗസുകൾ, കോടിക്കണക്കിന് സൂക്ഷ്മജീവികൾ എന്നിവ മണ്ണിൽ സജീവമായി പ്രവർത്തിക്കുന്നു",
+                  },
+                  isCorrect: true,
+                  explanation: {
+                    en: "Correct! One teaspoon of healthy soil contains more living microorganisms than there are people on Earth!",
+                    hi: "बिल्कुल सही! स्वस्थ मिट्टी के एक चम्मच में पृथ्वी की कुल मानव आबादी से भी अधिक सूक्ष्मजीव होते हैं!",
+                    te: "సరిగ్గా చెప్పారు! ఒక చెంచా ఆరోగ్యకరమైన నేలలో భూమిపై ఉన్న మనుషుల కంటే ఎక్కువ సూక్ష్మజీవులు ఉంటాయి!",
+                    ml: "ശരിയാണ്! ഒരു സ്പൂൺ നല്ല മണ്ണിൽ ലോകത്തിലെ ജനങ്ങളേക്കാൾ കൂടുതൽ സൂക്ഷ്മജീവികളുണ്ട്!",
+                  },
                 },
                 {
-                  id: "opt-1b",
-                  text: { en: "Because soil contains living organisms that interact with plants and organic matter", hi: "क्योंकि इसमें जीवित जीव होते हैं जो पौधों और जैविक पदार्थों से जुड़ते हैं", te: "ఇందులో మొక్కలు మరియు సేంద్రీయ పదార్థాలతో పనిచేసే జీవులు ఉంటాయి", ml: "സസ്യങ്ങളോടും ജൈവാംശങ്ങളോടും ചേർന്ന് പ്രവർത്തിക്കുന്ന ജീവികൾ ഉള്ളതുകൊണ്ട്" },
-                  isCorrect: true,
-                  explanation: { en: "Exactly! Soil is home to many living organisms that interact together.", hi: "बिल्कुल सही! मिट्टी कई जीवित जीवों का घर है।", te: "సరిగ్గా చెప్పారు! నేల జీవులకు నిలయం.", ml: "തികച്ചും ശരി!" },
+                  id: "opt-l2-1b",
+                  text: {
+                    en: "It can walk and move physically across farm fields on its own",
+                    hi: "यह खेतों में अपने आप चलकर एक जगह से दूसरी जगह जा सकती है",
+                    te: "ఇది పొలంలో తనంతట తాను కదలగలదు",
+                    ml: "ഇതിന് സ്വന്തമായി ഒരിടത്തുനിന്ന് മറ്റൊരിടത്തേക്ക് നീങ്ങാൻ കഴിയും",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Soil does not move on its own; it is called living because of the organisms residing inside it.",
+                    hi: "मिट्टी स्वयं नहीं चलती; इसे इसके अंदर रहने वाले जीवों के कारण जीवित कहा जाता है।",
+                    te: "నేల కదలదు; అందులోని జీవుల వల్ల దాన్ని సజీవమైనది అంటారు.",
+                    ml: "മണ്ണ് സഞ്ചരിക്കില്ല; അതിലെ ജീവജാലങ്ങൾ കാരണമാണ് അതിനെ ജീവനുള്ളത് എന്ന് പറയുന്നത്.",
+                  },
+                },
+                {
+                  id: "opt-l2-1c",
+                  text: {
+                    en: "It contains only artificial synthetic chemical nutrients injected in factories",
+                    hi: "इसमें केवल कारखानों में बने कृत्रिम रासायनिक पोषक तत्व होते हैं",
+                    te: "ఇందులో కేవలం ఫ్యాక్టరీలలో తయారుచేసిన రసాయనాలు మాత్రమే ఉంటాయి",
+                    ml: "ഫാക്ടറികളിൽ ഉണ്ടാക്കുന്ന കൃത്രിമ രാസവസ്തുക്കൾ മാത്രമാണ് ഇതിലുള്ളത്",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Living soil relies on natural biological cycles and organic decomposition.",
+                    hi: "जीवित मिट्टी प्राकृतिक जैविक चक्रों और सड़न पर निर्भर करती है।",
+                    te: "సజీవ నేల సహజ జీవక్రియలపై ఆధారపడుతుంది.",
+                    ml: "സ്വാഭാവിക ജൈവ പ്രക്രിയകളിലൂടെയാണ് മണ്ണ് ജീവസ്സുറ്റതാകുന്നത്.",
+                  },
+                },
+                {
+                  id: "opt-l2-1d",
+                  text: {
+                    en: "It is composed entirely of dry solid rock without any air or pores",
+                    hi: "यह बिना किसी हवा या छिद्र के पूरी तरह से ठोस चट्टान से बनी होती है",
+                    te: "ఇది గాలి లేని గట్టి రాతి పొరలతో మాత్రమే ఉంటుంది",
+                    ml: "വായു സഞ്ചാരമില്ലാത്ത കട്ടിയുള്ള പാറക്കഷണങ്ങൾ മാത്രമാണിത്",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Solid rock without pores or moisture cannot support living biological communities.",
+                    hi: "बिना छिद्रों वाली ठोस चट्टान में जैविक समुदाय जीवित नहीं रह सकते।",
+                    te: "రంధ్రాలు లేని రాతిలో జీవులు బతకలేవు.",
+                    ml: "സുഷിരങ്ങളില്ലാത്ത പാറകളിൽ ജീവജാലങ്ങൾക്ക് നിലനിൽക്കാനാവില്ല.",
+                  },
                 },
               ],
             },
             {
-              id: "q2-worm-role",
-              question: { en: "What is an important role of earthworms in the soil?", hi: "मिट्टी में केंचुओं की क्या भूमिका है?", te: "నేలలో వానపాముల ముఖ్య పాత్ర ఏమిటి?", ml: "മണ്ണിൽ ഞാഞ്ഞൂലുകളുടെ പ്രധാന പങ്ക് എന്താണ്?" },
-              xp: 25,
+              id: "q2-earthworms",
+              question: {
+                en: "How do earthworms benefit crop growth and soil structure underground?",
+                hi: "केंचुए भूमिगत रूप से फसल की वृद्धि और मिट्टी की संरचना को कैसे लाभ पहुंचाते हैं?",
+                te: "వానపాములు పంటల పెరుగుదలకు మరియు నేల నిర్మాణానికి ఎలా ఉపయోగపడతాయి?",
+                ml: "ഞാഞ്ഞൂലുകൾ ചെടികളുടെ വളർച്ചയ്ക്കും മണ്ണിന്റെ ഘടനയ്ക്കും എങ്ങനെയാണ് ഗുണം ചെയ്യുന്നത്?",
+              },
+              xp: 7,
               options: [
                 {
-                  id: "opt-2a",
-                  text: { en: "They burrow and create spaces for air and water", hi: "वे रास्ते बनाकर हवा और पानी के लिए जगह बनाते हैं", te: "ఇవి రంధ్రాలు చేసి గాలి, నీరు చేరేలా చేస్తాయి", ml: "അവ വായുവിനും വെള്ളത്തിനുമായി പാതകൾ ഉണ്ടാക്കുന്നു" },
+                  id: "opt-l2-2a",
+                  text: {
+                    en: "They dig aeration tunnels that let roots breathe and produce rich humus vermicompost",
+                    hi: "वे हवा के रास्ते बनाते हैं जिससे जड़ें सांस लेती हैं और समृद्ध वर्मीकम्पोस्ट पैदा करते हैं",
+                    te: "ఇవి రంధ్రాలు చేసి వేర్లకు గాలి అందిస్తాయి మరియు సారవంతమైన ఎరువును తయారు చేస్తాయి",
+                    ml: "മണ്ണിൽ തുരങ്കങ്ങളുണ്ടാക്കി വായുസഞ്ചാരം കൂട്ടുകയും മികച്ച ജൈവവളം ഉൽപ്പാദിപ്പിക്കുകയും ചെയ്യുന്നു",
+                  },
                   isCorrect: true,
-                  explanation: { en: "Earthworms mix the soil and create aeration channels.", hi: "केंचुए मिट्टी को भुरभुरा बनाते हैं।", te: "వానపాములు నేలను గుల్లగా ఉంచుతాయి.", ml: "ഞാഞ്ഞൂലുകൾ മണ്ണിനെ ഫലഭൂയിഷ്ഠമാക്കുന്നു." },
+                  explanation: {
+                    en: "Correct! Earthworms are natural underground plows that aerate the soil and enrich it with organic castings.",
+                    hi: "बिल्कुल सही! केंचुए प्राकृतिक हल की तरह काम करते हैं और मिट्टी को उपजाऊ बनाते हैं।",
+                    te: "సరిగ్గా చెప్పారు! వానపాములు నేలను గుల్లగా చేసి సహజ ఎరువును అందిస్తాయి.",
+                    ml: "ശരിയാണ്! ഞാഞ്ഞൂലുകൾ മണ്ണിനെ ഇളക്കി ഫലഭൂയിഷ്ഠമാക്കുന്നു.",
+                  },
+                },
+                {
+                  id: "opt-l2-2b",
+                  text: {
+                    en: "They chew and destroy live green plant roots causing crops to wilt",
+                    hi: "वे जीवित जड़ों को चबाकर नष्ट कर देते हैं जिससे फसल सूख जाती है",
+                    te: "ఇవి పచ్చి వేర్లను తిని పంటలను నాశనం చేస్తాయి",
+                    ml: "ഇവ ചെടികളുടെ പച്ച വേരുകൾ തിന്ന് നശിപ്പിക്കുന്നു",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Earthworms feed on decaying dead matter and microbes, not healthy live roots.",
+                    hi: "केंचुए सड़े-गले पत्तों को खाते हैं, जीवित जड़ों को नुकसान नहीं पहुंचाते।",
+                    te: "వానపాములు కుళ్ళిన వ్యర్థాలను మాత్రమే తింటాయి.",
+                    ml: "ഞാഞ്ഞൂലുകൾ ഉണങ്ങിയ സസ്യ അവശിഷ്ടങ്ങൾ മാത്രമാണ് കഴിക്കുന്നത്.",
+                  },
+                },
+                {
+                  id: "opt-l2-2c",
+                  text: {
+                    en: "They compact the soil into hard solid stone slabs",
+                    hi: "वे मिट्टी को दबाकर कठोर पत्थर जैसी बना देते हैं",
+                    te: "ఇవి నేలను గట్టి రాయిలా మారుస్తాయి",
+                    ml: "ഇവ മണ്ണിനെ കട്ടിയുള്ള പാറപോലെ ആക്കി മാറ്റുന്നു",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Earthworms loosen and aerate the soil, preventing compaction.",
+                    hi: "केंचुए मिट्टी को भुरभुरा बनाते हैं, कठोर नहीं।",
+                    te: "వానపాములు నేలను మెత్తగా చేస్తాయి.",
+                    ml: "ഞാഞ്ഞൂലുകൾ മണ്ണിനെ മൃദുവാക്കുകയാണ് ചെയ്യുന്നത്.",
+                  },
+                },
+                {
+                  id: "opt-l2-2d",
+                  text: {
+                    en: "They poison the groundwater with harmful chemical salts",
+                    hi: "वे हानिकारक रसायनों से भूजल को जहरीला बना देते हैं",
+                    te: "ఇవి భూగర్భ జలాలను విషపూరితం చేస్తాయి",
+                    ml: "ഇവ ഭൂഗർഭജലത്തെ മലിനമാക്കുന്നു",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Earthworm casts are 100% natural, clean, and purify the soil environment.",
+                    hi: "केंचुओं की खाद पूरी तरह से प्राकृतिक और लाभकारी होती है।",
+                    te: "వానపాముల వ్యర్థాలు పూర్తిగా సహజమైనవి మరియు నేలకు ఎంతో మంచివి.",
+                    ml: "ഞാഞ്ഞൂൽ വളം പ്രകൃതിദത്തവും മണ്ണിന് അതീവ ഗുണകരവുമാണ്.",
+                  },
                 },
               ],
             },
@@ -461,6 +718,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
         {
           type: "conceptCards",
           id: "soil-healthy-concept-cards",
+          taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-3"]?.["soil-healthy-concept-cards-dialogue"],
           title: { en: "What Makes Soil Healthy?", hi: "स्वस्थ मिट्टी क्या है?", te: "నేలను ఆరోగ్యంగా ఉంచేది ఏమిటి?", ml: "മണ്ണിനെ ആരോഗ്യകരമാക്കുന്നത് എന്താണ്?" },
           taraDialogue: {
             en: "Healthy soil isn't just about chemicals or fertilizer. It's about balance! Good structure gives roots room to grow. Pore spaces hold both water and air. Organic matter feeds the living community.",
@@ -494,6 +752,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
           cards: [
             {
               id: "card-structure",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-3"]?.["soil-healthy-concept-cards-card-card-structure"],
               title: { en: "Soil Structure", hi: "मिट्टी की संरचना", te: "నేల నిర్మాణం", ml: "മണ്ണിന്റെ ഘടന" },
               icon: "grid-view",
               color: "#795548",
@@ -534,6 +793,8 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
         {
           type: "scenarioChallenge",
           id: "soil-healthy-challenge",
+          taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-3"]?.["soil-healthy-challenge-dialogue"],
+          taraSuccessAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-3"]?.["soil-healthy-challenge-success"],
           title: { en: "Choose the Better Soil", hi: "बेहतर मिट्टी चुनें", te: "మంచి నేలను ఎంచుకోండి", ml: "മികച്ച മണ്ണ് തിരഞ്ഞെടുക്കുക" },
           subtitle: { en: "Healthy Soil Challenge", hi: "स्वस्थ मिट्टी चुनौती", te: "ఆరోగ్యకరమైన నేల సవాలు", ml: "മണ്ണ് ചലഞ്ച്" },
           instructions: { en: "Compare the situations and tap the option that shows healthier soil conditions.", hi: "विकल्पों की तुलना करें और बेहतर मिट्टी चुनें।", te: "మంచి నేల లక్షణాన్ని ఎంచుకోండి.", ml: "ശരിയായ സാഹചര്യം തിരഞ്ഞെടുക്കുക." },
@@ -640,35 +901,161 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
           ],
         },
 
-        // Phase 3: MCQ Quiz
+                // Phase 3: MCQ Quiz (2 Questions, 4 Options Each)
         {
           type: "mcq",
-          id: "soil-healthy-mcq",
-          totalXp: 60,
+          id: "soil-level-3-mcq",
+          totalXp: 15,
           questions: [
             {
-              id: "q1-healthy-def",
-              question: { en: "Which statement best describes healthy soil?", hi: "स्वस्थ मिट्टी का सबसे अच्छा वर्णन कौन सा है?", te: "ఆరోగ్యకరమైన నేలను ఏది సరిగ్గా వివరిస్తుంది?", ml: "ആരോഗ്യമുള്ള മണ്ണിനെ ഏറ്റവും നന്നായി വിവരിക്കുന്നത് ഏതാണ്?" },
-              xp: 30,
+              id: "q1-bare-soil-risk",
+              question: {
+                en: "What severe damage occurs when fertile topsoil is left bare under hot sun and heavy rains?",
+                hi: "तेज धूप और भारी बारिश में उपजाऊ मिट्टी को खुला छोड़ने पर क्या गंभीर नुकसान होता है?",
+                te: "ఎండ మరియు భారీ వర్షంలో నేలను కప్పకుండా ఉంచితే ఏమి జరుగుతుంది?",
+                ml: "കഠിനമായ വെയിലും മഴയും ഏൽക്കുമ്പോൾ തുറസ്സായ മണ്ണിന് എന്ത് സംഭവിക്കുന്നു?",
+              },
+              xp: 8,
               options: [
                 {
-                  id: "opt-q1-a",
-                  text: { en: "Soil is healthy when physical, chemical, and biological balance work together", hi: "जब भौतिक, रासायनिक और जैविक संतुलन एक साथ काम करते हैं", te: "భౌతిక, రసాయన మరియు జీవ సమతుల్యత కలిసి పనిచేసినప్పుడు", ml: "ഭൗതിക, രാസ, ജൈവ ഘടകങ്ങൾ ഒരുമിച്ച് പ്രവർത്തിക്കുമ്പോൾ" },
+                  id: "opt-l3-1a",
+                  text: {
+                    en: "Raindrops erode topsoil, sunlight bakes soil biology, and surface crusting blocks water infiltration",
+                    hi: "बारिश की बूंदें मिट्टी को बहा देती हैं, धूप रोगाणुओं को मारती है और कठोर पपड़ी पानी को रोकती है",
+                    te: "వర్షపు నీరు మట్టిని కొట్టుకుపోయేలా చేస్తుంది, ఎండ సూక్ష్మజీవులను చంపుతుంది మరియు నేల గట్టిపడుతుంది",
+                    ml: "മണ്ണൊലിപ്പ് ഉണ്ടാവുകയും സൂക്ഷ്മജീവികൾ നശിക്കുകയും വെള്ളം താഴേക്ക് ഇറങ്ങാതെ വരികയും ചെയ്യുന്നു",
+                  },
                   isCorrect: true,
-                  explanation: { en: "Healthy soil is an integrated living ecosystem.", hi: "स्वस्थ मिट्टी एक संपूर्ण जीवित प्रणाली है।", te: "ఆరోగ్యకరమైన నేల ఒక సజీవ వ్యవస్థ.", ml: "ആരോഗ്യമുള്ള മണ്ണ് ഒരു സജീവ വ്യവസ്ഥയാണ്." },
+                  explanation: {
+                    en: "Correct! Bare soil suffers from erosion, UV biological damage, and crusting that repels rainfall.",
+                    hi: "बिल्कुल सही! खुली मिट्टी में कटाव होता है और धूप से लाभकारी सूक्ष्मजीव नष्ट हो जाते हैं।",
+                    te: "సరిగ్గా చెప్పారు! నేలను కప్పకపోతే సారవంతమైన మట్టి కొట్టుకుపోతుంది.",
+                    ml: "ശരിയാണ്! മണ്ണ് മൂടി സൂക്ഷിച്ചില്ലെങ്കിൽ മണ്ണൊലിപ്പും ജീവികളുടെ നാശവും സംഭവിക്കും.",
+                  },
+                },
+                {
+                  id: "opt-l3-1b",
+                  text: {
+                    en: "The soil naturally generates new organic humus without needing any plant cover",
+                    hi: "मिट्टी बिना किसी पौधे के अपने आप नई जैविक खाद बना लेती है",
+                    te: "ఎలాంటి మొక్కలు లేకుండా నేల తనంతట తాను సారవంతమవుతుంది",
+                    ml: "സസ്യങ്ങളില്ലാതെ തന്നെ മണ്ണ് തനിയെ വളക്കൂറുള്ളതായി മാറുന്നു",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Humus requires plant material, roots, and microbes to form.",
+                    hi: "ह्यूमस बनने के लिए पौधों के अवशेष और रोगाणुओं की आवश्यकता होती है।",
+                    te: "సేంద్రీయ పదార్థం ఏర్పడటానికి మొక్కల వ్యర్థాలు అవసరం.",
+                    ml: "സസ്യ അവശിഷ്ടങ്ങൾ ഉണ്ടെങ്കിലേ മണ്ണിൽ വളം രൂപപ്പെടൂ.",
+                  },
+                },
+                {
+                  id: "opt-l3-1c",
+                  text: {
+                    en: "Underground earthworms multiply ten times faster in baked dry soil",
+                    hi: "सूखी गर्म मिट्टी में केंचुए दस गुना तेजी से बढ़ते हैं",
+                    te: "ఎండిన నేలలో వానపాములు పది రెట్లు వేగంగా పెరుగుతాయి",
+                    ml: "വരണ്ട മണ്ണിൽ ഞാഞ്ഞൂലുകൾ വളരെ വേഗത്തിൽ പെരുകുന്നു",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Earthworms need cool, moist conditions with food to survive.",
+                    hi: "केंचुओं को जीवित रहने के लिए नमी और भोजन की आवश्यकता होती है।",
+                    te: "వానపాములు బతకడానికి తేమ మరియు చల్లదనం అవసరం.",
+                    ml: "ഞാഞ്ഞൂലുകൾക്ക് ജീവിക്കാൻ ഈർപ്പമുള്ള തണുത്ത മണ്ണാണ് ആവശ്യം.",
+                  },
+                },
+                {
+                  id: "opt-l3-1d",
+                  text: {
+                    en: "All weed seeds are permanently eliminated forever",
+                    hi: "सभी खरपतवार के बीज हमेशा के लिए समाप्त हो जाते हैं",
+                    te: "కలుపు మొక్కల విత్తనాలు పూర్తిగా నశిస్తాయి",
+                    ml: "കളകളുടെ വിത്തുകൾ പൂർണ്ണമായി ഇല്ലാതാകുന്നു",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Pioneer weeds thrive on disturbed bare soil.",
+                    hi: "खुली मिट्टी में खरपतवार और तेजी से उगते हैं।",
+                    te: "కప్పని నేలలో కలుపు మొక్కలు మరింత వేగంగా పెరుగుతాయి.",
+                    ml: "തുറസ്സായ മണ്ണിൽ കളകൾ കൂടുതൽ വേഗത്തിൽ വളരുന്നു.",
+                  },
                 },
               ],
             },
             {
-              id: "q2-waterlogged",
-              question: { en: "What happens to roots when soil stays waterlogged for too long?", hi: "जलभराव होने पर जड़ों का क्या होता है?", te: "నీరు నిలిచిపోతే వేర్లకు ఏమి జరుగుతుంది?", ml: "വെള്ളം കെട്ടിക്കിടന്നാൽ വേരുകൾക്ക് എന്ത് സംഭവിക്കും?" },
-              xp: 30,
+              id: "q2-mulch-practice",
+              question: {
+                en: "What is the single best practice to protect soil moisture and stop surface runoff during hot seasons?",
+                hi: "गर्मियों में मिट्टी की नमी बचाने और पानी के बहाव को रोकने का सबसे अच्छा उपाय क्या है?",
+                te: "ఎండాకాలంలో నేలలో తేమను నిలుపుకోవడానికి మరియు నేల కోతను ఆపడానికి ఉత్తమ మార్గం ఏది?",
+                ml: "വേനൽക്കാലത്ത് ഈർപ്പം നിലനിർത്താനും മണ്ണൊലിപ്പ് തടയാനും ഏറ്റവും നല്ല മാർഗ്ഗം ഏതാണ്?",
+              },
+              xp: 7,
               options: [
                 {
-                  id: "opt-q2-a",
-                  text: { en: "Roots lose access to oxygen and struggle to breathe", hi: "जड़ों को ऑक्सीजन नहीं मिलती और वे सांस नहीं ले पातीं", te: "వేర్లకు ఆక్సిజన్ అందక ఉక్కిరిబిక్కిరి అవుతాయి", ml: "വേരുകൾക്ക് ശ്വസിക്കാൻ ഓക്സിജൻ ലഭിക്കാതെ വരുന്നു" },
+                  id: "opt-l3-2a",
+                  text: {
+                    en: "Covering the ground with organic mulch, crop residue, or living cover crops",
+                    hi: "मिट्टी को जैविक गीली घास (मल्च), फसल अवशेष या कवर फसलों से ढकना",
+                    te: "నేలను సేంద్రీయ వ్యర్థాలు, ఆకులు లేదా కవర్ పంటలతో కప్పడం",
+                    ml: "കരിയില, വൈക്കോൽ എന്നിവ കൊണ്ടുള്ള പുതയിടൽ അല്ലെങ്കിൽ ആവരണ വിളകൾ വളർത്തൽ",
+                  },
                   isCorrect: true,
-                  explanation: { en: "Water displaces oxygen pores, suffocating plant roots.", hi: "पानी हवा के छिद्रों को भर देता है।", te: "నీరు గాలిని బయటకు నెట్టేస్తుంది.", ml: "വായുസഞ്ചാരം നിലയ്ക്കുന്നു." },
+                  explanation: {
+                    en: "Correct! Surface mulch acts like an umbrella, keeping soil cool, moist, and protected from rainfall impact.",
+                    hi: "बिल्कुल सही! मल्च मिट्टी को धूप से बचाता है और नमी बनाए रखता है।",
+                    te: "సరిగ్గా చెప్పారు! మల్చింగ్ నేలను చల్లగా మరియు తేమగా ఉంచుతుంది.",
+                    ml: "ശരിയാണ്! പുതയിടുന്നത് മണ്ണിന് തണൽ നൽകുകയും ഈർപ്പം നിലനിർത്തുകയും ചെയ്യുന്നു.",
+                  },
+                },
+                {
+                  id: "opt-l3-2b",
+                  text: {
+                    en: "Burning all crop residues and clearing every trace of organic matter",
+                    hi: "सभी फसल अवशेषों को जलाना और खेत को पूरी तरह साफ करना",
+                    te: "పంట వ్యర్థాలను కాల్చివేసి నేలను పూర్తిగా శుభ్రం చేయడం",
+                    ml: "സസ്യ അവശിഷ്ടങ്ങൾ കത്തിച്ച് മണ്ണ് വൃത്തിയാക്കുക",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Burning residues destroys organic carbon and kills beneficial surface biology.",
+                    hi: "अवशेष जलाने से मिट्टी के पोषक तत्व और रोगाणु नष्ट हो जाते हैं।",
+                    te: "వ్యర్థాలను కాల్చడం వల్ల నేలలోని జీవం నశిస్తుంది.",
+                    ml: "അവശിഷ്ടങ്ങൾ കത്തിക്കുന്നത് മണ്ണിന്റെ ജീവനെ ഇല്ലാതാക്കും.",
+                  },
+                },
+                {
+                  id: "opt-l3-2c",
+                  text: {
+                    en: "Deep tilling the field 3 times every week in direct afternoon heat",
+                    hi: "दोपहर की तेज धूप में हर हफ्ते 3 बार गहरी जुताई करना",
+                    te: "తీవ్రమైన ఎండలో వారానికి మూడు సార్లు లోతుగా దున్నడం",
+                    ml: "ഉച്ചവെയിലിൽ ആഴ്ചയിൽ മൂന്ന് തവണ നിലം ഉഴുതു മറിക്കുക",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Frequent deep tillage breaks soil aggregates and accelerates moisture evaporation.",
+                    hi: "बार-बार जुताई करने से मिट्टी की नमी जल्दी उड़ जाती है।",
+                    te: "ఎక్కువగా దున్నడం వల్ల తేమ వేగంగా ఆవిరవుతుంది.",
+                    ml: "കൂടുതൽ ഉഴുന്നത് മണ്ണിന്റെ ഈർപ്പം നഷ്ടപ്പെടുത്തും.",
+                  },
+                },
+                {
+                  id: "opt-l3-2d",
+                  text: {
+                    en: "Spraying chemical sealants to waterproof the field",
+                    hi: "खेत को वाटरप्रूफ बनाने के लिए रासायनिक सीलेंट का छिड़काव करना",
+                    te: "నేలను వాటర్‌ప్రూఫ్ చేయడానికి రసాయనాలు చల్లడం",
+                    ml: "മണ്ണിൽ വെള്ളം ഇറങ്ങാതിരിക്കാൻ രാസവസ്തുക്കൾ തളിക്കുക",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Soil must absorb water, not repel it; sealants kill crop roots.",
+                    hi: "मिट्टी को पानी सोखना चाहिए, वाटरप्रूफिंग से जड़ें दम तोड़ देती हैं।",
+                    te: "నేల నీటిని పీల్చుకోవాలి; వాటర్‌ప్రూఫింగ్ పంటలను చంపుతుంది.",
+                    ml: "മണ്ണ് വെള്ളം വലിച്ചെടുക്കുകയാണ് വേണ്ടത്, തടയുകയല്ല.",
+                  },
                 },
               ],
             },
@@ -712,6 +1099,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
         {
           type: "conceptCards",
           id: "soil-connections-cards",
+          taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-4"]?.["soil-connections-cards-dialogue"],
           title: { en: "Soil Connections", hi: "मिट्टी के संबंध", te: "నేల అనుసంధానాలు", ml: "മണ്ണിലെ ബന്ധങ്ങൾ" },
           taraDialogue: {
             en: "Everything in the soil system is connected! Roots need water and air. Microbes interact with organic matter. Good structure manages both moisture and air. When one changes, it influences everything!",
@@ -735,6 +1123,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
           cards: [
             {
               id: "card-roots-water",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-4"]?.["soil-connections-cards-card-card-roots-water"],
               title: { en: "Soil + Roots", hi: "मिट्टी + जड़ें", te: "నేల + వేర్లు", ml: "മണ്ണ് + വേരുകൾ" },
               icon: "eco",
               color: "#4CAF50",
@@ -756,6 +1145,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
             },
             {
               id: "card-life-structure",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-4"]?.["soil-connections-cards-card-card-life-structure"],
               title: { en: "Life + Structure", hi: "जीवन + संरचना", te: "జీవం + నిర్మాణం", ml: "ജീവൻ + ഘടന" },
               icon: "grid-view",
               color: "#60A5FA",
@@ -763,6 +1153,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
             },
             {
               id: "card-living-crop",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-4"]?.["soil-connections-cards-card-card-living-crop"],
               title: { en: "Living Soil + Healthy Crop", hi: "जीवित मिट्टी + स्वस्थ फसल", te: "సజీవ నేల + మంచి పంట", ml: "നല്ല മണ്ണ് + നല്ല വിളവ്" },
               icon: "grass",
               color: "#FFA000",
@@ -775,6 +1166,8 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
         {
           type: "memory",
           id: "soil-connections-memory",
+          taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-4"]?.["soil-connections-memory-dialogue"],
+          taraSuccessAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-4"]?.["soil-connections-memory-success"],
           title: { en: "Soil Connections", hi: "संबंध याद रखें", te: "అనుసంధానాన్ని గుర్తుంచుకోండి", ml: "ബന്ധങ്ങൾ ഓർക്കുക" },
           instructions: { en: "Match connected soil pairs to discover how the system interacts.", hi: "मिट्टी प्रणाली में एक साथ जुड़ने वाले दो कार्ड मिलाएं।", te: "నేలలో కలిసి పనిచేసే జతలను కలపండి.", ml: "പരസ്പരം ബന്ധമുള്ള ജോടികൾ കണ്ടെത്തുക." },
           xp: 30,
@@ -814,35 +1207,161 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
           ],
         },
 
-        // Phase 3: MCQ Quiz
+                // Phase 3: MCQ Quiz (2 Questions, 4 Options Each)
         {
           type: "mcq",
-          id: "soil-connections-mcq",
-          totalXp: 50,
+          id: "soil-level-4-mcq",
+          totalXp: 15,
           questions: [
             {
-              id: "q1-structure-air",
-              question: { en: "Why do soil structure and air matter to plant roots?", hi: "मिट्टी की संरचना और हवा पौधों की जड़ों के लिए क्यों मायने रखती है?", te: "నేల నిర్మాణం మరియు గాలి వేర్లకు ఎందుకు ముఖ్యం?", ml: "മണ്ണിന്റെ ഘടനയും വായുവും വേരുകൾക്ക് പ്രധാനമാകുന്നത് എന്തുകൊണ്ട്?" },
-              xp: 25,
+              id: "q1-connected-system",
+              question: {
+                en: "In a connected living soil system, how do plant roots and soil microbes collaborate?",
+                hi: "एक जुड़े हुए जीवित मिट्टी सिस्टम में, पौधों की जड़ें और सूक्ष्मजीव आपस में कैसे सहयोग करते हैं?",
+                te: "సజీవ నేల వ్యవస్థలో, వేర్లు మరియు సూక్ష్మజీవులు పరస్పరం ఎలా సహకరించుకుంటాయి?",
+                ml: "സസ്യങ്ങളുടെ വേരുകളും മണ്ണിലെ സൂക്ഷ്മജീവികളും പരസ്പരം എങ്ങനെയാണ് സഹായിക്കുന്നത്?",
+              },
+              xp: 8,
               options: [
                 {
-                  id: "opt-q1-a",
-                  text: { en: "Good structure provides pore spaces where air is available", hi: "अच्छी संरचना हवा के छिद्र प्रदान करती है", te: "మంచి నిర్మాణం వేర్లకు గాలిని అందిస్తుంది", ml: "നല്ല ഘടന വായു സഞ്ചാരത്തിനുള്ള ഇടം നൽകുന്നു" },
+                  id: "opt-l4-1a",
+                  text: {
+                    en: "Roots exude sugars to feed microbes, while microbes solubilize and deliver locked minerals to roots",
+                    hi: "जड़ें सूक्ष्मजीवों को पोषण देने के लिए शर्करा छोड़ती हैं, जबकि सूक्ष्मजीव खनिजों को घोलकर जड़ों तक पहुंचाते हैं",
+                    te: "వేర్లు సూక్ష్మజీవులకు ఆహారంగా కార్బోహైడ్రేట్లను అందిస్తాయి, సూక్ష్మజీవులు పోషకాలను వేర్లకు అందిస్తాయి",
+                    ml: "വേരുകൾ സൂക്ഷ്മജീവികൾക്ക് അന്നജം നൽകുമ്പോൾ, സൂക്ഷ്മജീവികൾ ധാതുക്കൾ വേരുകൾക്ക് നൽകുന്നു",
+                  },
                   isCorrect: true,
-                  explanation: { en: "Roots need oxygen underground to respire and grow.", hi: "जड़ों को सांस लेने के लिए ऑक्सीजन चाहिए।", te: "వేర్లకు ఆక్సిజన్ అవసరం.", ml: "വേരുകൾക്ക് ഓക്സിജൻ ആവശ്യമാണ്." },
+                  explanation: {
+                    en: "Correct! The root-microbe symbiosis (rhizosphere partnership) is nature's two-way nutrient exchange pipeline.",
+                    hi: "बिल्कुल सही! जड़ें और रोगाणु एक-दूसरे को भोजन और आवश्यक खनिज प्रदान करते हैं।",
+                    te: "సరిగ్గా చెప్పారు! వేర్లు మరియు సూక్ష్మజీవులు కలిసి పనిచేసి పంటలను పోషిస్తాయి.",
+                    ml: "ശരിയാണ്! സസ്യങ്ങളും സൂക്ഷ്മജീവികളും തമ്മിലുള്ള ഈ ബന്ധമാണ് വളർച്ചയ്ക്ക് ആധാരം.",
+                  },
+                },
+                {
+                  id: "opt-l4-1b",
+                  text: {
+                    en: "Roots fight aggressively against all bacteria to starve them out",
+                    hi: "जड़ें सभी जीवाणुओं से लड़ती हैं ताकि उन्हें भूखा रखा जा सके",
+                    te: "వేర్లు అన్ని బ్యాక్టీరియాలతో పోరాడి వాటిని నాశనం చేస్తాయి",
+                    ml: "വേരുകൾ എല്ലാ ബാക്ടീരിയകളോടും പോരാടുന്നു",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Roots actively invite and feed beneficial bacteria around the root zone.",
+                    hi: "जड़ें लाभकारी जीवाणुओं को अपने पास आकर्षित करती हैं और उन्हें पोषण देती हैं।",
+                    te: "వేర్లు మేలు చేసే బ్యాక్టీరియాను ఆకర్షిస్తాయి.",
+                    ml: "വേരുകൾ ഗുണകരമായ ബാക്ടീരിയകളെ പരിപാലിക്കുകയാണ് ചെയ്യുന്നത്.",
+                  },
+                },
+                {
+                  id: "opt-l4-1c",
+                  text: {
+                    en: "Microbes consume the entire root system and turn it into dry sawdust",
+                    hi: "सूक्ष्मजीव पूरी जड़ प्रणाली को खाकर सूखी लकड़ी के बुरादे में बदल देते हैं",
+                    te: "సూक्ष्मజీవులు వేర్లను పూర్తిగా తినేస్తాయి",
+                    ml: "സൂക്ഷ്മജീവികൾ വേരുകളെ പൂർണ്ണമായി നശിപ്പിക്കുന്നു",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Beneficial mycorrhizae protect and extend the root absorption network.",
+                    hi: "लाभकारी कवक जड़ों की रक्षा करते हैं और उनका दायरा बढ़ाते हैं।",
+                    te: "మేలు చేసే శిలీంధ్రాలు వేర్లను కాపాడతాయి.",
+                    ml: "ഗുണകരമായ ഫംഗസുകൾ വേരുകളെ സംരക്ഷിക്കുകയാണ് ചെയ്യുന്നത്.",
+                  },
+                },
+                {
+                  id: "opt-l4-1d",
+                  text: {
+                    en: "There is zero contact between roots and soil biology",
+                    hi: "जड़ों और मिट्टी के जीवों के बीच कोई संपर्क नहीं होता",
+                    te: "వేర్లకు మరియు నేలలోని జీవులకు ఎలాంటి సంబంధం ఉండదు",
+                    ml: "വേരുകൾക്കും ജീവികൾക്കും തമ്മിൽ യാതൊരു ബന്ധവുമില്ല",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "The rhizosphere is one of the most biologically active zones on Earth.",
+                    hi: "जड़ों के आसपास का क्षेत्र सबसे अधिक जैविक रूप से सक्रिय होता है।",
+                    te: "వేర్ల చుట్టూ ఉన్న ప్రాంతం అత్యంత చురుకైన జీవ మండలం.",
+                    ml: "വേരുകൾക്ക് ചുറ്റുമുള്ള ഭാഗം ജീവൻ നിറഞ്ഞതാണ്.",
+                  },
                 },
               ],
             },
             {
-              id: "q2-microbes-organic",
-              question: { en: "Which element interacts with organic residues in soil to recycle nutrients?", hi: "पोषक तत्वों के पुनर्चक्रण के लिए कौन सा तत्व अवशेषों से जुड़ता है?", te: "సేంద్రీయ వ్యర్థాలను పోషకాలుగా మార్చేది ఏది?", ml: "ജൈവാവശിഷ്ടങ്ങളെ വളമാക്കി മാറ്റുന്നത് ഏതാണ്?" },
-              xp: 25,
+              id: "q2-soil-sponge",
+              question: {
+                en: "What builds the remarkable soil sponge that absorbs heavy downpours without waterlogging?",
+                hi: "वह कौन सी चीज है जो मिट्टी को स्पंज जैसा बनाती है ताकि भारी बारिश का पानी आसानी से सोख सके?",
+                te: "వర్షపు నీటిని నేల స్పాంజ్ లాగా పీల్చుకోవడానికి ఏది సహాయపడుతుంది?",
+                ml: "മഴവെള്ളം എളുപ്പത്തിൽ വലിച്ചെടുക്കാൻ മണ്ണിനെ സ്പോഞ്ച് പോലെയാക്കുന്നത് എന്താണ്?",
+              },
+              xp: 7,
               options: [
                 {
-                  id: "opt-q2-a",
-                  text: { en: "Soil microorganisms", hi: "मिट्टी के सूक्ष्मजीव", te: "నేలలోని సూక్ష్మజీవులు", ml: "മണ്ണിലെ സൂക്ഷ്മജീവികൾ" },
+                  id: "opt-l4-2a",
+                  text: {
+                    en: "Organic matter, fungal glues (glomalin), stable crumb aggregates, and biological pore channels",
+                    hi: "जैविक पदार्थ, कवक गोंद (ग्लोमालिन), भुरभुरी संरचना और जैविक छिद्र",
+                    te: "సేంద్రీయ పదార్థం, శిలీంధ్రాలు, మంచి నేల నిర్మాణం మరియు రంధ్రాలు",
+                    ml: "ജൈവാംശം, ഫംഗസുകൾ, മികച്ച മൺതരികൾ, ജൈവ സുഷിരങ്ങൾ",
+                  },
                   isCorrect: true,
-                  explanation: { en: "Microorganisms break down plant materials into natural fertility.", hi: "सूक्ष्मजीव जैविक पदार्थों को विघटित करते हैं।", te: "సూక్ష్మజీవులు వ్యర్థాలను ఎరువుగా మారుస్తాయి.", ml: "സൂക്ഷ്മജീവികൾ ജൈവാംശത്തെ വളമാക്കുന്നു." },
+                  explanation: {
+                    en: "Correct! Glomalin and organic matter bind particles into stable crumbs with open pores that drink rainfall rapidly.",
+                    hi: "बिल्कुल सही! जैविक पदार्थ और फंगस मिलकर मिट्टी को भुरभुरा बनाते हैं जो पानी को अच्छी तरह सोखती है।",
+                    te: "సరిగ్గా చెప్పారు! సేంద్రీయ పదార్థం మరియు శిలీంధ్రాలు నేలను స్పాంజ్ లాగా మారుస్తాయి.",
+                    ml: "ശരിയാണ്! ജൈവാംശവും ഫംഗസും ചേരുമ്പോൾ മണ്ണ് വെള്ളം നന്നായി ആഗിരണം ചെയ്യുന്നു.",
+                  },
+                },
+                {
+                  id: "opt-l4-2b",
+                  text: {
+                    en: "Heavy compaction with industrial rollers until all air is expelled",
+                    hi: "औद्योगिक रोलर्स से मिट्टी को इतना दबाना कि सारी हवा बाहर निकल जाए",
+                    te: "భారీ రోలర్లతో నేలను గట్టిగా తొక్కించడం",
+                    ml: "കനത്ത റോളറുകൾ ഉപയോഗിച്ച് മണ്ണിനെ ഉറപ്പിക്കുക",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Compaction destroys pore spaces and creates immediate surface flooding.",
+                    hi: "मिट्टी दबाने से छिद्र नष्ट हो जाते हैं और पानी ऊपर ही जमा हो जाता है।",
+                    te: "నేల గట్టిపడితే నీరు లోపలికి ఇంకదు.",
+                    ml: "മണ്ണ് ഉറച്ചുപോയാൽ വെള്ളം താഴേക്ക് ഇറങ്ങില്ല.",
+                  },
+                },
+                {
+                  id: "opt-l4-2c",
+                  text: {
+                    en: "Applying excess chemical weedkillers that kill all ground cover",
+                    hi: "अत्यधिक रासायनिक खरपतवारनाशकों का छिड़काव करना",
+                    te: "రసాయన మందులు ఎక్కువగా వాడి అన్ని మొక్కలను చంపడం",
+                    ml: "രാസകീടനാശിനികൾ അമിതമായി തളിക്കുക",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Killing all cover removes the root networks needed to aggregate soil crumbs.",
+                    hi: "कवर हटाने से जड़ें नष्ट हो जाती हैं और मिट्टी बह जाती है।",
+                    te: "వేర్లు లేకపోతే నేల నిర్మాణం దెబ్బతింటుంది.",
+                    ml: "വേരുകൾ ഇല്ലെങ്കിൽ മണ്ണിന്റെ ഘടന നശിക്കും.",
+                  },
+                },
+                {
+                  id: "opt-l4-2d",
+                  text: {
+                    en: "Covering the field in concrete plaster",
+                    hi: "खेत को कंक्रीट के प्लास्टर से ढक देना",
+                    te: "పొలం మొత్తాన్ని కాంక్రీటుతో కప్పడం",
+                    ml: "നിലം മുഴുവൻ കോൺക്രീറ്റ് ചെയ്യുക",
+                  },
+                  isCorrect: false,
+                  explanation: {
+                    en: "Concrete prevents all agricultural use and blocks biological activity.",
+                    hi: "कंक्रीट से खेती असंभव हो जाती है।",
+                    te: "కాంక్రీట్ వల్ల వ్యవసాయం చేయలేము.",
+                    ml: "കോൺക്രീറ്റ് ചെയ്താൽ കൃഷി അസാധ്യമാകും.",
+                  },
                 },
               ],
             },
@@ -886,6 +1405,8 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
         {
           type: "faceVerification",
           id: "soil-level-5-face-verify",
+          taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-5"]?.["soil-level-5-face-verify-dialogue"],
+          taraSuccessAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-5"]?.["soil-level-5-face-verify-success"],
           title: {
             en: "Oral Interview Verification",
             hi: "मौखिक साक्षात्कार सत्यापन",
@@ -924,6 +1445,8 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
         {
           type: "aiInterview",
           id: "soil-level-5-ai-interview",
+          taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-5"]?.["soil-level-5-ai-interview-dialogue"],
+          taraSuccessAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-5"]?.["soil-level-5-ai-interview-success"],
           title: {
             en: "Oral Concept Check with Tara",
             hi: "तारा के साथ मौखिक अवधारणा जांच",
@@ -959,6 +1482,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
           questions: [
             {
               id: "q-soil-guardian-capstone",
+              taraAudio: UNDERSTANDING_SOIL_HEALTH_AUDIO["level-5"]?.["soil-level-5-ai-interview-question-q-soil-guardian-capstone"],
               question: {
                 en: "How do living soil organisms, plant residues, and soil structure work together to nourish your crops?",
                 hi: "जीवित मिट्टी के जीव, फसल अवशेष और मिट्टी की संरचना मिलकर आपकी फसलों का पोषण कैसे करते हैं?",

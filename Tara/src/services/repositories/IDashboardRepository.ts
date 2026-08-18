@@ -1,5 +1,5 @@
 import type { DashboardSummary } from "../../types/dashboard";
 
 export interface IDashboardRepository {
-  getSummary(): Promise<DashboardSummary>;
+  getSummary(lang?: string): Promise<DashboardSummary>;
 }

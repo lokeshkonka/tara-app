@@ -184,7 +184,7 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
       const newReply = {
         id: `rep-${Date.now()}`,
         authorName: "Ravi Kumar",
-        authorLocation: "Dombivli",
+        authorLocation: "Nashik",
         text,
         createdAt: "Just now",
         likesCount: 0,

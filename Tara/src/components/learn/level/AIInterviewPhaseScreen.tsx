@@ -321,7 +321,19 @@ export const AIInterviewPhaseScreen: React.FC<AIInterviewPhaseScreenProps> = ({
             title={taraTitle}
             expression={taraExpression}
             message={taraMessage}
-            showVoiceControl={true}
+            audioSource={
+              hasResult && isPassed
+                ? (phase.taraSuccessAudioSource || undefined)
+                : !hasResult
+                ? (currentQuestion?.audioSource || currentQuestion?.taraAudio || phase.audioSource || phase.taraAudio)
+                : undefined
+            }
+            autoPlay={true}
+            showVoiceControl={Boolean(
+              hasResult && isPassed
+                ? phase.taraSuccessAudioSource
+                : !hasResult && (currentQuestion?.audioSource || currentQuestion?.taraAudio || phase.audioSource || phase.taraAudio)
+            )}
           />
         </Animated.View>
 

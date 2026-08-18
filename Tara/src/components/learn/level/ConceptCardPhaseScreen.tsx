@@ -259,15 +259,15 @@ export const ConceptCardPhaseScreen: React.FC<ConceptCardPhaseScreenProps> = ({
           })}
         </ScrollView>
 
-        {/* Tara Side Message Card with Short Concept Subtitle */}
+        {/* Tara Side Message Card with Concept Dialogue */}
         <View style={styles.taraSideWrapper}>
           <TaraSideMessageCard
             key={currentCard.id}
-            message={currentInsight.subtitle}
+            message={currentCard.taraDialogue || currentInsight.subtitle}
             expression="happy"
-            audioSource={currentCard.audioSource}
-            showVoiceControl={Boolean(currentCard.audioSource)}
-            autoPlay={Boolean(currentCard.audioSource)}
+            audioSource={currentCard.audioSource || (currentCard as any).taraAudio}
+            showVoiceControl={Boolean(currentCard.audioSource || (currentCard as any).taraAudio)}
+            autoPlay={Boolean(currentCard.audioSource || (currentCard as any).taraAudio)}
           />
         </View>
 

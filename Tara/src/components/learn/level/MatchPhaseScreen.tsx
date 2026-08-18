@@ -61,8 +61,17 @@ export const MatchPhaseScreen: React.FC<MatchPhaseScreenProps> = ({
                 : phase.taraDialogue ||
                   "Connect each soil friend with their role in the community."
             }
+            audioSource={
+              isCompleted
+                ? (phase.taraSuccessAudioSource || undefined)
+                : (phase.audioSource || phase.taraAudio)
+            }
             autoPlay={true}
-            showVoiceControl={true}
+            showVoiceControl={Boolean(
+              isCompleted
+                ? phase.taraSuccessAudioSource
+                : (phase.audioSource || phase.taraAudio)
+            )}
           />
         </View>
 

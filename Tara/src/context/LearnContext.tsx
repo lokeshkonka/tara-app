@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useUser } from "./UserContext";
 import { learnRepository } from "../services";
 import type { LearnCategory, LearnLesson, LearnLessonDetail, LearnSummary, LevelDefinition } from "../types/learn";
 
@@ -17,7 +18,7 @@ interface LearnContextValue {
   error: string | null;
   refresh: () => Promise<void>;
   completeLesson: (lessonId: string) => Promise<void>;
-  getLessonDetail: (lessonId: string) => Promise<LearnLessonDetail | null>;
+  getLessonDetail: (lessonId: string, lang?: string) => Promise<LearnLessonDetail | null>;
   getLevelDefinition: (levelId: string, lang?: string) => Promise<LevelDefinition | null>;
   completeLevelStep: (levelId: string, xpEarned: number) => Promise<void>;
 }
@@ -25,6 +26,9 @@ interface LearnContextValue {
 const LearnContext = createContext<LearnContextValue | null>(null);
 
 export function LearnProvider({ children }: { children: ReactNode }) {
+  const { user } = useUser();
+  const currentLang = user?.language || "en";
+
   const [summary, setSummary] = useState<LearnSummary | null>(null);
   const [categories, setCategories] = useState<LearnCategory[]>([]);
   const [lessons, setLessons] = useState<LearnLesson[]>([]);
@@ -37,7 +41,7 @@ export function LearnProvider({ children }: { children: ReactNode }) {
       const [data, cats, les] = await Promise.all([
         learnRepository.getSummary(),
         learnRepository.getCategories(),
-        learnRepository.getLessons(),
+        learnRepository.getLessons(currentLang),
       ]);
       setSummary(data);
       setCategories(cats);
@@ -48,7 +52,7 @@ export function LearnProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentLang]);
 
   const completeLesson = useCallback(async (lessonId: string) => {
     try {
@@ -64,34 +68,32 @@ export function LearnProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const getLessonDetail = useCallback(async (lessonId: string) => {
+  const getLessonDetail = useCallback(async (lessonId: string, lang?: string) => {
     try {
-      return await learnRepository.getLessonDetail(lessonId);
+      return await learnRepository.getLessonDetail(lessonId, lang || currentLang);
     } catch (err: unknown) {
       console.warn("Failed to fetch lesson detail:", err);
       return null;
     }
-  }, []);
+  }, [currentLang]);
 
   const getLevelDefinition = useCallback(async (levelId: string, lang?: string) => {
     try {
-      return await learnRepository.getLevelDefinition(levelId, lang);
+      return await learnRepository.getLevelDefinition(levelId, lang || currentLang);
     } catch (err: unknown) {
       console.warn("Failed to fetch level definition:", err);
       return null;
     }
-  }, []);
+  }, [currentLang]);
 
   const completeLevelStep = useCallback(async (levelId: string, xpEarned: number) => {
     try {
       await learnRepository.completeLevelStep(levelId, xpEarned);
-      setSummary((prev) =>
-        prev ? { ...prev, todayXp: prev.todayXp + xpEarned } : prev
-      );
+      await refresh();
     } catch (err: unknown) {
       console.warn("Failed to complete level step:", err);
     }
-  }, []);
+  }, [refresh]);
 
   useEffect(() => {
     refresh();

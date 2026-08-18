@@ -19,7 +19,7 @@ export default function LessonDetailScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { lessonId } = useLocalSearchParams<{ lessonId: string }>();
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const { addXp } = useUser();
   const { getLessonDetail, completeLesson, refresh } = useLearn();
 
@@ -28,10 +28,10 @@ export default function LessonDetailScreen() {
 
   const fetchDetail = useCallback(async () => {
     if (!lessonId) return;
-    const res = await getLessonDetail(lessonId);
+    const res = await getLessonDetail(lessonId, lang);
     setDetail(res);
     setIsLoading(false);
-  }, [lessonId, getLessonDetail]);
+  }, [lessonId, lang, getLessonDetail]);
 
   useFocusEffect(
     useCallback(() => {
@@ -41,7 +41,10 @@ export default function LessonDetailScreen() {
 
   const handleSelectLevel = (level: LevelNodeDetail) => {
     if (level.status === "locked") return;
-    router.push(`/learn/level/${level.id}`);
+    router.push({
+      pathname: "/learn/level/[levelId]",
+      params: { levelId: level.id },
+    });
   };
 
   const handleBack = () => {

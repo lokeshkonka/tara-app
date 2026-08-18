@@ -1,7 +1,7 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Animated, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { DashboardTopBar } from "../../components/dashboard/DashboardTopBar";
 import { HomeTodaysPracticeCard } from "../../components/dashboard/HomeTodaysPracticeCard";
 import { ProgressSection } from "../../components/progress/ProgressSection";
@@ -15,9 +15,15 @@ import { colors, spacing } from "../../theme/theme";
 export default function HomeTab() {
   const router = useRouter();
   const { user } = useUser();
-  const { todaysPractice, isLoading } = useDashboard();
+  const { todaysPractice, isLoading, refresh } = useDashboard();
   const { progress } = useProgress();
   const name = user?.name ?? "Farmer";
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
 
   const insets = useSafeAreaInsets();
   const scrollY = useRef(0);
@@ -90,8 +96,23 @@ export default function HomeTab() {
         {todaysPractice && !isLoading && (
           <HomeTodaysPracticeCard
             practice={todaysPractice}
-            onStartPractice={() => router.push("/practice")}
-            onViewCalendar={() => router.push("/practice")}
+            onStartPractice={() => {
+              if (todaysPractice.levelId) {
+                router.push({
+                  pathname: "/learn/level/[levelId]",
+                  params: { levelId: todaysPractice.levelId },
+                });
+              } else {
+                router.push("/learn");
+              }
+            }}
+            onViewCalendar={() => {
+              if (todaysPractice.lessonId) {
+                router.push(`/learn/lessons/${todaysPractice.lessonId}` as any);
+              } else {
+                router.push("/learn");
+              }
+            }}
           />
         )}
         {progress && <ProgressSection data={progress} />}

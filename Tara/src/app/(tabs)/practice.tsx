@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors, componentColors, rounded, spacing, typography } from "../../theme/theme";
 import { useTranslation } from "../../hooks/useTranslation";
@@ -44,45 +44,59 @@ const SOIL_PILLARS = [
 export default function PracticeTab() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const { user } = useUser();
-  const { lessons, getLessonDetail, summary } = useLearn();
+  const { lessons, getLessonDetail, summary, refresh } = useLearn();
 
   const [practiceData] = useState(DUMMY_PRACTICE_DATA);
   const [selectedLessonDetail, setSelectedLessonDetail] = useState(
     practiceData.recentLessonDetail
   );
 
-  // Fetch actual lesson detail from LearnContext if available
-  useEffect(() => {
-    let isMounted = true;
+  const fetchActiveLesson = useCallback(async () => {
+    await refresh();
     if (lessons.length > 0) {
-      getLessonDetail(lessons[0].id).then((detail) => {
-        if (isMounted && detail && detail.levels.length > 0) {
-          setSelectedLessonDetail(detail);
-        }
-      });
+      const detail = await getLessonDetail(lessons[0].id, lang);
+      if (detail && detail.levels.length > 0) {
+        setSelectedLessonDetail(detail);
+      }
     }
-    return () => {
-      isMounted = false;
-    };
-  }, [lessons, getLessonDetail]);
+  }, [lessons, lang, getLessonDetail, refresh]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchActiveLesson();
+    }, [fetchActiveLesson])
+  );
 
   // Transform recent lesson levels for VerticalJourneyTimeline
   const journeyNodes: JourneyTimelineNode[] = useMemo(() => {
-    return selectedLessonDetail.levels.map((level) => ({
-      id: level.id,
-      title: t(level.titleKey),
-      subtitle: level.durationMinutes ? `${level.durationMinutes} min` : undefined,
-      status:
-        level.status === "inProgress"
-          ? "active"
-          : level.status === "available"
-          ? "active"
-          : level.status,
-      xp: level.xp,
-      durationMinutes: level.durationMinutes,
-    }));
+    const firstUncompletedIndex = selectedLessonDetail.levels.findIndex((l) => l.status !== "completed");
+
+    return selectedLessonDetail.levels.map((level, idx) => {
+      let status: "completed" | "active" | "locked" = "locked";
+      if (level.status === "completed") {
+        status = "completed";
+      } else if (
+        level.status === "inProgress" ||
+        idx === firstUncompletedIndex ||
+        (firstUncompletedIndex === -1 && idx === 0)
+      ) {
+        status = "active";
+      } else if (level.status === "available") {
+        status = idx === firstUncompletedIndex ? "active" : "locked";
+      }
+
+      return {
+        id: level.id,
+        levelNumber: level.levelNumber,
+        title: level.title || (level.titleKey ? t(level.titleKey) : `Level ${level.levelNumber}`),
+        subtitle: level.durationMinutes ? `${level.durationMinutes} min` : undefined,
+        status,
+        xp: level.xp,
+        durationMinutes: level.durationMinutes,
+      };
+    });
   }, [selectedLessonDetail, t]);
 
   // When tapping any level in the timeline, open that interactive level directly
@@ -144,11 +158,20 @@ export default function PracticeTab() {
           {/* --- 2. WEEKLY PRACTICE & CONSISTENCY BAR GRAPH --- */}
           <View style={styles.graphCard}>
             <View style={styles.cardHeaderRow}>
-              <View>
-                <Text style={styles.cardTitle}>Weekly Activity & Consistency</Text>
-                <Text style={styles.cardSubtitle}>
-                  19-Day Learning & Field Practice Streak 🔥
+              <View style={styles.headerTitleWrap}>
+                <View style={styles.titleWithIconRow}>
+                  <MaterialIcons name="insights" size={18} color={colors.primary} />
+                  <Text style={styles.cardTitle} numberOfLines={1} ellipsizeMode="tail">
+                    Weekly Activity & Consistency
+                  </Text>
+                </View>
+                <Text style={styles.cardSubtitle} numberOfLines={1} ellipsizeMode="tail">
+                  19-Day Learning & Field Practice Streak
                 </Text>
+              </View>
+              <View style={styles.weeklyStreakBadge}>
+                <MaterialIcons name="local-fire-department" size={13} color="#D97706" />
+                <Text style={styles.weeklyStreakText}>19 Days</Text>
               </View>
             </View>
 
@@ -156,10 +179,17 @@ export default function PracticeTab() {
             <View style={styles.barChartContainer}>
               {WEEK_DAYS.map((w, idx) => {
                 const maxMins = 45;
-                const barHeight = Math.max(12, (w.minutes / maxMins) * 80);
+                const barHeight = Math.max(14, (w.minutes / maxMins) * 82);
                 return (
                   <View key={idx} style={styles.barColumn}>
-                    <Text style={styles.barMinutesText}>{w.minutes}m</Text>
+                    <Text
+                      style={[
+                        styles.barMinutesText,
+                        w.isToday && styles.barMinutesTextToday,
+                      ]}
+                    >
+                      {w.minutes}m
+                    </Text>
                     <View style={styles.barTrack}>
                       <View
                         style={[
@@ -168,22 +198,39 @@ export default function PracticeTab() {
                             height: barHeight,
                             backgroundColor: w.isToday
                               ? colors.primary
-                              : "#81C784",
+                              : "rgba(0, 110, 28, 0.45)",
                           },
                         ]}
                       />
                     </View>
-                    <Text
+                    <View
                       style={[
-                        styles.barDayLabel,
-                        w.isToday && styles.barDayLabelToday,
+                        styles.dayLabelPill,
+                        w.isToday && styles.dayLabelPillToday,
                       ]}
                     >
-                      {w.day}
-                    </Text>
+                      <Text
+                        style={[
+                          styles.barDayLabel,
+                          w.isToday && styles.barDayLabelToday,
+                        ]}
+                      >
+                        {w.day}
+                      </Text>
+                    </View>
                   </View>
                 );
               })}
+            </View>
+
+            {/* Footer Summary Stats */}
+            <View style={styles.graphFooterRow}>
+              <View style={styles.graphFooterStat}>
+                <MaterialIcons name="schedule" size={14} color={colors.onSurfaceVariant} />
+                <Text style={styles.graphFooterText}>
+                  Total practice this week: <Text style={styles.graphFooterHighlight}>170 mins</Text>
+                </Text>
+              </View>
             </View>
           </View>
 
@@ -362,30 +409,84 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
+    gap: 8,
+  },
+  headerTitleWrap: {
+    flex: 1,
+    flexShrink: 1,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "800",
     fontFamily: typography.fontFamily.bold,
     color: componentColors.sectionTitle,
     letterSpacing: -0.3,
+    flex: 1,
+    flexShrink: 1,
   },
   cardSubtitle: {
-    fontSize: 12,
+    fontSize: 11.5,
     color: colors.onSurfaceVariant,
     marginTop: 2,
     fontWeight: "500",
   },
-  weeklySummaryPill: {
-    backgroundColor: "rgba(0, 110, 28, 0.08)",
+  titleWithIconRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    flex: 1,
+    flexShrink: 1,
+  },
+  weeklyStreakBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FEF3C7",
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 3,
+    borderRadius: rounded.full,
+    borderWidth: 1,
+    borderColor: "#FDE68A",
+    gap: 3,
+    flexShrink: 0,
+  },
+  weeklyStreakText: {
+    fontSize: 11.5,
+    fontWeight: "800",
+    color: "#B45309",
+  },
+  barMinutesTextToday: {
+    color: colors.primary,
+    fontWeight: "800",
+  },
+  dayLabelPill: {
+    paddingHorizontal: 5,
+    paddingVertical: 2,
     borderRadius: rounded.full,
   },
-  weeklySummaryText: {
-    fontSize: 11,
+  dayLabelPillToday: {
+    backgroundColor: "rgba(0, 110, 28, 0.12)",
+  },
+  graphFooterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: spacing.md,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(190, 202, 185, 0.3)",
+  },
+  graphFooterStat: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  graphFooterText: {
+    fontSize: 11.5,
+    color: colors.onSurfaceVariant,
+  },
+  graphFooterHighlight: {
     fontWeight: "700",
-    color: colors.primary,
+    color: colors.onSurface,
   },
   scorePill: {
     backgroundColor: "#FEF3C7",

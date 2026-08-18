@@ -23,7 +23,7 @@ export function useTaraAudio(
   options?: UseTaraAudioOptions
 ): TaraAudio {
   const player = useAudioPlayer(source, {
-    updateInterval: 100,
+    updateInterval: 500,
   });
   const status = useAudioPlayerStatus(player);
   const isPlaying = status.playing;
@@ -31,10 +31,15 @@ export function useTaraAudio(
 
   const wasPlayingRef = useRef(isPlaying);
   const optionsRef = useRef(options);
+  const statusRef = useRef(status);
 
   useEffect(() => {
     optionsRef.current = options;
   }, [options]);
+
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
 
   useEffect(() => {
     setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});
@@ -52,12 +57,23 @@ export function useTaraAudio(
   }, [isPlaying]);
 
   const play = useCallback(() => {
-    player.seekTo(0);
-    player.play();
-  }, [player]);
+    if (!source) return;
+    try {
+      if (statusRef.current.currentTime && statusRef.current.currentTime > 0) {
+        player.seekTo(0);
+      }
+      player.play();
+    } catch {
+      // Ignore transient audio error
+    }
+  }, [player, source]);
 
   const stop = useCallback(() => {
-    player.pause();
+    try {
+      player.pause();
+    } catch {
+      // Ignore transient audio release error
+    }
   }, [player]);
 
   return { isPlaying, duration, play, stop };

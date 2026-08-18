@@ -6,6 +6,8 @@ import { BadgesRow } from "./BadgesRow";
 import { DailyGoal } from "./DailyGoal";
 import { GreenScore } from "./GreenScore";
 import { ImpactMetrics } from "./ImpactMetrics";
+import { TaraSideMessageCard } from "../tara-messages/TaraSideMessageCard";
+import { TARA_DEMO_CONTENT } from "../../data/taraDemoContent";
 import { useTranslation } from "../../hooks/useTranslation";
 
 interface ProgressSectionProps {
@@ -23,6 +25,11 @@ export function ProgressSection({
 }: ProgressSectionProps) {
   const { t } = useTranslation();
 
+  const isGoalDone = data.dailyGoal.completed >= data.dailyGoal.total;
+  const taraMessage = isGoalDone
+    ? "Awesome progress! You've achieved today's green farming goal and boosted your soil score."
+    : `You're at Level ${data.level}! Complete ${data.dailyGoal.total - data.dailyGoal.completed} more practice action today to unlock your next milestone badge.`;
+
   return (
     <View style={[styles.container, style]}>
       <View style={styles.headerRow}>
@@ -34,6 +41,15 @@ export function ProgressSection({
           <Text style={styles.levelTagText}>Live Stats</Text>
         </View>
       </View>
+
+      {/* Tara Side Message Card Coaching Banner */}
+      <TaraSideMessageCard
+        title="Tara Progress Coach"
+        message={taraMessage}
+        expression={isGoalDone ? "excited" : "happy"}
+        audioSource={TARA_DEMO_CONTENT.english.audio}
+        showVoiceControl={true}
+      />
 
       <GreenScore
         score={data.greenScore}

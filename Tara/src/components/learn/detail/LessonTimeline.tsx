@@ -16,29 +16,54 @@ export interface LessonTimelineProps {
 export function LessonTimeline({ levels, onSelectLevel }: LessonTimelineProps) {
   const { t } = useTranslation();
 
-  const journeyNodes: JourneyTimelineNode[] = useMemo(
-    () =>
-      levels.map((level) => ({
+  const journeyNodes: JourneyTimelineNode[] = useMemo(() => {
+    const firstUncompletedIndex = levels.findIndex((l) => l.status !== "completed");
+
+    return levels.map((level, idx) => {
+      let status: "completed" | "active" | "locked" = "locked";
+      if (level.status === "completed") {
+        status = "completed";
+      } else if (
+        level.status === "inProgress" ||
+        idx === firstUncompletedIndex ||
+        (firstUncompletedIndex === -1 && idx === 0)
+      ) {
+        status = "active";
+      } else if (level.status === "available") {
+        status = idx === firstUncompletedIndex ? "active" : "locked";
+      }
+
+      return {
         id: level.id,
         levelNumber: level.levelNumber,
         title: level.title || (level.titleKey ? t(level.titleKey) : `Level ${level.levelNumber}`),
         subtitle: level.description || (level.durationMinutes ? `${level.durationMinutes} min` : undefined),
-        status:
-          level.status === "inProgress"
-            ? "active"
-            : level.status === "available"
-            ? "active"
-            : level.status,
+        status,
         xp: level.xp,
         durationMinutes: level.durationMinutes,
-      })),
-    [levels, t]
-  );
+      };
+    });
+  }, [levels, t]);
 
   const handleSelectNode = (node: JourneyTimelineNode) => {
+    if (node.status === "locked") return;
     const matchedLevel = levels.find((l) => l.id === node.id);
     if (matchedLevel) {
-      onSelectLevel(matchedLevel);
+      onSelectLevel({
+        ...matchedLevel,
+        status: node.status === "active" ? "available" : node.status,
+      });
+    } else {
+      onSelectLevel({
+        id: node.id,
+        levelNumber: node.levelNumber ?? 1,
+        titleKey: `lesson.${node.id}.title`,
+        descriptionKey: `lesson.${node.id}.desc`,
+        durationMinutes: node.durationMinutes ?? 5,
+        xp: node.xp ?? 50,
+        status: node.status === "active" ? "available" : node.status,
+        progressFraction: node.status === "completed" ? 1 : 0,
+      });
     }
   };
 

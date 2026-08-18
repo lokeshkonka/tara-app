@@ -58,8 +58,17 @@ export const DecisionChoicePhaseScreen: React.FC<DecisionChoicePhaseScreenProps>
                 : phase.taraDialogue ||
                   "A farmer has a choice. Can you choose the action that better protects the soil?"
             }
+            audioSource={
+              isCompleted
+                ? (phase.taraSuccessAudioSource || undefined)
+                : (phase.audioSource || phase.taraAudio)
+            }
             autoPlay={true}
-            showVoiceControl={true}
+            showVoiceControl={Boolean(
+              isCompleted
+                ? phase.taraSuccessAudioSource
+                : (phase.audioSource || phase.taraAudio)
+            )}
           />
         </View>
 

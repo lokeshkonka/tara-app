@@ -96,11 +96,20 @@ export const TaraSideMessageCard = forwardRef<
 
   useImperativeHandle(ref, () => ({ play, stop }), [play, stop]);
 
+  const hasAutoPlayedRef = useRef<any>(null);
+
   useEffect(() => {
-    if (autoPlay && audioSource) {
+    if (autoPlay && audioSource && hasAutoPlayedRef.current !== audioSource) {
+      hasAutoPlayedRef.current = audioSource;
       play();
     }
   }, [autoPlay, audioSource, play]);
+
+  useEffect(() => {
+    return () => {
+      stop();
+    };
+  }, [stop]);
 
   // Expression cross-fade without setState inside effect warning
   useEffect(() => {
@@ -212,7 +221,9 @@ export const TaraSideMessageCard = forwardRef<
           <View style={styles.cardHeaderRow}>
             <View style={styles.titleBadgeContainer}>
               <View style={styles.taraLiveDot} />
-              <Text style={styles.titleText}>{title || "TARA"}</Text>
+              <Text style={styles.titleText} numberOfLines={1} ellipsizeMode="tail">
+                {title || "TARA"}
+              </Text>
             </View>
 
             {hasVoice && (
@@ -369,9 +380,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   titleBadgeContainer: {
+    flex: 1,
+    flexShrink: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
+    paddingRight: 6,
   },
   taraLiveDot: {
     width: 6,

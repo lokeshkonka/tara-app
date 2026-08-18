@@ -142,8 +142,17 @@ export const ScenarioChallengePhaseScreen: React.FC<ScenarioChallengePhaseScreen
                 ? `Round ${currentRoundIndex + 1} of ${totalRounds} • ${currentRound.topic}: Compare the soil conditions and choose the healthier choice.`
                 : phase.taraDialogue || "Compare the situations and choose the better soil!"
             }
+            audioSource={
+              isAllCompleted
+                ? (phase.taraSuccessAudioSource || undefined)
+                : (phase.audioSource || phase.taraAudio)
+            }
             autoPlay={true}
-            showVoiceControl={true}
+            showVoiceControl={Boolean(
+              isAllCompleted
+                ? phase.taraSuccessAudioSource
+                : (phase.audioSource || phase.taraAudio)
+            )}
           />
         </View>
 

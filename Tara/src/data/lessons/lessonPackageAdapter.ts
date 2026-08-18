@@ -50,6 +50,7 @@ export function adaptLevelPhase(
         id: phase.id,
         title: resolveLocalizedText(phase.title, lang),
         taraDialogue: resolveLocalizedText(phase.taraDialogue, lang),
+        audioSource: resolveLocalizedAudio(phase.taraAudio, lang),
         taraAudio: resolveLocalizedAudio(phase.taraAudio, lang),
         taraExpression: phase.taraExpression,
         explanation: phase.explanation
@@ -80,6 +81,7 @@ export function adaptLevelPhase(
           icon: c.icon,
           color: c.color,
           taraDialogue: resolveLocalizedText(c.taraDialogue, lang),
+          audioSource: resolveLocalizedAudio(c.taraAudio, lang),
           taraAudio: resolveLocalizedAudio(c.taraAudio, lang),
         })),
       };
@@ -96,11 +98,13 @@ export function adaptLevelPhase(
         taraDialogue: phase.taraDialogue
           ? resolveLocalizedText(phase.taraDialogue, lang)
           : undefined,
+        audioSource: resolveLocalizedAudio(phase.taraAudio, lang),
         taraAudio: resolveLocalizedAudio(phase.taraAudio, lang),
         taraExpression: phase.taraExpression,
         taraSuccessDialogue: phase.taraSuccessDialogue
           ? resolveLocalizedText(phase.taraSuccessDialogue, lang)
           : undefined,
+        taraSuccessAudioSource: resolveLocalizedAudio(phase.taraSuccessAudio, lang),
         pairs: phase.pairs.map((p) => ({
           id: p.id,
           leftText: resolveLocalizedText(p.leftText, lang),
@@ -121,11 +125,13 @@ export function adaptLevelPhase(
         taraDialogue: phase.taraDialogue
           ? resolveLocalizedText(phase.taraDialogue, lang)
           : undefined,
+        audioSource: resolveLocalizedAudio(phase.taraAudio, lang),
         taraAudio: resolveLocalizedAudio(phase.taraAudio, lang),
         taraExpression: phase.taraExpression,
         taraSuccessDialogue: phase.taraSuccessDialogue
           ? resolveLocalizedText(phase.taraSuccessDialogue, lang)
           : undefined,
+        taraSuccessAudioSource: resolveLocalizedAudio(phase.taraSuccessAudio, lang),
         rounds: phase.rounds.map((r) => ({
           id: r.id,
           roundNumber: r.roundNumber,
@@ -154,9 +160,11 @@ export function adaptLevelPhase(
         instructions: resolveLocalizedText(phase.instructions, lang),
         xp: phase.xp,
         taraDialogue: resolveLocalizedText(phase.taraDialogue, lang),
+        audioSource: resolveLocalizedAudio(phase.taraAudio, lang),
         taraAudio: resolveLocalizedAudio(phase.taraAudio, lang),
         taraExpression: phase.taraExpression,
         taraSuccessDialogue: resolveLocalizedText(phase.taraSuccessDialogue, lang),
+        taraSuccessAudioSource: resolveLocalizedAudio(phase.taraSuccessAudio, lang),
         pairs: phase.pairs.map((p) => ({
           id: p.id,
           itemA: {
@@ -182,9 +190,11 @@ export function adaptLevelPhase(
         instructions: resolveLocalizedText(phase.instructions, lang),
         xp: phase.xp,
         taraDialogue: resolveLocalizedText(phase.taraDialogue, lang),
+        audioSource: resolveLocalizedAudio(phase.taraAudio, lang),
         taraAudio: resolveLocalizedAudio(phase.taraAudio, lang),
         taraExpression: phase.taraExpression,
         taraSuccessDialogue: resolveLocalizedText(phase.taraSuccessDialogue, lang),
+        taraSuccessAudioSource: resolveLocalizedAudio(phase.taraSuccessAudio, lang),
         rounds: phase.rounds.map((r) => ({
           id: r.id,
           roundNumber: r.roundNumber,
@@ -241,6 +251,7 @@ export function adaptLevelPhase(
         taraSuccessDialogue: phase.taraSuccessDialogue
           ? resolveLocalizedText(phase.taraSuccessDialogue, lang)
           : undefined,
+        taraSuccessAudioSource: resolveLocalizedAudio(phase.taraSuccessAudio, lang),
         questions: phase.questions.map((q) => ({
           id: q.id,
           question: resolveLocalizedText(q.question, lang),
@@ -276,11 +287,13 @@ export function adaptLevelPhase(
         taraDialogue: phase.taraDialogue
           ? resolveLocalizedText(phase.taraDialogue, lang)
           : undefined,
+        audioSource: resolveLocalizedAudio(phase.taraAudio, lang),
         taraAudio: resolveLocalizedAudio(phase.taraAudio, lang),
         taraExpression: phase.taraExpression,
         taraSuccessDialogue: phase.taraSuccessDialogue
           ? resolveLocalizedText(phase.taraSuccessDialogue, lang)
           : undefined,
+        taraSuccessAudioSource: resolveLocalizedAudio(phase.taraSuccessAudio, lang),
       };
 
     case "reward":
@@ -296,6 +309,8 @@ export function adaptLevelPhase(
           ? resolveLocalizedText(phase.badgeDescription, lang)
           : undefined,
         taraDialogue: resolveLocalizedText(phase.taraDialogue, lang),
+        audioSource: resolveLocalizedAudio(phase.taraAudio, lang),
+        taraAudio: resolveLocalizedAudio(phase.taraAudio, lang),
         taraExpression: phase.taraExpression,
       };
   }

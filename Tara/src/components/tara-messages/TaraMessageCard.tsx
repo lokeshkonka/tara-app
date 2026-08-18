@@ -113,11 +113,20 @@ export const TaraMessageCard = forwardRef<
 
   useImperativeHandle(ref, () => ({ play, stop }), [play, stop]);
 
+  const hasAutoPlayedRef = useRef<any>(null);
+
   useEffect(() => {
-    if (autoPlay && audioSource) {
+    if (autoPlay && audioSource && hasAutoPlayedRef.current !== audioSource) {
+      hasAutoPlayedRef.current = audioSource;
       play();
     }
   }, [autoPlay, audioSource, play]);
+
+  useEffect(() => {
+    return () => {
+      stop();
+    };
+  }, [stop]);
 
   // Expression cross-fade
   useEffect(() => {

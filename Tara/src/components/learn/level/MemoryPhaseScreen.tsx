@@ -56,8 +56,17 @@ export const MemoryPhaseScreen: React.FC<MemoryPhaseScreenProps> = ({
                 ? phase.taraSuccessDialogue || "Amazing memory! You uncovered and matched all the farming pairs!"
                 : phase.taraDialogue || "Flip the cards to discover and match identical concept pairs!"
             }
+            audioSource={
+              isCompleted
+                ? (phase.taraSuccessAudioSource || undefined)
+                : (phase.audioSource || phase.taraAudio)
+            }
             autoPlay={true}
-            showVoiceControl={true}
+            showVoiceControl={Boolean(
+              isCompleted
+                ? phase.taraSuccessAudioSource
+                : (phase.audioSource || phase.taraAudio)
+            )}
           />
         </View>
 

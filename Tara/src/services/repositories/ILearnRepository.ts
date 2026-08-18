@@ -3,8 +3,8 @@ import type { LearnCategory, LearnLesson, LearnLessonDetail, LearnSummary, Level
 export interface ILearnRepository {
   getSummary(): Promise<LearnSummary>;
   getCategories(): Promise<LearnCategory[]>;
-  getLessons(): Promise<LearnLesson[]>;
-  getLessonDetail(lessonId: string): Promise<LearnLessonDetail | null>;
+  getLessons(lang?: string): Promise<LearnLesson[]>;
+  getLessonDetail(lessonId: string, lang?: string): Promise<LearnLessonDetail | null>;
   completeLesson(lessonId: string): Promise<LearnLesson>;
   getLevelDefinition(levelId: string, lang?: string): Promise<LevelDefinition | null>;
   completeLevelStep(levelId: string, xpEarned: number): Promise<void>;

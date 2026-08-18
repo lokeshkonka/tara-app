@@ -50,6 +50,7 @@ export const RewardPhaseScreen: React.FC<RewardPhaseScreenProps> = ({
           badgeId={isFinalLevel ? "soil-guardian" : phase.id}
           taraMessage={phase.taraDialogue}
           taraExpression={phase.taraExpression || "excited"}
+          taraAudioSource={phase.audioSource || phase.taraAudio}
           primaryButtonTitle={buttonTitle}
           onPrimaryAction={onFinishLevel}
         />

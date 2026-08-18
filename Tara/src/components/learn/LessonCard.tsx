@@ -143,32 +143,42 @@ export function LessonCard({
       {/* --- BOTTOM CONTENT SECTION --- */}
       <View style={styles.contentSection}>
         <Text style={styles.title} numberOfLines={2}>
-          {t(lesson.titleKey)}
+          {lesson.title || t(lesson.titleKey)}
         </Text>
 
         <Text style={styles.description} numberOfLines={2}>
-          {t(lesson.descriptionKey)}
+          {lesson.description || t(lesson.descriptionKey)}
         </Text>
 
-        {/* Dynamic Progress Bar when in progress */}
-        {!lesson.isCompleted && lesson.progress > 0 && (
-          <View style={styles.progressSection}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>Lesson Progress</Text>
-              <Text style={styles.progressFractionText}>
-                {Math.round(lesson.progress * 100)}%
-              </Text>
-            </View>
-            <View style={styles.progressBarBg}>
-              <View
-                style={[
-                  styles.progressBarFill,
-                  { width: `${Math.min(100, lesson.progress * 100)}%`, backgroundColor: chipTheme.solid },
-                ]}
-              />
-            </View>
+        {/* Real End-to-End Progress Bar */}
+        <View style={styles.progressSection}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressLabel}>
+              {lesson.isCompleted
+                ? `Completed all ${lesson.totalLevels ?? totalLevels} Levels`
+                : `${Math.round((lesson.progress || 0) * (lesson.totalLevels ?? totalLevels))} of ${lesson.totalLevels ?? totalLevels} Levels Completed`}
+            </Text>
+            <Text
+              style={[
+                styles.progressFractionText,
+                lesson.isCompleted && { color: "#16A34A" },
+              ]}
+            >
+              {Math.round((lesson.progress || 0) * 100)}%
+            </Text>
           </View>
-        )}
+          <View style={styles.progressBarBg}>
+            <View
+              style={[
+                styles.progressBarFill,
+                {
+                  width: `${Math.min(100, Math.max(lesson.isCompleted ? 100 : (lesson.progress || 0) * 100, 0))}%`,
+                  backgroundColor: lesson.isCompleted ? "#16A34A" : chipTheme.solid,
+                },
+              ]}
+            />
+          </View>
+        </View>
 
         {/* Category-Themed 3D Push Button */}
         <TactileButton

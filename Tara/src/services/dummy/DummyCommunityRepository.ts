@@ -82,7 +82,7 @@ export class DummyCommunityRepository implements ICommunityRepository {
       id: `contrib-${Date.now()}`,
       author: {
         name: "Ravi Kumar",
-        location: "Dombivli Panchayat",
+        location: "Nashik Rural Cluster",
         badge: "Soil Guardian",
       },
       type: contribution.type,
@@ -115,7 +115,7 @@ export class DummyCommunityRepository implements ICommunityRepository {
             {
               id: `rep-${Date.now()}`,
               authorName: "Ravi Kumar",
-              authorLocation: "Dombivli",
+              authorLocation: "Nashik",
               text,
               createdAt: "Just now",
               likesCount: 0,

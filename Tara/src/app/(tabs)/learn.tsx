@@ -1,5 +1,5 @@
-import { useMemo, useRef, useState } from "react";
-import { useRouter } from "expo-router";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,7 +20,13 @@ export default function LearnTab() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { user } = useUser();
-  const { summary, categories, lessons, isLoading } = useLearn();
+  const { summary, categories, lessons, isLoading, refresh } = useLearn();
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
 
   const streakDays = user?.streakDays ?? 0;
   const todayXp = summary?.todayXp ?? 0;
@@ -50,7 +56,7 @@ export default function LearnTab() {
           return false;
         }
         if (query.trim().length > 0) {
-          const haystack = `${t(lesson.titleKey)} ${t(lesson.descriptionKey)}`.toLowerCase();
+          const haystack = `${lesson.title ?? t(lesson.titleKey)} ${lesson.description ?? t(lesson.descriptionKey)}`.toLowerCase();
           if (!haystack.includes(query.trim().toLowerCase())) {
             return false;
           }

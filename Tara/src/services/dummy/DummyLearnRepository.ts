@@ -1,5 +1,11 @@
-import { LEARN_CATEGORIES, LEARN_LESSONS, LEARN_SUMMARY } from "../../data/dummy/learnData";
+import {
+  LEARN_CATEGORIES,
+  LEARN_LESSONS,
+  LEARN_SUMMARY,
+  buildLessonsFromPackages,
+} from "../../data/dummy/learnData";
 import { FARMING_BASICS_PACKAGE } from "../../data/lessons/farmingBasicsPackage";
+import { SUSTAINABLE_SOIL_PACKAGE } from "../../data/lessons/SustainableSoilPackage";
 import { adaptLessonPackage } from "../../data/lessons/lessonPackageAdapter";
 import {
   LEVEL_DEFINITIONS_REGISTRY,
@@ -37,18 +43,20 @@ export class DummyLearnRepository implements ILearnRepository {
     return LEARN_CATEGORIES;
   }
 
-  async getLessons(): Promise<LearnLesson[]> {
+  async getLessons(lang: string = "en"): Promise<LearnLesson[]> {
     await delay(30);
     const stored = await learnStorage.getProgress();
+    const localizedLessons = buildLessonsFromPackages(lang);
 
-    return this.lessons.map((lesson) => {
-      if (lesson.id === "soil-level-1" || lesson.categoryId === "soil") {
-        const completedCount = stored.completedLevelIds.filter((id) =>
-          id.startsWith("soil-level-")
+    return localizedLessons.map((lesson) => {
+      // 1. Sustainable Soil Management (8 Levels)
+      if (lesson.id === SUSTAINABLE_SOIL_PACKAGE.id || lesson.id === "sustainable-soil-package") {
+        const completedCount = SUSTAINABLE_SOIL_PACKAGE.levels.filter((lvl) =>
+          stored.completedLevelIds.includes(lvl.id)
         ).length;
-        const totalLevels = lesson.totalLevels ?? 5;
-        const progress = Math.min(1, completedCount / totalLevels);
-        const isCompleted = completedCount >= totalLevels;
+        const totalLevels = SUSTAINABLE_SOIL_PACKAGE.levels.length;
+        const progress = totalLevels > 0 ? completedCount / totalLevels : 0;
+        const isCompleted = completedCount >= totalLevels && totalLevels > 0;
 
         return {
           ...lesson,
@@ -58,13 +66,36 @@ export class DummyLearnRepository implements ILearnRepository {
         };
       }
 
-      if (lesson.id === "farming-basics" || lesson.categoryId === "basics") {
-        const completedCount = stored.completedLevelIds.filter((id) =>
-          id.startsWith("basics-level-")
+      // 2. Understanding Soil Health (5 Levels)
+      if (
+        lesson.id === UNDERSTANDING_SOIL_HEALTH_PACKAGE.id ||
+        lesson.id === "understanding-soil-health" ||
+        lesson.id === "soil-level-1" ||
+        lesson.id === "soil-basics"
+      ) {
+        const completedCount = UNDERSTANDING_SOIL_HEALTH_PACKAGE.levels.filter((lvl) =>
+          stored.completedLevelIds.includes(lvl.id)
         ).length;
-        const totalLevels = lesson.totalLevels ?? 10;
-        const progress = Math.min(1, completedCount / totalLevels);
-        const isCompleted = completedCount >= totalLevels;
+        const totalLevels = UNDERSTANDING_SOIL_HEALTH_PACKAGE.levels.length;
+        const progress = totalLevels > 0 ? completedCount / totalLevels : 0;
+        const isCompleted = completedCount >= totalLevels && totalLevels > 0;
+
+        return {
+          ...lesson,
+          totalLevels,
+          isCompleted,
+          progress,
+        };
+      }
+
+      // 3. Farming Basics Package (if present)
+      if (lesson.id === FARMING_BASICS_PACKAGE.id || lesson.id === "farming-basics") {
+        const completedCount = FARMING_BASICS_PACKAGE.levels.filter((lvl) =>
+          stored.completedLevelIds.includes(lvl.id)
+        ).length;
+        const totalLevels = FARMING_BASICS_PACKAGE.levels.length;
+        const progress = totalLevels > 0 ? completedCount / totalLevels : 0;
+        const isCompleted = completedCount >= totalLevels && totalLevels > 0;
 
         return {
           ...lesson,
@@ -78,18 +109,27 @@ export class DummyLearnRepository implements ILearnRepository {
     });
   }
 
-  async getLessonDetail(lessonId: string): Promise<LearnLessonDetail | null> {
+  async getLessonDetail(lessonId: string, lang: string = "en"): Promise<LearnLessonDetail | null> {
     await delay(40);
     const stored = await learnStorage.getProgress();
 
-    const pkg =
-      lessonId === "farming-basics" || lessonId.startsWith("basics-")
-        ? FARMING_BASICS_PACKAGE
-        : UNDERSTANDING_SOIL_HEALTH_PACKAGE;
+    let pkg = SUSTAINABLE_SOIL_PACKAGE;
+    if (
+      lessonId === "understanding-soil-health" ||
+      lessonId === UNDERSTANDING_SOIL_HEALTH_PACKAGE.id ||
+      lessonId === "soil-level-1" ||
+      lessonId === "soil-basics"
+    ) {
+      pkg = UNDERSTANDING_SOIL_HEALTH_PACKAGE;
+    } else if (lessonId === "farming-basics" || lessonId.startsWith("basics-")) {
+      pkg = FARMING_BASICS_PACKAGE;
+    } else if (lessonId === SUSTAINABLE_SOIL_PACKAGE.id || lessonId.startsWith("sustainable-soil")) {
+      pkg = SUSTAINABLE_SOIL_PACKAGE;
+    }
 
     const { detail } = adaptLessonPackage(
       pkg,
-      "en",
+      lang,
       new Set(stored.completedLevelIds),
       new Set(stored.unlockedLevelIds)
     );
@@ -134,6 +174,14 @@ export class DummyLearnRepository implements ILearnRepository {
   ): Promise<LevelDefinition | null> {
     await delay(40);
 
+    // Check Sustainable Soil Package (8 Levels)
+    if (levelId.startsWith("sustainable-soil-")) {
+      const { levelDefinitions } = adaptLessonPackage(SUSTAINABLE_SOIL_PACKAGE, lang);
+      if (levelDefinitions[levelId]) {
+        return levelDefinitions[levelId];
+      }
+    }
+
     // Check Farming Basics Package
     if (levelId.startsWith("basics-")) {
       const { levelDefinitions } = adaptLessonPackage(FARMING_BASICS_PACKAGE, lang);
@@ -165,6 +213,19 @@ export class DummyLearnRepository implements ILearnRepository {
 
     let nextLevelId: string | undefined;
     let badgeTitle = "Agri Explorer";
+
+    // Handle Sustainable Soil Level Progress (8 Levels)
+    const sustainableMatch = levelId.match(/sustainable-soil-level-(\d+)/);
+    if (sustainableMatch) {
+      const currentNum = parseInt(sustainableMatch[1], 10);
+      if (currentNum < 8) {
+        nextLevelId = `sustainable-soil-level-${currentNum + 1}`;
+      } else {
+        nextLevelId = undefined;
+        badgeTitle = "Sustainable Soil Master";
+        await this.completeLesson("sustainable-soil-package");
+      }
+    }
 
     // Handle Soil Level Progress
     const soilMatch = levelId.match(/soil-level-(\d+)/);

@@ -100,6 +100,7 @@ export interface MatchPhasePackage {
   taraAudio?: LocalizedAudio;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: LocalizedText | string;
+  taraSuccessAudio?: LocalizedAudio;
   pairs: MatchPairPackage[];
 }
 
@@ -133,6 +134,7 @@ export interface ScenarioChallengePhasePackage {
   taraAudio?: LocalizedAudio;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: LocalizedText | string;
+  taraSuccessAudio?: LocalizedAudio;
   rounds: ScenarioRoundPackage[];
 }
 
@@ -153,6 +155,7 @@ export interface MemoryPhasePackage {
   taraAudio?: LocalizedAudio;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: LocalizedText | string;
+  taraSuccessAudio?: LocalizedAudio;
   pairs: MemoryPairPackage[];
 }
 
@@ -183,6 +186,7 @@ export interface DecisionChoicePhasePackage {
   taraAudio?: LocalizedAudio;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: LocalizedText | string;
+  taraSuccessAudio?: LocalizedAudio;
   rounds: DecisionChoiceRoundPackage[];
 }
 
@@ -273,6 +277,7 @@ export interface AIInterviewPhasePackage {
   taraAudio?: LocalizedAudio;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: LocalizedText | string;
+  taraSuccessAudio?: LocalizedAudio;
   questions: AIInterviewQuestionPackage[];
 }
 
@@ -287,6 +292,7 @@ export interface FaceVerificationPhasePackage {
   taraAudio?: LocalizedAudio;
   taraExpression?: TaraExpression;
   taraSuccessDialogue?: LocalizedText | string;
+  taraSuccessAudio?: LocalizedAudio;
 }
 
 export type LevelPhasePackage =

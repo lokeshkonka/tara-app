@@ -59,7 +59,7 @@ export const DEFAULT_ACCOUNT_PROFILE: AccountProfile = {
   phone: "+91 98765 43210",
   email: "ravi.farmer@tara-app.org",
   farmLocation: "Kalyan Rural, Maharashtra",
-  villagePanchayat: "Dombivli Panchayat",
+  villagePanchayat: "Nashik Rural Cluster",
   farmSizeAcres: 3.5,
   primaryCrops: ["Tomato", "Okra", "Paddy", "Marigold"],
   avatarUrl: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&auto=format&fit=crop&q=80",

@@ -54,37 +54,24 @@ export function VerticalJourneyTimeline({
   scrollable = false,
 }: VerticalJourneyTimelineProps) {
   const [containerWidth, setContainerWidth] = useState<number>(SVG_WIDTH_DEFAULT);
-  const [expanded, setExpanded] = useState<boolean>(false);
 
-  const activeIndex = useMemo(
-    () => nodes.findIndex((n) => n.status === "active"),
+  const allCompleted = useMemo(
+    () => nodes.every((n) => n.status === "completed"),
     [nodes]
   );
 
-  // If total nodes <= 7, always show all nodes directly without truncation friction
-  const shouldWindow = nodes.length > 7 && !expanded;
-  const targetActiveIndex = activeIndex >= 0 ? activeIndex : 0;
-  const initialStartIndex = Math.max(0, targetActiveIndex - 2);
-  const initialEndIndex = Math.min(nodes.length, targetActiveIndex + 5);
-
-  const visibleNodes = useMemo(
-    () => (shouldWindow ? nodes.slice(initialStartIndex, initialEndIndex) : nodes),
-    [nodes, shouldWindow, initialStartIndex, initialEndIndex]
-  );
-
-  const hasMore = shouldWindow && initialEndIndex < nodes.length;
-
   const centerLineX = containerWidth / 2;
-  const offsetX = Math.min(65, Math.max(35, containerWidth * 0.18));
+  const offsetX = Math.min(60, Math.max(35, containerWidth * 0.18));
 
-  // Memoize node positions and geometry
+  // Natural alternating S-curve positioning across all levels
   const nodePositions = useMemo(() => {
-    return visibleNodes.map((node, index) => {
+    return nodes.map((node, index) => {
+      const isLastNode = index === nodes.length - 1;
       const align =
         node.align ??
-        (node.status === "active"
+        (index === 0
           ? "center"
-          : index === 0
+          : isLastNode && nodes.length > 3
           ? "center"
           : index % 2 === 1
           ? "right"
@@ -97,25 +84,20 @@ export function VerticalJourneyTimeline({
       const y = index * ITEM_SPACING + 52;
       return { x, y, align, node };
     });
-  }, [visibleNodes, centerLineX, offsetX]);
-
-  const allCompleted = useMemo(
-    () => nodes.every((n) => n.status === "completed"),
-    [nodes]
-  );
-
-  const totalHeight = useMemo(() => {
-    const trophySlots = showTrophyEnd && (!hasMore || expanded) ? 1 : 0;
-    return (visibleNodes.length + trophySlots) * ITEM_SPACING + (hasMore ? 80 : 24);
-  }, [visibleNodes.length, showTrophyEnd, hasMore, expanded]);
+  }, [nodes, centerLineX, offsetX]);
 
   const trophyPos = useMemo(() => {
-    if (!showTrophyEnd || (hasMore && !expanded)) return null;
+    if (!showTrophyEnd) return null;
     return {
       x: centerLineX,
-      y: visibleNodes.length * ITEM_SPACING + 52,
+      y: nodes.length * ITEM_SPACING + 52,
     };
-  }, [showTrophyEnd, hasMore, expanded, centerLineX, visibleNodes.length]);
+  }, [showTrophyEnd, centerLineX, nodes.length]);
+
+  const totalHeight = useMemo(() => {
+    const trophySlots = showTrophyEnd ? 1 : 0;
+    return (nodes.length + trophySlots) * ITEM_SPACING + 32;
+  }, [nodes.length, showTrophyEnd]);
 
   const allPositions = useMemo(() => {
     const pts = nodePositions.map((p) => ({ x: p.x, y: p.y }));
@@ -124,10 +106,10 @@ export function VerticalJourneyTimeline({
   }, [nodePositions, trophyPos]);
 
   const activeCutoffIndex = useMemo(() => {
-    const idx = visibleNodes.findIndex((n) => n.status === "active");
+    const idx = nodes.findIndex((n) => n.status === "active");
     if (idx >= 0) return idx;
-    return allCompleted ? visibleNodes.length : 0;
-  }, [visibleNodes, allCompleted]);
+    return allCompleted ? nodes.length : 0;
+  }, [nodes, allCompleted]);
 
   // Smooth cubic spline bezier path generator
   const generatePathD = useCallback((points: { x: number; y: number }[]) => {
@@ -220,9 +202,15 @@ export function VerticalJourneyTimeline({
       {nodePositions.map(({ x, y, align, node }, idx) => (
         <View
           key={node.id}
+          pointerEvents="box-none"
           style={[
             styles.absoluteNodeContainer,
-            { top: y - 32, left: x - 130, width: 260 },
+            {
+              top: y - 32,
+              left: Math.max(0, x - 130),
+              width: 260,
+              zIndex: node.status === "active" ? 30 : node.status === "completed" ? 20 : 10,
+            },
           ]}
         >
           {/* Lightweight atmospheric aura behind active node */}
@@ -241,6 +229,7 @@ export function VerticalJourneyTimeline({
             node={node}
             levelIndex={node.levelNumber ?? idx + 1}
             align={align}
+            containerWidth={containerWidth}
             activeButtonText={activeButtonText}
             onPress={() => handleSelectNodeCallback(node)}
           />
@@ -252,7 +241,7 @@ export function VerticalJourneyTimeline({
         <View
           style={[
             styles.absoluteNodeContainer,
-            { top: trophyPos.y - 32, left: trophyPos.x - 130, width: 260 },
+            { top: trophyPos.y - 32, left: Math.max(0, trophyPos.x - 130), width: 260 },
           ]}
         >
           <View style={styles.trophyContainer}>
@@ -276,38 +265,6 @@ export function VerticalJourneyTimeline({
             >
               {allCompleted ? "Lesson Mastered!" : "Mastery Milestone"}
             </Text>
-          </View>
-        </View>
-      )}
-
-      {/* Smooth Gradient Overlay with Load More */}
-      {hasMore && (
-        <View style={styles.gradientOverlayContainer} pointerEvents="box-none">
-          <LinearGradient
-            colors={[
-              "rgba(249, 250, 248, 0)",
-              "rgba(249, 250, 248, 0.75)",
-              "rgba(249, 250, 248, 0.98)",
-              "#F9FAF8",
-            ]}
-            locations={[0, 0.4, 0.75, 1]}
-            style={StyleSheet.absoluteFill}
-            pointerEvents="none"
-          />
-          <View style={styles.loadMoreWrapper}>
-            <TactileButton
-              title="Show All Levels"
-              icon="expand-more"
-              iconPosition="right"
-              faceColor="#FFFFFF"
-              depthColor="#A8DEAC"
-              textColor="#1B5E20"
-              height={44}
-              depth={3}
-              borderRadius={rounded.full}
-              onPress={() => setExpanded(true)}
-              style={styles.loadMoreButton}
-            />
           </View>
         </View>
       )}
@@ -337,6 +294,7 @@ interface TimelineNodeItemProps {
   node: JourneyTimelineNode;
   levelIndex: number;
   align: "left" | "right" | "center";
+  containerWidth: number;
   activeButtonText: string;
   onPress: () => void;
 }
@@ -345,6 +303,7 @@ const TimelineNodeItem = memo(function TimelineNodeItem({
   node,
   levelIndex,
   align,
+  containerWidth,
   activeButtonText,
   onPress,
 }: TimelineNodeItemProps) {
@@ -461,10 +420,10 @@ const TimelineNodeItem = memo(function TimelineNodeItem({
 
   // 2. ACTIVE NODE
   if (node.status === "active") {
-    const bubbleOnRight = align !== "right";
+    const bubbleOnRight = align === "left" || (align === "center" && containerWidth > 320);
 
     return (
-      <View style={styles.activeNodeContainerWrapper}>
+      <View style={styles.activeNodeContainerWrapper} pointerEvents="box-none">
         <Pressable
           onPress={handlePress}
           onPressIn={handlePressIn}

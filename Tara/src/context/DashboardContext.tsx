@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useUser } from "./UserContext";
 import { dashboardRepository } from "../services";
 import type { PracticeItem } from "../types/farm";
 
@@ -22,6 +23,9 @@ interface DashboardContextValue {
 const DashboardContext = createContext<DashboardContextValue | null>(null);
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
+  const { user } = useUser();
+  const currentLang = user?.language || "en";
+
   const [todaysPractice, setTodaysPractice] = useState<PracticeItem | null>(null);
   const [completedPractices, setCompletedPractices] = useState(0);
   const [totalPractices, setTotalPractices] = useState(0);
@@ -32,7 +36,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     try {
       setIsLoading(true);
-      const summary = await dashboardRepository.getSummary();
+      const summary = await dashboardRepository.getSummary(currentLang);
       setTodaysPractice(summary.todaysPractice);
       setCompletedPractices(summary.completedPractices);
       setTotalPractices(summary.totalPractices);
@@ -43,7 +47,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentLang]);
 
   useEffect(() => {
     refresh();

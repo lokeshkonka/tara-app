@@ -62,7 +62,7 @@ export function CategoryCobwebGraph({
   return (
     <View style={styles.cardContainer}>
       <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>Category Progress COB</Text>
+        <Text style={styles.cardTitle}>Your Progress</Text>
         <Text style={styles.cardSubtitle}>Mastery across farming modules</Text>
       </View>
 
