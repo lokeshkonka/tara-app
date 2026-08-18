@@ -1,25 +1,33 @@
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Animated,
   Easing,
+  LayoutAnimation,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Image, type ImageSource } from "expo-image";
 import { MaterialIcons } from "@expo/vector-icons";
 import type { AudioSource } from "expo-audio";
+import * as Haptics from "expo-haptics";
 import { useTaraAudio } from "../../hooks/useTaraAudio";
-import { useTranslation } from "../../hooks/useTranslation";
 import { TARA_EXPRESSIONS } from "../Tara/expressionMap";
 import type { TaraExpression } from "../Tara/Tara.types";
-import { AtmosphericGlow } from "../ui/AtmosphericGlow";
-import { colors, typography } from "../../theme/theme";
+import { colors, componentColors, rounded, spacing, typography } from "../../theme/theme";
 
-const PULSE_DURATION = 950;
-const TARA_DRIFT_DURATION = 2600;
-const BUBBLE_FLOAT_DURATION = 3000;
+const PULSE_DURATION = 900;
+const TRUNCATION_THRESHOLD = 220;
 
 export interface TaraSideMessageCardHandle {
   play: () => void;
@@ -27,7 +35,7 @@ export interface TaraSideMessageCardHandle {
 }
 
 export interface TaraSideMessageCardProps {
-  /** Optional custom headline title, e.g. "Namaste! I'm Tara." */
+  /** Optional custom headline title */
   title?: string;
   /** Message body or speech transcript */
   message: string;
@@ -49,120 +57,11 @@ export interface TaraSideMessageCardProps {
 }
 
 /**
- * Animated Text Rendering Loader inside message bubble
- */
-function TextRenderingLoader({ text = "Tara is preparing response..." }: { text?: string }) {
-  const dot1 = useState(() => new Animated.Value(0))[0];
-  const dot2 = useState(() => new Animated.Value(0))[0];
-  const dot3 = useState(() => new Animated.Value(0))[0];
-  const textFade = useState(() => new Animated.Value(0.5))[0];
-
-  useEffect(() => {
-    const createDotAnim = (dot: Animated.Value, delay: number) => {
-      return Animated.loop(
-        Animated.sequence([
-          Animated.delay(delay),
-          Animated.timing(dot, {
-            toValue: -5,
-            duration: 220,
-            useNativeDriver: true,
-          }),
-          Animated.timing(dot, {
-            toValue: 0,
-            duration: 220,
-            useNativeDriver: true,
-          }),
-          Animated.delay(400),
-        ])
-      );
-    };
-
-    const anim1 = createDotAnim(dot1, 0);
-    const anim2 = createDotAnim(dot2, 140);
-    const anim3 = createDotAnim(dot3, 280);
-
-    const fadeLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(textFade, {
-          toValue: 1,
-          duration: 550,
-          useNativeDriver: true,
-        }),
-        Animated.timing(textFade, {
-          toValue: 0.5,
-          duration: 550,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-
-    anim1.start();
-    anim2.start();
-    anim3.start();
-    fadeLoop.start();
-
-    return () => {
-      anim1.stop();
-      anim2.stop();
-      anim3.stop();
-      fadeLoop.stop();
-    };
-  }, [dot1, dot2, dot3, textFade]);
-
-  return (
-    <View style={loaderStyles.container}>
-      <Animated.Text style={[loaderStyles.titleText, { opacity: textFade }]}>
-        {text}
-      </Animated.Text>
-      <View style={loaderStyles.dotsRow}>
-        <Animated.View
-          style={[loaderStyles.dot, { transform: [{ translateY: dot1 }] }]}
-        />
-        <Animated.View
-          style={[loaderStyles.dot, { transform: [{ translateY: dot2 }] }]}
-        />
-        <Animated.View
-          style={[loaderStyles.dot, { transform: [{ translateY: dot3 }] }]}
-        />
-      </View>
-    </View>
-  );
-}
-
-const loaderStyles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 4,
-  },
-  titleText: {
-    ...typography.labelLg,
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.primary,
-  },
-  dotsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    marginLeft: 6,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.primary,
-  },
-});
-
-/**
- * TaraSideMessageCard
- *
- * Horizontal character dialogue card: Tara sits on the LEFT with a soft
- * atmospheric glow and drifts subtly left <-> right, while the curved speech
- * bubble floats on the RIGHT (voice button + message) with a gentle top <-> bottom
- * float. Shares the same background, voice player and pulse treatment as
- * TaraMessageCard.
+ * Modern, High-Performance Tara Horizontal Dialogue Card
+ * - Left avatar with green focus ring
+ * - Right speech card with seamless pointer tail
+ * - Inline header with audio speaker button
+ * - Clean multi-lingual text wrapping
  */
 export const TaraSideMessageCard = forwardRef<
   TaraSideMessageCardHandle,
@@ -183,19 +82,12 @@ export const TaraSideMessageCard = forwardRef<
   },
   ref
 ) {
-  const [displayedExpression, setDisplayedExpression] = useState(expression);
-  const [fadingExpression, setFadingExpression] = useState(false);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [activeExpr, setActiveExpr] = useState<TaraExpression>(expression);
 
-  const [textFadeAnim] = useState(() => new Animated.Value(1));
-  const [exprAnim] = useState(() => new Animated.Value(1));
-  const [pulse] = useState(() => new Animated.Value(0));
-
-  // Subtle horizontal drift for Tara (left <-> right)
-  const [taraDrift] = useState(() => new Animated.Value(0));
-  // Subtle vertical float for the message bubble (top <-> bottom)
-  const [bubbleFloat] = useState(() => new Animated.Value(0));
-
-  const { t } = useTranslation();
+  const textFadeAnim = useRef(new Animated.Value(1)).current;
+  const exprAnim = useRef(new Animated.Value(1)).current;
+  const pulse = useRef(new Animated.Value(0)).current;
 
   const { isPlaying, play, stop } = useTaraAudio(audioSource, {
     onStart: () => onSpeechStart?.(),
@@ -210,35 +102,32 @@ export const TaraSideMessageCard = forwardRef<
     }
   }, [autoPlay, audioSource, play]);
 
-  // Smooth inner text cross-fade animation
+  // Expression cross-fade without setState inside effect warning
+  useEffect(() => {
+    if (expression !== activeExpr) {
+      exprAnim.setValue(0.75);
+      setActiveExpr(expression);
+      Animated.timing(exprAnim, {
+        toValue: 1,
+        duration: 250,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [expression, activeExpr, exprAnim]);
+
+  // Text fade-in on message change
   useEffect(() => {
     textFadeAnim.setValue(0.3);
     Animated.timing(textFadeAnim, {
       toValue: 1,
       duration: 220,
+      easing: Easing.out(Easing.quad),
       useNativeDriver: true,
     }).start();
   }, [message, textFadeAnim]);
 
-  // Expression cross-fade
-  useEffect(() => {
-    if (expression === displayedExpression) return;
-    setFadingExpression(true);
-    exprAnim.setValue(0);
-    Animated.timing(exprAnim, {
-      toValue: 1,
-      duration: 250,
-      useNativeDriver: true,
-    }).start();
-    const timer = setTimeout(() => {
-      setDisplayedExpression(expression);
-      setFadingExpression(false);
-      exprAnim.setValue(1);
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [expression, displayedExpression, exprAnim]);
-
-  // Punchy pulse beat animation while playing audio
+  // Audio Pulse loop
   useEffect(() => {
     if (!isPlaying) {
       pulse.stopAnimation();
@@ -257,84 +146,21 @@ export const TaraSideMessageCard = forwardRef<
     return () => loop.stop();
   }, [isPlaying, pulse]);
 
-  // Subtle left-right drift for Tara
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(taraDrift, {
-          toValue: 1,
-          duration: TARA_DRIFT_DURATION,
-          useNativeDriver: true,
-          easing: Easing.inOut(Easing.sin),
-        }),
-        Animated.timing(taraDrift, {
-          toValue: 0,
-          duration: TARA_DRIFT_DURATION,
-          useNativeDriver: true,
-          easing: Easing.inOut(Easing.sin),
-        }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [taraDrift]);
-
-  // Subtle top-bottom float for the message bubble
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(bubbleFloat, {
-          toValue: 1,
-          duration: BUBBLE_FLOAT_DURATION,
-          useNativeDriver: true,
-          easing: Easing.inOut(Easing.sin),
-        }),
-        Animated.timing(bubbleFloat, {
-          toValue: 0,
-          duration: BUBBLE_FLOAT_DURATION,
-          useNativeDriver: true,
-          easing: Easing.inOut(Easing.sin),
-        }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [bubbleFloat]);
-
-  const taraTranslateX = taraDrift.interpolate({
+  const ringScale = pulse.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -6],
+    outputRange: [1, 1.8],
+  });
+  const ringOpacity = pulse.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.6, 0],
   });
 
-  const bubbleTranslateY = bubbleFloat.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, -6],
-  });
-
-  const ringScaleInner = pulse.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 1.65],
-  });
-  const ringOpacityInner = pulse.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.65, 0],
-  });
-
-  const ringScaleOuter = pulse.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 2.15],
-  });
-  const ringOpacityOuter = pulse.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.45, 0],
-  });
-
-  const buttonScale = pulse.interpolate({
-    inputRange: [0, 0.4, 0.7, 1],
-    outputRange: [1, 1.15, 1.08, 1],
-  });
-
-  const handleToggle = () => {
+  const handleVoiceToggle = () => {
+    if (Platform.OS !== "web") {
+      try {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      } catch {}
+    }
     if (isPlaying) {
       stop();
     } else {
@@ -343,330 +169,276 @@ export const TaraSideMessageCard = forwardRef<
     onVoicePress?.();
   };
 
-  const source = image ?? TARA_EXPRESSIONS[displayedExpression];
+  const handleToggleExpand = () => {
+    try {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    } catch {}
+    setIsExpanded((prev) => !prev);
+  };
 
-  // Parse title and subtitle gracefully if not passed explicitly
-  const { headerTitle, messageBody } = useMemo(() => {
-    if (title) {
-      return { headerTitle: title, messageBody: message };
-    }
-    if (message.startsWith("Namaste! I'm Tara.")) {
-      const remaining = message.replace("Namaste! I'm Tara.", "").trim();
-      return {
-        headerTitle: "Namaste! I'm Tara.",
-        messageBody: remaining || "Your companion on the journey to sustainable and prosperous farming.",
-      };
-    }
-    const firstPeriod = message.indexOf(".");
-    if (firstPeriod > 0 && firstPeriod < 30) {
-      return {
-        headerTitle: message.slice(0, firstPeriod + 1),
-        messageBody: message.slice(firstPeriod + 1).trim(),
-      };
-    }
-    return {
-      headerTitle: "Namaste! I'm Tara.",
-      messageBody: message,
-    };
-  }, [title, message]);
+  const isLong = message.length > TRUNCATION_THRESHOLD;
+  const avatarSource = image ?? TARA_EXPRESSIONS[activeExpr] ?? TARA_EXPRESSIONS.happy;
+  const hasVoice = Boolean(showVoiceControl && audioSource);
 
   return (
-    <View style={styles.outerContainer}>
-      <View style={styles.row}>
-        {/* 1. Character on the left with atmospheric halo */}
-        <View style={styles.heroArea}>
-          <AtmosphericGlow
-            size={160}
-            opacity={0.9}
-            tintColor="#4CAF50"
-            showParticles
-            particleDensity="medium"
-            animated
-            isSpeaking={isPlaying}
-            style={styles.glowPosition}
+    <View style={styles.container}>
+      {/* 1. Mascot Avatar on the Left */}
+      <View style={styles.avatarColumn}>
+        <Animated.View
+          style={[
+            styles.avatarFrame,
+            isPlaying && styles.avatarFrameSpeaking,
+            { transform: [{ scale: exprAnim }] },
+          ]}
+        >
+          <Image
+            source={avatarSource}
+            style={styles.avatarImage}
+            contentFit="contain"
+            accessibilityLabel={`Tara ${activeExpr}`}
           />
+        </Animated.View>
+      </View>
 
-          {/* Floating voice control above Tara */}
-          {showVoiceControl && (
-            <View style={styles.voiceControlWrap}>
-              {isPlaying && (
-                <>
+      {/* 2. Speech Bubble Card on the Right */}
+      <View style={styles.speechBubbleWrapper}>
+        {/* Left Pointer Tail Anchor */}
+        <View style={styles.pointerTailBorder} />
+        <View style={styles.pointerTailFill} />
+
+        {/* Card Box */}
+        <View style={styles.speechCard}>
+          {/* Header Row: Title + Audio Speaker */}
+          <View style={styles.cardHeaderRow}>
+            <View style={styles.titleBadgeContainer}>
+              <View style={styles.taraLiveDot} />
+              <Text style={styles.titleText}>{title || "TARA"}</Text>
+            </View>
+
+            {hasVoice && (
+              <View style={styles.voiceBtnWrapper}>
+                {isPlaying && (
                   <Animated.View
                     style={[
-                      styles.pulseRing,
-                      {
-                        transform: [{ scale: ringScaleOuter }],
-                        opacity: ringOpacityOuter,
-                      },
+                      styles.voicePulseRing,
+                      { transform: [{ scale: ringScale }], opacity: ringOpacity },
                     ]}
                   />
-                  <Animated.View
-                    style={[
-                      styles.pulseRing,
-                      {
-                        transform: [{ scale: ringScaleInner }],
-                        opacity: ringOpacityInner,
-                      },
-                    ]}
-                  />
-                </>
-              )}
-              <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+                )}
                 <Pressable
-                  onPress={handleToggle}
+                  onPress={handleVoiceToggle}
                   style={[
                     styles.voiceButton,
                     isPlaying && styles.voiceButtonActive,
                   ]}
                   accessibilityRole="button"
-                  accessibilityLabel={isPlaying ? t("tara.speech.stop") : t("tara.speech.play")}
+                  accessibilityLabel={isPlaying ? "Stop speech audio" : "Play speech audio"}
                 >
                   <MaterialIcons
                     name="volume-up"
-                    size={20}
-                    color={isPlaying ? "#FFFFFF" : "#1B6D24"}
+                    size={17}
+                    color={isPlaying ? "#FFFFFF" : "#15803D"}
                   />
                 </Pressable>
-              </Animated.View>
-            </View>
-          )}
+              </View>
+            )}
+          </View>
 
-          {/* Tara Mascot Avatar - subtle left-right drift */}
-          <Animated.View
-            style={[
-              styles.avatarWrap,
-              { transform: [{ translateX: taraTranslateX }] },
-            ]}
-          >
-            <Image
-              source={source}
-              style={styles.avatarImage}
-              contentFit="contain"
-              accessibilityLabel={`Tara ${displayedExpression}`}
-            />
-            {fadingExpression && expression !== displayedExpression && (
-              <Animated.View
-                pointerEvents="none"
-                style={[styles.avatarOverlay, { opacity: exprAnim }]}
-              >
-                <Image
-                  source={image ?? TARA_EXPRESSIONS[expression]}
-                  style={styles.avatarFill}
-                  contentFit="contain"
-                />
-              </Animated.View>
+          {/* Message Text */}
+          <Animated.View style={{ opacity: textFadeAnim }}>
+            {isLoading ? (
+              <Text style={styles.loadingText}>Tara is preparing response...</Text>
+            ) : (
+              <>
+                <Text
+                  style={styles.bodyText}
+                  numberOfLines={isLong && !isExpanded ? 3 : undefined}
+                >
+                  {message}
+                </Text>
+
+                {isLong && (
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={handleToggleExpand}
+                    style={styles.expandToggle}
+                  >
+                    <Text style={styles.expandToggleText}>
+                      {isExpanded ? "Show Less" : "Read More"}
+                    </Text>
+                    <MaterialIcons
+                      name={isExpanded ? "expand-less" : "expand-more"}
+                      size={15}
+                      color="#16A34A"
+                    />
+                  </TouchableOpacity>
+                )}
+              </>
             )}
           </Animated.View>
         </View>
-
-        {/* 2. Curved Dialogue Speech Bubble on the right - subtle top-bottom float */}
-        <Animated.View
-          style={[
-            styles.speechBubbleWrapper,
-            { transform: [{ translateY: bubbleTranslateY }] },
-          ]}
-        >
-          {/* Dialogue Bubble Tail / Pointer (points left toward Tara) */}
-          <View style={styles.bubbleTailBorder} />
-          <View style={styles.bubbleTail} />
-
-          {/* Main Curved Dialogue Card */}
-          <View style={styles.speechCard}>
-            {/* Speech Title & Body Text Stack */}
-            <Animated.View style={[styles.textStack, { opacity: textFadeAnim }]}>
-              {isLoading ? (
-                <TextRenderingLoader text={t("tara.loading")} />
-              ) : (
-                <>
-                  <Text style={styles.titleText}>{headerTitle}</Text>
-                  <Text style={styles.bodyText}>{messageBody}</Text>
-                </>
-              )}
-            </Animated.View>
-          </View>
-        </Animated.View>
       </View>
     </View>
   );
 });
 
-export default TaraSideMessageCard;
-
 const styles = StyleSheet.create({
-  outerContainer: {
-    width: "100%",
-    maxWidth: 480,
-    alignSelf: "center",
-    backgroundColor: "#F3F8F1",
-    borderRadius: 28,
-    borderWidth: 1.5,
-    borderColor: "rgba(168, 222, 172, 0.45)",
-    paddingTop: 8,
-    paddingBottom: 0,
-    paddingHorizontal: 12,
-    position: "relative",
-    overflow: "hidden",
-  },
-  row: {
+  container: {
     width: "100%",
     flexDirection: "row",
-    alignItems: "flex-end",
-  },
-
-  /* ---------- TARA (left) ---------- */
-  heroArea: {
-    width: 122,
-    height: 130,
-    alignItems: "center",
-    justifyContent: "flex-end",
+    alignItems: "flex-start",
     position: "relative",
   },
-  glowPosition: {
-    position: "absolute",
-    top: "20%",
-    alignSelf: "center",
-    marginTop: -78,
-  },
-  avatarWrap: {
-    width: 116,
-    height: 116,
+  avatarColumn: {
     alignItems: "center",
-    justifyContent: "flex-end",
-    position: "relative",
-    zIndex: 2,
-  },
-  avatarImage: {
-    width: "100%",
-    height: "100%",
-  },
-  avatarOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-  },
-  avatarFill: {
-    width: "100%",
-    height: "100%",
-  },
-
-  /* ---------- SPEECH BUBBLE (right) ---------- */
-  speechBubbleWrapper: {
-    flex: 1,
-    marginLeft: 2,
-    marginBottom: 12,
-    position: "relative",
-    alignItems: "center",
+    justifyContent: "flex-start",
+    paddingTop: 4,
     zIndex: 10,
   },
-  bubbleTailBorder: {
+  avatarFrame: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "#F0FDF4",
+    borderWidth: 2,
+    borderColor: "#86EFAC",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  avatarFrameSpeaking: {
+    borderColor: "#16A34A",
+    backgroundColor: "#DCFCE7",
+  },
+  avatarImage: {
+    width: 48,
+    height: 48,
+  },
+  speechBubbleWrapper: {
+    flex: 1,
+    marginLeft: 10,
+    position: "relative",
+  },
+  pointerTailBorder: {
     position: "absolute",
-    left: -10,
-    top: "50%",
-    marginTop: -10,
+    left: -8,
+    top: 18,
     width: 0,
     height: 0,
-    borderTopWidth: 10,
-    borderBottomWidth: 10,
-    borderRightWidth: 11,
+    borderTopWidth: 7,
+    borderBottomWidth: 7,
+    borderRightWidth: 8,
     borderTopColor: "transparent",
     borderBottomColor: "transparent",
-    borderRightColor: "rgba(185, 228, 190, 0.8)",
+    borderRightColor: componentColors.cardBorder,
     zIndex: 11,
   },
-  bubbleTail: {
+  pointerTailFill: {
     position: "absolute",
-    left: -8.5,
-    top: "50%",
-    marginTop: -9,
+    left: -6,
+    top: 19,
     width: 0,
     height: 0,
-    borderTopWidth: 9,
-    borderBottomWidth: 9,
-    borderRightWidth: 10,
+    borderTopWidth: 6,
+    borderBottomWidth: 6,
+    borderRightWidth: 7,
     borderTopColor: "transparent",
     borderBottomColor: "transparent",
     borderRightColor: "#FFFFFF",
     zIndex: 12,
   },
-
-  // Curved Dialogue Card
   speechCard: {
-    width: "100%",
     backgroundColor: "#FFFFFF",
-    borderRadius: 24,
+    borderRadius: rounded.lg,
     borderWidth: 1.5,
-    borderColor: "rgba(185, 228, 190, 0.6)",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    shadowColor: "#002204",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
-    elevation: 3,
-  },
-
-  // Floating voice control in the top-left corner
-  voiceControlWrap: {
-    position: "absolute",
-    top: -2,
-    left: -2,
-    width: 38,
-    height: 38,
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 15,
-  },
-  voiceButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1.5,
-    borderColor: "rgba(185, 228, 190, 0.75)",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#002204",
+    borderColor: componentColors.cardBorder,
+    borderBottomWidth: 3.5,
+    borderBottomColor: componentColors.cardEdge,
+    paddingHorizontal: 13,
+    paddingVertical: 10,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 2,
   },
-  voiceButtonActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 4,
+  cardHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 4,
   },
-  pulseRing: {
-    position: "absolute",
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-    backgroundColor: "rgba(76, 175, 80, 0.20)",
+  titleBadgeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
   },
-
-  textStack: {
-    justifyContent: "center",
+  taraLiveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#16A34A",
   },
   titleText: {
-    ...typography.labelLg,
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#181C1A",
-    marginBottom: 2,
+    ...typography.labelSm,
+    fontSize: 12,
+    fontWeight: "800",
+    color: "#166534",
+    letterSpacing: 0.4,
+  },
+  voiceBtnWrapper: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  voiceButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#F0FDF4",
+    borderWidth: 1.5,
+    borderColor: "#BBF7D0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  voiceButtonActive: {
+    backgroundColor: "#16A34A",
+    borderColor: "#15803D",
+  },
+  voicePulseRing: {
+    position: "absolute",
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(22, 163, 74, 0.35)",
   },
   bodyText: {
     ...typography.bodyMd,
-    fontSize: 11,
-    lineHeight: 16,
-    color: "#4F5D4C",
+    fontSize: 13.5,
+    lineHeight: 19.5,
+    color: colors.onSurface,
     fontWeight: "400",
   },
+  loadingText: {
+    ...typography.bodyMd,
+    fontSize: 12.5,
+    color: colors.primary,
+    fontStyle: "italic",
+  },
+  expandToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-end",
+    gap: 2,
+    marginTop: 3,
+  },
+  expandToggleText: {
+    ...typography.labelSm,
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#16A34A",
+  },
 });
+
+export default TaraSideMessageCard;
+

@@ -1,4 +1,5 @@
-import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { Animated, Easing, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 import { colors } from "../../theme/theme";
 
 interface ProgressBarProps {
@@ -7,6 +8,7 @@ interface ProgressBarProps {
   trackColor?: string;
   height?: number;
   style?: StyleProp<ViewStyle>;
+  animated?: boolean;
 }
 
 export function ProgressBar({
@@ -15,9 +17,28 @@ export function ProgressBar({
   trackColor = colors.surfaceContainerHigh,
   height = 12,
   style,
+  animated = true,
 }: ProgressBarProps) {
   const clamped = Math.max(0, Math.min(1, progress));
-  const percentage = `${Math.round(clamped * 100)}%` as const;
+  const progressAnim = useRef(new Animated.Value(clamped)).current;
+
+  useEffect(() => {
+    if (animated) {
+      Animated.timing(progressAnim, {
+        toValue: clamped,
+        duration: 350,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: false,
+      }).start();
+    } else {
+      progressAnim.setValue(clamped);
+    }
+  }, [clamped, animated]);
+
+  const widthInterpolation = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0%", "100%"],
+  });
 
   return (
     <View
@@ -27,12 +48,12 @@ export function ProgressBar({
         style,
       ]}
     >
-      <View
+      <Animated.View
         style={[
           styles.fill,
           {
             backgroundColor: color,
-            width: percentage,
+            width: widthInterpolation,
             borderRadius: height / 2,
           },
         ]}

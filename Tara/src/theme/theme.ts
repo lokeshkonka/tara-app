@@ -101,11 +101,15 @@ export const componentColors = {
 
 export const spacing = {
   unit: 4,
+  xs: 4,
   stackSm: 8,
+  sm: 8,
   gutter: 16,
   stackMd: 16,
+  md: 16,
   marginMobile: 20,
   stackLg: 24,
+  lg: 24,
   sectionPadding: 32,
   xl: 40,
   xxl: 48,
@@ -122,6 +126,13 @@ export const rounded = {
 } as const;
 
 export const typography = {
+  fontFamily: {
+    regular: "PlusJakartaSans-Regular",
+    medium: "PlusJakartaSans-Medium",
+    semiBold: "PlusJakartaSans-SemiBold",
+    bold: "PlusJakartaSans-Bold",
+    extraBold: "PlusJakartaSans-ExtraBold",
+  },
   headlineLg: {
     fontFamily: "PlusJakartaSans-Bold",
     fontSize: 30,

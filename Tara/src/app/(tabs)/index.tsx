@@ -86,12 +86,16 @@ export default function HomeTab() {
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-        <TaraHomeBanner />
+        <TaraHomeBanner onPress={() => router.push("/learn")} />
         {todaysPractice && !isLoading && (
-          <HomeTodaysPracticeCard practice={todaysPractice} />
+          <HomeTodaysPracticeCard
+            practice={todaysPractice}
+            onStartPractice={() => router.push("/practice")}
+            onViewCalendar={() => router.push("/practice")}
+          />
         )}
         {progress && <ProgressSection data={progress} />}
-        <CommunityBanner onExplore={() => router.push('/community')} />
+        <CommunityBanner onExplore={() => router.push("/community")} />
       </ScrollView>
     </SafeAreaView>
   );

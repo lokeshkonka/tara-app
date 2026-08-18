@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Platform } from "react-native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
@@ -6,6 +7,8 @@ import * as SplashScreen from "expo-splash-screen";
 import { UpdateAvailableModal } from "../components/updates/UpdateAvailableModal";
 import { AppProvider } from "../context/AppContext";
 import { AuthProvider } from "../auth/AuthProvider";
+import { syncManager } from "../services/api/syncManager";
+import { notificationService } from "../services/notifications/NotificationService";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -21,6 +24,8 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync().catch(() => {});
+      syncManager.init();
+      notificationService.init().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
 
@@ -36,7 +41,8 @@ export default function RootLayout() {
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: "#f7faf5" },
-            animation: "fade",
+            animation: Platform.OS === "ios" ? "default" : "slide_from_right",
+            freezeOnBlur: true,
           }}
         />
         <UpdateAvailableModal />
