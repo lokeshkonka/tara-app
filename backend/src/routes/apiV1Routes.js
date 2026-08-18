@@ -4,6 +4,7 @@ const userRoutes = require('./userRoutes');
 const settingsRoutes = require('./settingsRoutes');
 const communityRoutes = require('./communityRoutes');
 const farmJourneyRoutes = require('./farmJourneyRoutes');
+const learnRoutes = require('./learnRoutes');
 
 const router = express.Router();
 
@@ -22,8 +23,10 @@ router.use('/community', communityRoutes); // /api/v1/community/* -> panchayats|
 // PHASE 3: Farm Journey service.
 router.use('/farm-journey', farmJourneyRoutes); // /api/v1/farm-journey/* -> timeline|achievements|health
 
+// PHASE 4: Learn & Progress service.
+router.use('/learn', learnRoutes); // /api/v1/learn/* -> summary|categories|lessons|levels
+
 // Future phases mount here:
-//   router.use(learnRoutes);          // Phase 4
 //   router.use(dashboardRoutes);      // Phase 5
 //   router.use(progressRoutes);       // Phase 5
 

@@ -52,6 +52,12 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    // 'YYYY-MM-DD' of the last learning activity, used by the Learn service to
+    // maintain the daily streak (increment on consecutive days, reset on gaps).
+    lastActiveDate: {
+        type: String,
+        default: null
+    },
     badges: {
         type: [String],
         default: []

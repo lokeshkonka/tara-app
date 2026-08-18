@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { learnRepository } from "../services";
+import { useAuth } from "../auth/AuthProvider";
 import type { LearnCategory, LearnLesson, LearnLessonDetail, LearnSummary, LevelDefinition } from "../types/learn";
 
 interface LearnContextValue {
@@ -25,6 +26,7 @@ interface LearnContextValue {
 const LearnContext = createContext<LearnContextValue | null>(null);
 
 export function LearnProvider({ children }: { children: ReactNode }) {
+  const { user: authUser } = useAuth();
   const [summary, setSummary] = useState<LearnSummary | null>(null);
   const [categories, setCategories] = useState<LearnCategory[]>([]);
   const [lessons, setLessons] = useState<LearnLesson[]>([]);
@@ -32,6 +34,9 @@ export function LearnProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
+    // Only fetch the curriculum once we are signed in (the backend requires a
+    // JWT); otherwise keep the empty initial state.
+    if (!authUser) return;
     try {
       setIsLoading(true);
       const [data, cats, les] = await Promise.all([
@@ -48,7 +53,7 @@ export function LearnProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [authUser]);
 
   const completeLesson = useCallback(async (lessonId: string) => {
     try {

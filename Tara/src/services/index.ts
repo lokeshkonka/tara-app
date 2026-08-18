@@ -11,6 +11,7 @@ import { ApiCommunityRepository } from "./api/ApiCommunityRepository";
 import { ApiSettingsRepository } from "./api/ApiSettingsRepository";
 import { ApiFarmJourneyRepository } from "./api/ApiFarmJourneyRepository";
 import { ApiUserRepository } from "./api/ApiUserRepository";
+import { ApiLearnRepository } from "./api/ApiLearnRepository";
 
 import { GeminiAIInterviewService } from "./aiInterview/GeminiAIInterviewService";
 import { MockAIInterviewService } from "./aiInterview/MockAIInterviewService";
@@ -26,9 +27,9 @@ import type { ISettingsRepository } from "./repositories/ISettingsRepository";
 import type { IFarmJourneyRepository } from "./repositories/IFarmJourneyRepository";
 
 // Environment switch: "dummy" | "api".
-// Default is now "api" — the app talks to the real backend. Override per-domain
-// is handled below; domains without a live backend yet stay on Dummy so their
-// screens keep working with demo data (Learn/Dashboard/Progress/Onboarding).
+// Default is now "api" — the app talks to the real backend. Domains without a
+// live backend yet stay on Dummy so their screens keep working with demo data
+// (Dashboard/Progress/Onboarding).
 export const DATA_SOURCE: "dummy" | "api" =
   (process.env.EXPO_PUBLIC_DATA_SOURCE as "dummy" | "api") || "api";
 
@@ -47,7 +48,9 @@ export const progressRepository: IProgressRepository =
   new DummyProgressRepository();
 
 export const learnRepository: ILearnRepository =
-  new DummyLearnRepository();
+  DATA_SOURCE === "api"
+    ? new ApiLearnRepository()
+    : new DummyLearnRepository();
 
 export const communityRepository: ICommunityRepository =
   DATA_SOURCE === "api"
