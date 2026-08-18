@@ -1,3 +1,5 @@
+import Constants from "expo-constants";
+import { authStorage } from "../../storage/authStorage";
 import { StorageService } from "../storage/StorageService";
 import { offlineCache } from "./offlineCache";
 
@@ -17,16 +19,44 @@ export interface ApiError {
 const DEFAULT_TIMEOUT_MS = 8000;
 const MAX_RETRIES = 2;
 
-class ApiClient {
-  private baseUrl: string;
+const BACKEND_PORT = process.env.EXPO_PUBLIC_API_PORT || "3000";
+// All domain (non-auth) services are served under /api/v1 on the monolith,
+// matching the backend implementation plan. The auth client (src/api/apiClient)
+// keeps its own /api/auth/* prefix and separate base URL.
+const API_VERSION_PREFIX = "/api/v1";
 
-  constructor() {
-    this.baseUrl =
-      process.env.EXPO_PUBLIC_API_URL || "https://api.tara-app.org/v1";
+// Resolves the base URL for the domain API client.
+// PHASE 0 FIX: mirrors the auth client's dev-server host derivation so requests
+// work on physical devices/emulators. Previously this fell back to the
+// production URL (https://api.tara-app.org/v1) in dev, so every domain request
+// went to the wrong host. In dev we reuse Expo's hostUri (the PC's LAN IP);
+// "localhost" only works on the dev machine itself.
+function getApiBaseUrl(): string {
+  const configured = (process.env.EXPO_PUBLIC_API_URL || "").trim();
+  if (configured) {
+    return configured;
   }
 
+  const hostUri = Constants.expoConfig?.hostUri;
+  const host = hostUri?.split(":")[0];
+  if (host) {
+    return `http://${host}:${BACKEND_PORT}${API_VERSION_PREFIX}`;
+  }
+
+  // Production fallback: hostUri is unavailable in release builds.
+  return "https://api.tara-app.org/v1";
+}
+
+class ApiClient {
+  private baseUrl: string = getApiBaseUrl();
+
+  // PHASE 0 FIX: read the access token from the secure auth session (the single
+  // source of truth written by src/auth/backendAuth.ts). This previously read a
+  // "tara_auth_token" key that nothing ever wrote, so every domain request sent
+  // no Authorization header and got 401 after Google login.
   private async getAuthToken(): Promise<string | null> {
-    return await StorageService.getItem<string>("tara_auth_token");
+    const session = await authStorage.getSession();
+    return session?.accessToken ?? null;
   }
 
   /**

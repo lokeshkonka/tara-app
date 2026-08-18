@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/authRoutes');
+const apiV1Routes = require('./routes/apiV1Routes');
 
 const app = express();
 
@@ -22,6 +23,12 @@ const authLimiter = rateLimit({
 
 // auth route
 app.use('/api/auth', authLimiter, authRoutes);
+
+// PHASE 0: versioned domain API. All future services (user, settings,
+// community, farm-journey, learn, dashboard, progress, ...) mount here to
+// match the backend implementation plan (/api/v1/*). The mobile app's domain
+// client derives its base URL from the Expo dev-server host + /api/v1.
+app.use('/api/v1', apiV1Routes);
 
 // 404 handler
 app.use((req, res) => {
