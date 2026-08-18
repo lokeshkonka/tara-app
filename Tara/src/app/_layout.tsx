@@ -7,6 +7,8 @@ import * as SplashScreen from "expo-splash-screen";
 import { UpdateAvailableModal } from "../components/updates/UpdateAvailableModal";
 import { AppProvider } from "../context/AppContext";
 import { AuthProvider } from "../auth/AuthProvider";
+import { syncManager } from "../services/api/syncManager";
+import { notificationService } from "../services/notifications/NotificationService";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -22,6 +24,8 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync().catch(() => {});
+      syncManager.init();
+      notificationService.init().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
 

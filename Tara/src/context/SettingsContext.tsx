@@ -17,6 +17,7 @@ import type {
   NotificationSettings,
   SecuritySettings,
 } from "../types/settings";
+import { notificationService } from "../services/notifications/NotificationService";
 
 interface SettingsContextValue {
   notifications: NotificationSettings;
@@ -47,7 +48,15 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   const updateNotifications = useCallback(
     (partial: Partial<NotificationSettings>) => {
-      setNotifications((prev) => ({ ...prev, ...partial }));
+      setNotifications((prev) => {
+        const next = { ...prev, ...partial };
+        if (next.dailyReminders) {
+          notificationService.scheduleDailyReminder(next.dailyReminderTime).catch(() => {});
+        } else {
+          notificationService.cancelAllReminders().catch(() => {});
+        }
+        return next;
+      });
     },
     []
   );
