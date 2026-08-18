@@ -16,7 +16,8 @@
     },
     "updates": {
       "url": "https://u.expo.dev/fc91cce0-5a3e-4448-9e5b-c22407d46432",
-      "checkAutomatically": "NEVER"
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
     },
     "ios": {
       "icon": "./assets/app-icon.png"

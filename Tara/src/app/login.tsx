@@ -18,7 +18,7 @@ import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 const { width, height } = Dimensions.get("window");
 
 export default function LoginScreen() {
-  const { signInWithGoogle, isLoading, error } = useAuth();
+  const { signInWithGoogle, signInAsGuest, isLoading, error } = useAuth();
 
   // Floating animation for Tara image
   const floatAnim = useSharedValue(0);
@@ -160,6 +160,24 @@ export default function LoginScreen() {
                 <AntDesign name="google" size={20} color={colors.primary} style={{ marginRight: 8 }} />
                 <Text style={{ ...typography.labelLg, fontSize: 16, fontWeight: "700", letterSpacing: 0.2, color: colors.primary }}>
                   Continue with Google
+                </Text>
+              </View>
+            )}
+          </TactileButton>
+
+          {/* Guest / Quick Explore Option */}
+          <TactileButton
+            title=""
+            variant="secondary"
+            loading={isLoading}
+            onPress={() => signInAsGuest("Tara Farmer")}
+            style={styles.guestButton}
+          >
+            {!isLoading && (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <MaterialIcons name="person-outline" size={20} color={colors.onSurfaceVariant} style={{ marginRight: 8 }} />
+                <Text style={{ ...typography.labelLg, fontSize: 15, fontWeight: "600", color: colors.onSurfaceVariant }}>
+                  Explore as Guest Farmer
                 </Text>
               </View>
             )}
@@ -333,6 +351,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   googleButton: {
+    width: "100%",
+    marginTop: spacing.stackSm,
+  },
+  guestButton: {
     width: "100%",
     marginTop: spacing.stackSm,
   },

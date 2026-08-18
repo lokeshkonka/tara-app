@@ -7,18 +7,39 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "channel": "development",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_GOOGLE_CLIENT_ID": "82182901130-vrdmterhc7rpll7ektf90hdlrif5kkas.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "82182901130-mi199ifhh64bs7kntv3oehmh77u7jh2b.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GEMINI_API_KEY": "AIzaSyBNQY8ihJv43eZB41kFTWG21W8hNfR_qOs",
+        "EXPO_PUBLIC_SARVAM_API_KEY": "sk_d1s767h3_IYhi0EwQz5P2IwnekKivXd2k"
       }
     },
     "preview": {
       "distribution": "internal",
+      "channel": "preview",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_GOOGLE_CLIENT_ID": "82182901130-vrdmterhc7rpll7ektf90hdlrif5kkas.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "82182901130-mi199ifhh64bs7kntv3oehmh77u7jh2b.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GEMINI_API_KEY": "AIzaSyBNQY8ihJv43eZB41kFTWG21W8hNfR_qOs",
+        "EXPO_PUBLIC_SARVAM_API_KEY": "sk_d1s767h3_IYhi0EwQz5P2IwnekKivXd2k"
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_GOOGLE_CLIENT_ID": "82182901130-vrdmterhc7rpll7ektf90hdlrif5kkas.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "82182901130-mi199ifhh64bs7kntv3oehmh77u7jh2b.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GEMINI_API_KEY": "AIzaSyBNQY8ihJv43eZB41kFTWG21W8hNfR_qOs",
+        "EXPO_PUBLIC_SARVAM_API_KEY": "sk_d1s767h3_IYhi0EwQz5P2IwnekKivXd2k"
+      }
     }
   },
   "submit": {

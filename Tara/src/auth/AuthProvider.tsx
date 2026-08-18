@@ -19,12 +19,17 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInAsGuest: (customName?: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
   error: string | null;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+const GOOGLE_CLIENT_ID =
+  process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ||
+  "82182901130-vrdmterhc7rpll7ektf90hdlrif5kkas.apps.googleusercontent.com";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -35,9 +40,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { state: onboardingState } = useOnboarding();
 
   useEffect(() => {
-    if (process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID) {
+    if (GOOGLE_CLIENT_ID) {
       GoogleSignin.configure({
-        webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+        webClientId: GOOGLE_CLIENT_ID,
       });
     }
   }, []);
@@ -75,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
-    if (!process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID) {
+    if (!GOOGLE_CLIENT_ID) {
       setError("Google Client ID is missing.");
       return;
     }
@@ -102,6 +107,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setError(error.message || "An error occurred starting Google login.");
       }
+    }
+  };
+
+  const signInAsGuest = async (customName: string = "Farmer") => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const guestUser: AuthUser = {
+        id: `guest_${Date.now()}`,
+        email: "farmer@tara.app",
+        name: customName,
+        provider: "google",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const session = {
+        user: guestUser,
+        accessToken: `local_guest_${Date.now()}`,
+      };
+      await authStorage.saveSession(session);
+      setUser(guestUser);
+    } catch (e: any) {
+      setError(e.message || "Failed to continue as guest");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -137,14 +167,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const inAuthGroup = firstSegment === "login";
     const atRoot = firstSegment === undefined || firstSegment === "index";
 
-    if (!user && !inAuthGroup && !atRoot) {
-      // Redirect to the login screen
-      router.replace("/login");
-    } else if (user && (inAuthGroup || atRoot)) {
-      // Direct to dashboard if logged in
-      router.replace("/(tabs)");
+    if (!user) {
+      // Always enforce login on launch
+      if (!inAuthGroup) {
+        router.replace("/login");
+      }
+    } else {
+      // User is authenticated
+      if (inAuthGroup || atRoot) {
+        if (!onboardingState.isComplete) {
+          router.replace("/onboarding" as any);
+        } else {
+          router.replace("/(tabs)");
+        }
+      }
     }
-  }, [user, segments, isLoading]);
+  }, [user, segments, isLoading, onboardingState.isComplete]);
 
   return (
     <AuthContext.Provider
@@ -153,6 +191,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         isLoading,
         signInWithGoogle,
+        signInAsGuest,
         signOut,
         refreshSession,
         error,

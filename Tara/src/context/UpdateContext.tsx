@@ -134,8 +134,8 @@ export function UpdateProvider({ children }: { children: ReactNode }) {
   // 1. Initial check on app startup
   useEffect(() => {
     const timer = setTimeout(() => {
-      checkForUpdate(false);
-    }, 2000); // 2 second delay so app renders first
+      checkForUpdate(true);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, [checkForUpdate]);
