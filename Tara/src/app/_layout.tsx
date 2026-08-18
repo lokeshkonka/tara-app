@@ -34,8 +34,11 @@ export default function RootLayout() {
   }
 
   return (
-    <AppProvider>
-      <AuthProvider>
+    // AuthProvider must wrap the domain providers: domain contexts hydrate from
+    // the backend and need to read useAuth() so they only fetch once the session
+    // has been restored (and re-fetch on login/logout).
+    <AuthProvider>
+      <AppProvider>
         <StatusBar style="dark" />
         <Stack
           screenOptions={{
@@ -46,7 +49,7 @@ export default function RootLayout() {
           }}
         />
         <UpdateAvailableModal />
-      </AuthProvider>
-    </AppProvider>
+      </AppProvider>
+    </AuthProvider>
   );
 }

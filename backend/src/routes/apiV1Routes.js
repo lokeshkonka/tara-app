@@ -3,6 +3,7 @@ const healthRoutes = require('./healthRoutes');
 const userRoutes = require('./userRoutes');
 const settingsRoutes = require('./settingsRoutes');
 const communityRoutes = require('./communityRoutes');
+const farmJourneyRoutes = require('./farmJourneyRoutes');
 
 const router = express.Router();
 
@@ -18,8 +19,10 @@ router.use('/settings', settingsRoutes); // /api/v1/settings/* -> /settings/noti
 // PHASE 2: Community & Voice Stories service.
 router.use('/community', communityRoutes); // /api/v1/community/* -> panchayats|voice-stories|posts|impact|leaderboard
 
+// PHASE 3: Farm Journey service.
+router.use('/farm-journey', farmJourneyRoutes); // /api/v1/farm-journey/* -> timeline|achievements|health
+
 // Future phases mount here:
-//   router.use(farmJourneyRoutes);    // Phase 3
 //   router.use(learnRoutes);          // Phase 4
 //   router.use(dashboardRoutes);      // Phase 5
 //   router.use(progressRoutes);       // Phase 5

@@ -2,6 +2,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -24,6 +25,9 @@ import type {
   UserImpactMetrics,
   VoiceStory,
 } from "../types/community";
+import { communityRepository } from "../services";
+import { useAuth } from "../auth/AuthProvider";
+import { useUser } from "./UserContext";
 
 interface CommunityContextValue {
   panchayats: Panchayat[];
@@ -56,7 +60,9 @@ interface CommunityContextValue {
 const CommunityContext = createContext<CommunityContextValue | null>(null);
 
 export function CommunityProvider({ children }: { children: ReactNode }) {
-  const [panchayats] = useState<Panchayat[]>(DUMMY_PANCHAYATS);
+  const { user: authUser } = useAuth();
+  const { user: profile, farm } = useUser();
+  const [panchayats, setPanchayats] = useState<Panchayat[]>(DUMMY_PANCHAYATS);
   const [activePanchayatId, setActivePanchayatId] = useState<string>(
     DUMMY_PANCHAYATS[0].id
   );
@@ -66,9 +72,10 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     useState<CommunityContribution[]>(DUMMY_CONTRIBUTIONS);
   const [userImpact, setUserImpact] =
     useState<UserImpactMetrics>(DUMMY_USER_IMPACT);
-  const [panchayatImpact] =
+  const [panchayatImpact, setPanchayatImpact] =
     useState<PanchayatImpactMetrics>(DUMMY_PANCHAYAT_IMPACT);
-  const [leaderboard] = useState<LeaderboardFarmer[]>(DUMMY_LEADERBOARD);
+  const [leaderboard, setLeaderboard] =
+    useState<LeaderboardFarmer[]>(DUMMY_LEADERBOARD);
   const [activeStoryPlayingId, setActiveStoryPlayingId] = useState<
     string | null
   >(null);
@@ -83,6 +90,58 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     [panchayats, activePanchayatId]
   );
 
+  // Hydrate all community data from the backend once signed in. Dummy data is
+  // the initial state, so the screens never render empty while loading.
+  useEffect(() => {
+    if (!authUser) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const [p, s, c, i, l] = await Promise.all([
+          communityRepository.getPanchayats(),
+          communityRepository.getVoiceStories("all"),
+          communityRepository.getContributions("all"),
+          communityRepository.getUserImpact(),
+          communityRepository.getLeaderboard("weekly", "panchayat"),
+        ]);
+        if (cancelled) return;
+        setPanchayats(p);
+        setVoiceStories(s);
+        setContributions(c);
+        setUserImpact(i);
+        setLeaderboard(l);
+        // Select the first server panchayat once loaded.
+        setActivePanchayatId((prev) =>
+          p.some((x) => x.id === prev) ? prev : (p[0]?.id ?? prev)
+        );
+      } catch (e) {
+        console.warn("Failed to load community data from backend", e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authUser]);
+
+  // Panchayat impact follows the selected panchayat.
+  useEffect(() => {
+    if (!authUser || !panchayats.some((p) => p.id === activePanchayatId)) {
+      return;
+    }
+    let cancelled = false;
+    communityRepository
+      .getPanchayatImpact(activePanchayatId)
+      .then((i) => {
+        if (!cancelled) setPanchayatImpact(i);
+      })
+      .catch((e) => console.warn("Failed to load panchayat impact", e));
+    return () => {
+      cancelled = true;
+    };
+  }, [authUser, activePanchayatId, panchayats]);
+
   const switchPanchayat = useCallback((id: string) => {
     setActivePanchayatId(id);
   }, []);
@@ -90,7 +149,6 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
   const playVoiceStory = useCallback((id: string) => {
     setActiveStoryPlayingId(id);
     setIsPlayingAudio(true);
-    // Increment plays count
     setVoiceStories((prev) =>
       prev.map((s) => (s.id === id ? { ...s, playsCount: s.playsCount + 1 } : s))
     );
@@ -101,8 +159,8 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const toggleLikeStory = useCallback((id: string) => {
-    setVoiceStories((prev) =>
-      prev.map((s) => {
+    setVoiceStories((prev) => {
+      const next = prev.map((s) => {
         if (s.id === id) {
           const isLiked = !s.isLiked;
           return {
@@ -112,21 +170,29 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
           };
         }
         return s;
-      })
-    );
+      });
+      communityRepository
+        .likeStory(id)
+        .catch((e) => console.warn("Failed to like story", e));
+      return next;
+    });
   }, []);
 
   const toggleBookmarkStory = useCallback((id: string) => {
-    setVoiceStories((prev) =>
-      prev.map((s) =>
+    setVoiceStories((prev) => {
+      const next = prev.map((s) =>
         s.id === id ? { ...s, isBookmarked: !s.isBookmarked } : s
-      )
-    );
+      );
+      communityRepository
+        .bookmarkStory(id)
+        .catch((e) => console.warn("Failed to bookmark story", e));
+      return next;
+    });
   }, []);
 
   const likeContribution = useCallback((id: string) => {
-    setContributions((prev) =>
-      prev.map((c) => {
+    setContributions((prev) => {
+      const next = prev.map((c) => {
         if (c.id === id) {
           const isLiked = !c.isLiked;
           return {
@@ -136,9 +202,17 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
           };
         }
         return c;
-      })
-    );
+      });
+      communityRepository
+        .likeContribution(id)
+        .catch((e) => console.warn("Failed to like contribution", e));
+      return next;
+    });
   }, []);
+
+  const authorName = profile?.name || "Ravi Kumar";
+  const authorLocation =
+    farm?.district || farm?.state || activePanchayat.name || "Dombivli";
 
   const addContribution = useCallback(
     (newContrib: {
@@ -147,11 +221,12 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
       title: string;
       content: string;
     }) => {
-      const createdItem: CommunityContribution = {
-        id: `contrib-${Date.now()}`,
+      const tempId = `contrib-${Date.now()}`;
+      const optimistic: CommunityContribution = {
+        id: tempId,
         author: {
-          name: "Ravi Kumar",
-          location: activePanchayat.name,
+          name: authorName,
+          location: authorLocation,
           badge: "Soil Guardian",
         },
         type: newContrib.type,
@@ -170,21 +245,31 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
         },
       };
 
-      setContributions((prev) => [createdItem, ...prev]);
+      setContributions((prev) => [optimistic, ...prev]);
       setUserImpact((prev) => ({
         ...prev,
         practicesSharedCount: prev.practicesSharedCount + 1,
       }));
+
+      // Persist to backend, then swap the optimistic item for the server item.
+      communityRepository
+        .createContribution(newContrib)
+        .then((created) => {
+          setContributions((prev) =>
+            prev.map((c) => (c.id === tempId ? created : c))
+          );
+        })
+        .catch((e) => console.warn("Failed to create contribution", e));
     },
-    [activePanchayat.name]
+    [authorName, authorLocation]
   );
 
   const addReplyToContribution = useCallback(
     (contributionId: string, text: string) => {
       const newReply = {
         id: `rep-${Date.now()}`,
-        authorName: "Ravi Kumar",
-        authorLocation: "Dombivli",
+        authorName,
+        authorLocation,
         text,
         createdAt: "Just now",
         likesCount: 0,
@@ -203,8 +288,11 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
           return c;
         })
       );
+      communityRepository
+        .addReply(contributionId, text)
+        .catch((e) => console.warn("Failed to add reply", e));
     },
-    []
+    [authorName, authorLocation]
   );
 
   return (

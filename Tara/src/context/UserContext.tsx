@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { userRepository } from "../services";
+import { useAuth } from "../auth/AuthProvider";
 import type { FarmProfile, UserProfile } from "../types/user";
 
 interface UserContextValue {
@@ -22,11 +23,15 @@ interface UserContextValue {
 const UserContext = createContext<UserContextValue | null>(null);
 
 export function UserProvider({ children }: { children: ReactNode }) {
+  const { user: authUser } = useAuth();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [farm, setFarm] = useState<FarmProfile | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const refresh = useCallback(async () => {
+    // Only fetch the profile once we are signed in; otherwise keep null
+    // (the login screen is shown anyway).
+    if (!authUser) return;
     try {
       setIsLoading(true);
       const [u, f] = await Promise.all([
@@ -35,12 +40,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
       ]);
       setUser(u);
       setFarm(f);
+    } catch (e) {
+      console.warn("Failed to load user profile from backend", e);
+      setUser(null);
+      setFarm(null);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [authUser]);
 
+  // Re-hydrate on login/logout (authUser change).
   useEffect(() => {
+    setUser(null);
+    setFarm(null);
     refresh();
   }, [refresh]);
 
