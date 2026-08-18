@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -8,6 +9,7 @@ import {
   type NativeSyntheticEvent,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { TaraMessageCard } from "../../tara-messages/TaraMessageCard";
 import { TactileButton } from "../../ui/TactileButton";
 import { colors, componentColors, rounded, spacing, typography } from "../../../theme/theme";
@@ -25,7 +27,9 @@ export const InteractiveLearnScreen: React.FC<InteractiveLearnScreenProps> = ({
   onCompletePhase,
   onScroll,
 }) => {
-  const [discoveredIds, setDiscoveredIds] = useState<string[]>([]);
+  const [discoveredIds, setDiscoveredIds] = useState<string[]>(
+    phase.hotspots.length > 0 ? [phase.hotspots[0].id] : []
+  );
   const [activeHotspot, setActiveHotspot] = useState<HotspotElement | null>(
     phase.hotspots[0] || null
   );
@@ -33,6 +37,11 @@ export const InteractiveLearnScreen: React.FC<InteractiveLearnScreenProps> = ({
   const handleSelectHotspot = (hotspot: HotspotElement) => {
     setActiveHotspot(hotspot);
     if (!discoveredIds.includes(hotspot.id)) {
+      if (Platform.OS !== "web") {
+        try {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        } catch {}
+      }
       setDiscoveredIds((prev) => [...prev, hotspot.id]);
     }
   };
@@ -61,7 +70,7 @@ export const InteractiveLearnScreen: React.FC<InteractiveLearnScreenProps> = ({
         <View style={styles.taraWrapper}>
           <TaraMessageCard
             title={cardTitle}
-            expression={phase.taraExpression || "happy"}
+            expression={isFullyDiscovered ? "excited" : phase.taraExpression || "happy"}
             message={currentDialogue}
             showVoiceControl={true}
           />
@@ -70,13 +79,19 @@ export const InteractiveLearnScreen: React.FC<InteractiveLearnScreenProps> = ({
         {/* Discovery Counter Pill */}
         <View style={styles.discoveryHeader}>
           <View style={styles.counterBadge}>
-            <MaterialIcons name="explore" size={16} color={colors.primary} />
+            <MaterialIcons
+              name={isFullyDiscovered ? "check-circle" : "explore"}
+              size={16}
+              color={isFullyDiscovered ? "#16A34A" : colors.primary}
+            />
             <Text style={styles.counterText}>
               Discovered {discoveredIds.length} / {totalHotspots} Soil Elements
             </Text>
           </View>
           <Text style={styles.instructionText}>
-            {phase.promptToProceed || "Tap different parts of the soil to explore!"}
+            {isFullyDiscovered
+              ? "All soil layers explored! Continue to the next challenge."
+              : phase.promptToProceed || "Tap different parts of the soil diagram to explore!"}
           </Text>
         </View>
 
@@ -92,15 +107,20 @@ export const InteractiveLearnScreen: React.FC<InteractiveLearnScreenProps> = ({
       {/* Pinned Bottom CTA Button */}
       <View style={styles.fixedBottomContainer}>
         <TactileButton
-          title={isFullyDiscovered ? "Continue to Question" : "Explore Soil"}
+          title={
+            isFullyDiscovered
+              ? "Continue to Next Step"
+              : `Tap all layers to continue (${discoveredIds.length}/${totalHotspots})`
+          }
           icon="arrow-forward"
           iconPosition="right"
-          faceColor={isFullyDiscovered ? colors.primaryContainer : colors.surfaceContainerLowest}
-          depthColor={isFullyDiscovered ? colors.onPrimaryFixedVariant : componentColors.cardEdge}
-          textColor={isFullyDiscovered ? "#FFFFFF" : colors.primary}
+          faceColor={isFullyDiscovered ? colors.primaryContainer : "#E2E8F0"}
+          depthColor={isFullyDiscovered ? colors.onPrimaryFixedVariant : "#CBD5E1"}
+          textColor={isFullyDiscovered ? "#FFFFFF" : "#94A3B8"}
           height={52}
           depth={4}
           borderRadius={rounded.full}
+          disabled={!isFullyDiscovered}
           onPress={onCompletePhase}
         />
       </View>
@@ -152,7 +172,7 @@ const styles = StyleSheet.create({
   fixedBottomContainer: {
     paddingHorizontal: spacing.marginMobile,
     paddingTop: spacing.stackSm,
-    paddingBottom: spacing.stackLg,
+    paddingBottom: Platform.OS === "ios" ? 28 : spacing.stackLg,
     backgroundColor: colors.background,
   },
 });

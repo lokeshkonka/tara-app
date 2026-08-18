@@ -1,16 +1,15 @@
-import React, { useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Easing,
   Platform,
+  Pressable,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { TactileButton } from "../../ui/TactileButton";
 import { colors, componentColors, rounded, spacing, typography } from "../../../theme/theme";
 
 export interface MemoryConceptPair {
@@ -36,16 +35,171 @@ interface MemoryCardItem {
   explanation?: string;
 }
 
+/**
+ * MemoryCardCell - Standalone Memoized 3D Card with True Midpoint Flip
+ */
+interface MemoryCardCellProps {
+  card: MemoryCardItem;
+  isFlipped: boolean;
+  isMatched: boolean;
+  isMismatch: boolean;
+  disabled: boolean;
+  onPress: () => void;
+}
+
+const MemoryCardCell = memo(function MemoryCardCell({
+  card,
+  isFlipped,
+  isMatched,
+  isMismatch,
+  disabled,
+  onPress,
+}: MemoryCardCellProps) {
+  const flipAnim = useRef(new Animated.Value(isFlipped || isMatched ? 1 : 0)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+  const matchPulseAnim = useRef(new Animated.Value(1)).current;
+
+  // Track flip state changes and run smooth 3D midpoint flip
+  useEffect(() => {
+    const toValue = isFlipped || isMatched ? 1 : 0;
+    Animated.spring(flipAnim, {
+      toValue,
+      tension: 65,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+  }, [isFlipped, isMatched, flipAnim]);
+
+  // Shake animation on mismatch
+  useEffect(() => {
+    if (isMismatch) {
+      Animated.sequence([
+        Animated.timing(shakeAnim, { toValue: 6, duration: 40, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: -6, duration: 40, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 4, duration: 40, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 0, duration: 40, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [isMismatch, shakeAnim]);
+
+  // Celebratory pulse when matched
+  useEffect(() => {
+    if (isMatched) {
+      Animated.sequence([
+        Animated.timing(matchPulseAnim, { toValue: 1.08, duration: 150, useNativeDriver: true }),
+        Animated.spring(matchPulseAnim, { toValue: 1, friction: 4, tension: 80, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [isMatched, matchPulseAnim]);
+
+  // Back Face Transformations (Visible from 0 -> 0.5)
+  const backOpacity = flipAnim.interpolate({
+    inputRange: [0, 0.48, 0.5, 1],
+    outputRange: [1, 1, 0, 0],
+  });
+  const backScaleX = flipAnim.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 0.05, 0.05],
+  });
+
+  // Front Face Transformations (Visible from 0.5 -> 1.0)
+  const frontOpacity = flipAnim.interpolate({
+    inputRange: [0, 0.5, 0.52, 1],
+    outputRange: [0, 0, 1, 1],
+  });
+  const frontScaleX = flipAnim.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0.05, 0.05, 1],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.cardCell,
+        {
+          transform: [
+            { translateX: shakeAnim },
+            { scale: matchPulseAnim },
+          ],
+        },
+      ]}
+    >
+      <Pressable
+        onPress={onPress}
+        disabled={disabled || isFlipped || isMatched}
+        style={styles.cardPressable}
+        accessibilityRole="button"
+        accessibilityLabel={isFlipped || isMatched ? card.label : "Hidden soil memory card"}
+      >
+        {/* 1. FACE DOWN (Card Back) */}
+        <Animated.View
+          pointerEvents={isFlipped || isMatched ? "none" : "auto"}
+          style={[
+            styles.cardSurface,
+            styles.cardFaceDown,
+            {
+              opacity: backOpacity,
+              transform: [{ scaleX: backScaleX }],
+            },
+          ]}
+        >
+          <View style={styles.faceDownBadge}>
+            <MaterialIcons name="help-outline" size={20} color="#D97706" />
+          </View>
+          <Text style={styles.faceDownText}>FLIP</Text>
+        </Animated.View>
+
+        {/* 2. FACE UP (Card Front) */}
+        <Animated.View
+          pointerEvents={isFlipped || isMatched ? "auto" : "none"}
+          style={[
+            styles.cardSurface,
+            styles.cardFaceUp,
+            isMatched && styles.cardMatched,
+            isMismatch && styles.cardMismatchBorder,
+            {
+              opacity: frontOpacity,
+              transform: [{ scaleX: frontScaleX }],
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.iconCircle,
+              { backgroundColor: `${card.color}15`, borderColor: card.color },
+            ]}
+          >
+            <MaterialIcons
+              name={(card.icon as any) || "eco"}
+              size={22}
+              color={card.color}
+            />
+          </View>
+
+          <Text style={styles.cardLabel} numberOfLines={2}>
+            {card.label}
+          </Text>
+
+          {isMatched && (
+            <View style={styles.matchedCheckBadge}>
+              <MaterialIcons name="check" size={11} color="#FFFFFF" />
+            </View>
+          )}
+        </Animated.View>
+      </Pressable>
+    </Animated.View>
+  );
+});
+
+/**
+ * MemoryActivity - Main Grid Component
+ */
 export const MemoryActivity: React.FC<MemoryActivityProps> = ({
-  title = "Remember the Connection",
-  instructions = "Match the two cards that belong together in the soil system.",
   pairs,
   onComplete,
 }) => {
-  const [gameState, setGameState] = useState<"preview" | "playing">("preview");
-
-  // Generate shuffled deck (Card A and Card B for each concept pair)
-  const [deck] = useState<MemoryCardItem[]>(() => {
+  // Generate shuffled deck
+  const deck = useMemo<MemoryCardItem[]>(() => {
     const cards: MemoryCardItem[] = [];
     pairs.forEach((pair) => {
       cards.push({
@@ -65,22 +219,15 @@ export const MemoryActivity: React.FC<MemoryActivityProps> = ({
         explanation: pair.connectionExplanation,
       });
     });
-    return cards.sort(() => Math.random() - 0.5);
-  });
+    return cards.sort(() => 0.5 - Math.random());
+  }, [pairs]);
 
   const [flippedIds, setFlippedIds] = useState<string[]>([]);
   const [matchedPairIds, setMatchedPairIds] = useState<Set<string>>(new Set());
+  const [mismatchIds, setMismatchIds] = useState<string[]>([]);
   const [movesCount, setMovesCount] = useState<number>(0);
   const [isChecking, setIsChecking] = useState<boolean>(false);
-  const [lastMatchExplanation, setLastMatchExplanation] = useState<string | null>(null);
-
-  // Animated flip values for each card instance
-  const flipAnims = useRef<Record<string, Animated.Value>>({}).current;
-  if (Object.keys(flipAnims).length === 0) {
-    deck.forEach((card) => {
-      flipAnims[card.instanceId] = new Animated.Value(0);
-    });
-  }
+  const [lastExplanation, setLastExplanation] = useState<string | null>(null);
 
   const handleCardPress = (card: MemoryCardItem) => {
     if (isChecking) return;
@@ -88,37 +235,34 @@ export const MemoryActivity: React.FC<MemoryActivityProps> = ({
     if (flippedIds.includes(card.instanceId)) return;
     if (flippedIds.length >= 2) return;
 
-    try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    } catch {}
+    if (Platform.OS !== "web") {
+      try {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      } catch {}
+    }
 
-    // Animate Flip to Face-Up
-    Animated.spring(flipAnims[card.instanceId], {
-      toValue: 1,
-      friction: 8,
-      tension: 60,
-      useNativeDriver: true,
-    }).start();
+    const nextFlipped = [...flippedIds, card.instanceId];
+    setFlippedIds(nextFlipped);
+    setMismatchIds([]);
 
-    const newFlipped = [...flippedIds, card.instanceId];
-    setFlippedIds(newFlipped);
-
-    if (newFlipped.length === 2) {
+    if (nextFlipped.length === 2) {
       setMovesCount((prev) => prev + 1);
       setIsChecking(true);
 
-      const [firstId, secondId] = newFlipped;
+      const [firstId, secondId] = nextFlipped;
       const firstCard = deck.find((c) => c.instanceId === firstId);
       const secondCard = deck.find((c) => c.instanceId === secondId);
 
       if (firstCard && secondCard && firstCard.pairId === secondCard.pairId) {
         // MATCH FOUND!
-        try {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        } catch {}
+        if (Platform.OS !== "web") {
+          try {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          } catch {}
+        }
 
         if (firstCard.explanation) {
-          setLastMatchExplanation(firstCard.explanation);
+          setLastExplanation(firstCard.explanation);
         }
 
         const nextMatched = new Set(matchedPairIds);
@@ -127,37 +271,26 @@ export const MemoryActivity: React.FC<MemoryActivityProps> = ({
         setFlippedIds([]);
         setIsChecking(false);
 
-        // Check if game complete
         if (nextMatched.size === pairs.length) {
           setTimeout(() => {
             onComplete();
-          }, 800);
+          }, 700);
         }
       } else {
-        // MISMATCH -> Flip back after brief pause
-        try {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-        } catch {}
+        // MISMATCH -> Trigger shake & flip back after 550ms
+        if (Platform.OS !== "web") {
+          try {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          } catch {}
+        }
+
+        setMismatchIds([firstId, secondId]);
 
         setTimeout(() => {
-          Animated.parallel([
-            Animated.timing(flipAnims[firstId], {
-              toValue: 0,
-              duration: 250,
-              easing: Easing.out(Easing.cubic),
-              useNativeDriver: true,
-            }),
-            Animated.timing(flipAnims[secondId], {
-              toValue: 0,
-              duration: 250,
-              easing: Easing.out(Easing.cubic),
-              useNativeDriver: true,
-            }),
-          ]).start(() => {
-            setFlippedIds([]);
-            setIsChecking(false);
-          });
-        }, 850);
+          setFlippedIds([]);
+          setMismatchIds([]);
+          setIsChecking(false);
+        }, 550);
       }
     }
   };
@@ -165,189 +298,62 @@ export const MemoryActivity: React.FC<MemoryActivityProps> = ({
   const matchedCount = matchedPairIds.size;
   const totalPairs = pairs.length;
 
-  if (gameState === "preview") {
-    return (
-      <View style={styles.container}>
-        <View style={styles.headerGroup}>
-          <Text style={styles.title}>Learn the Soil Connections</Text>
-          <Text style={styles.instructions}>
-            Observe how these soil elements connect. You will find their matches in the memory grid!
-          </Text>
-        </View>
-
-        <View style={styles.pairsPreviewList}>
-          {pairs.map((pair, index) => (
-            <View key={pair.id || index} style={styles.pairRowCard}>
-              {/* Item A */}
-              <View style={styles.pairItemBadge}>
-                <View style={[styles.miniIconCircle, { backgroundColor: `${pair.itemA.color || "#16A34A"}15` }]}>
-                  <MaterialIcons name={(pair.itemA.icon as any) || "eco"} size={18} color={pair.itemA.color || "#16A34A"} />
-                </View>
-                <Text style={styles.pairItemText}>{pair.itemA.label}</Text>
-              </View>
-
-              {/* Link Icon */}
-              <View style={styles.pairLinkBadge}>
-                <MaterialIcons name="swap-horiz" size={20} color="#D97706" />
-              </View>
-
-              {/* Item B */}
-              <View style={styles.pairItemBadge}>
-                <View style={[styles.miniIconCircle, { backgroundColor: `${pair.itemB.color || "#0284C7"}15` }]}>
-                  <MaterialIcons name={(pair.itemB.icon as any) || "water-drop"} size={18} color={pair.itemB.color || "#0284C7"} />
-                </View>
-                <Text style={styles.pairItemText}>{pair.itemB.label}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.startActionSection}>
-          <TactileButton
-            title="Start Memory Challenge"
-            icon="psychology"
-            iconPosition="right"
-            faceColor="#16A34A"
-            depthColor="#15803D"
-            textColor="#FFFFFF"
-            height={52}
-            depth={4}
-            borderRadius={rounded.full}
-            onPress={() => setGameState("playing")}
-          />
-        </View>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      {/* Activity Header & Progress */}
+      {/* Activity Stats & Progress Bar */}
       <View style={styles.headerGroup}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
         <View style={styles.statsRow}>
-          <View style={styles.statChip}>
-            <MaterialIcons name="done-all" size={16} color="#16A34A" />
-            <Text style={styles.statChipText}>
-              Matched: {matchedCount} / {totalPairs}
+          <View style={styles.statPill}>
+            <MaterialIcons name="link" size={15} color="#16A34A" />
+            <Text style={styles.statPillText}>
+              Matched: {matchedCount} of {totalPairs}
             </Text>
           </View>
 
-          <View style={styles.statChip}>
-            <MaterialIcons name="touch-app" size={16} color="#D97706" />
-            <Text style={styles.statChipText}>Moves: {movesCount}</Text>
+          <View style={styles.statPill}>
+            <MaterialIcons name="touch-app" size={15} color="#D97706" />
+            <Text style={styles.statPillText}>Moves: {movesCount}</Text>
           </View>
         </View>
 
+        {/* Progress Bar */}
         <View style={styles.progressBarBg}>
           <View
             style={[
               styles.progressBarFill,
-              { width: `${(matchedCount / totalPairs) * 100}%` },
+              { width: `${(matchedCount / Math.max(totalPairs, 1)) * 100}%` },
             ]}
           />
         </View>
       </View>
 
-      {/* Optional Last Match Feedback Banner */}
-      {lastMatchExplanation && (
-        <View style={styles.matchHintBanner}>
-          <MaterialIcons name="lightbulb" size={16} color="#B45309" />
-          <Text style={styles.matchHintText}>{lastMatchExplanation}</Text>
+      {/* Concept Insight Banner */}
+      {lastExplanation && (
+        <View style={styles.insightBanner}>
+          <MaterialIcons name="auto-awesome" size={16} color="#B45309" />
+          <Text style={styles.insightText} numberOfLines={2}>
+            {lastExplanation}
+          </Text>
         </View>
       )}
 
-      {/* Responsive Cards Grid */}
+      {/* Responsive Compact Grid */}
       <View style={styles.gridContainer}>
         {deck.map((card) => {
           const isMatched = matchedPairIds.has(card.pairId);
-          const isFlipped = flippedIds.includes(card.instanceId) || isMatched;
-          const anim = flipAnims[card.instanceId];
-
-          // Face-Down interpolation (0 -> 1: rotate from 0deg to 180deg, opacity from 1 to 0)
-          const backRotate = anim.interpolate({
-            inputRange: [0, 1],
-            outputRange: ["0deg", "180deg"],
-          });
-          const backOpacity = anim.interpolate({
-            inputRange: [0, 0.45, 0.5, 1],
-            outputRange: [1, 1, 0, 0],
-          });
-
-          // Face-Up interpolation (0 -> 1: rotate from -180deg to 0deg, opacity from 0 to 1)
-          const frontRotate = anim.interpolate({
-            inputRange: [0, 1],
-            outputRange: ["-180deg", "0deg"],
-          });
-          const frontOpacity = anim.interpolate({
-            inputRange: [0, 0.5, 0.55, 1],
-            outputRange: [0, 0, 1, 1],
-          });
+          const isFlipped = flippedIds.includes(card.instanceId);
+          const isMismatch = mismatchIds.includes(card.instanceId);
 
           return (
-            <TouchableOpacity
+            <MemoryCardCell
               key={card.instanceId}
-              activeOpacity={0.85}
-              disabled={isFlipped || isChecking}
+              card={card}
+              isFlipped={isFlipped}
+              isMatched={isMatched}
+              isMismatch={isMismatch}
+              disabled={isChecking}
               onPress={() => handleCardPress(card)}
-              style={styles.cardCell}
-            >
-              {/* FACE DOWN (Card Back) */}
-              <Animated.View
-                pointerEvents={isFlipped ? "none" : "auto"}
-                style={[
-                  styles.cardFace,
-                  styles.cardFaceDown,
-                  {
-                    opacity: backOpacity,
-                    transform: [{ perspective: 1000 }, { rotateY: backRotate }],
-                  },
-                ]}
-              >
-                <View style={styles.faceDownInner}>
-                  <View style={styles.faceDownBadge}>
-                    <MaterialIcons name="help-outline" size={24} color="#B45309" />
-                  </View>
-                  <Text style={styles.faceDownText}>TAP TO FLIP</Text>
-                </View>
-              </Animated.View>
-
-              {/* FACE UP (Card Front Content) */}
-              <Animated.View
-                pointerEvents={isFlipped ? "auto" : "none"}
-                style={[
-                  styles.cardFace,
-                  styles.cardFaceUp,
-                  isMatched && styles.cardMatched,
-                  {
-                    opacity: frontOpacity,
-                    transform: [{ perspective: 1000 }, { rotateY: frontRotate }],
-                  },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.iconCircle,
-                    { backgroundColor: `${card.color}15`, borderColor: card.color },
-                  ]}
-                >
-                  <MaterialIcons
-                    name={(card.icon as any) || "eco"}
-                    size={24}
-                    color={card.color}
-                  />
-                </View>
-                <Text style={styles.cardLabel} numberOfLines={2}>
-                  {card.label}
-                </Text>
-                {isMatched && (
-                  <View style={styles.matchedCheckBadge}>
-                    <MaterialIcons name="check" size={12} color="#FFFFFF" />
-                  </View>
-                )}
-              </Animated.View>
-            </TouchableOpacity>
+            />
           );
         })}
       </View>
@@ -358,78 +364,20 @@ export const MemoryActivity: React.FC<MemoryActivityProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    paddingVertical: spacing.stackSm,
   },
   headerGroup: {
-    marginBottom: spacing.stackMd,
-  },
-  title: {
-    ...typography.headlineMd,
-    fontSize: 19,
-    fontWeight: "800",
-    color: colors.onSurface,
-    marginBottom: 4,
-  },
-  instructions: {
-    ...typography.bodyMd,
-    fontSize: 13,
-    color: colors.onSurfaceVariant,
-    lineHeight: 18,
-    marginBottom: 10,
-  },
-  pairsPreviewList: {
-    gap: 8,
-    marginBottom: spacing.stackLg,
-  },
-  pairRowCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: colors.surfaceContainerLowest,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: rounded.lg,
-    borderWidth: 1.5,
-    borderColor: componentColors.cardBorder,
-    borderBottomWidth: 3,
-    borderBottomColor: componentColors.cardEdge,
-  },
-  pairItemBadge: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  miniIconCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pairItemText: {
-    ...typography.labelSm,
-    fontSize: 13,
-    fontWeight: "700",
-    color: colors.onSurface,
-  },
-  pairLinkBadge: {
-    paddingHorizontal: 6,
-  },
-  startActionSection: {
-    width: "100%",
-    marginTop: 4,
+    marginBottom: spacing.stackSm,
+    gap: 6,
   },
   statsRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 8,
   },
-  statChip: {
+  statPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 4,
     backgroundColor: "#F8FAFC",
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -437,7 +385,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E2E8F0",
   },
-  statChipText: {
+  statPillText: {
     ...typography.labelSm,
     fontSize: 11.5,
     fontWeight: "700",
@@ -445,9 +393,9 @@ const styles = StyleSheet.create({
   },
   progressBarBg: {
     width: "100%",
-    height: 6,
+    height: 5,
+    backgroundColor: "#E5E7EB",
     borderRadius: 3,
-    backgroundColor: colors.surfaceContainer,
     overflow: "hidden",
   },
   progressBarFill: {
@@ -455,19 +403,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#16A34A",
     borderRadius: 3,
   },
-  matchHintBanner: {
+  insightBanner: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
     backgroundColor: "#FFFBEB",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: rounded.md,
     borderWidth: 1,
     borderColor: "#FDE68A",
-    marginBottom: 10,
+    marginBottom: 8,
   },
-  matchHintText: {
+  insightText: {
     ...typography.labelSm,
     fontSize: 11.5,
     fontWeight: "600",
@@ -482,10 +430,15 @@ const styles = StyleSheet.create({
   },
   cardCell: {
     width: "48%",
-    height: 105,
+    height: 98,
     position: "relative",
   },
-  cardFace: {
+  cardPressable: {
+    width: "100%",
+    height: "100%",
+    position: "relative",
+  },
+  cardSurface: {
     position: "absolute",
     top: 0,
     left: 0,
@@ -494,24 +447,19 @@ const styles = StyleSheet.create({
     borderRadius: rounded.lg,
     alignItems: "center",
     justifyContent: "center",
-    backfaceVisibility: "hidden",
+    borderWidth: 1.5,
+    borderBottomWidth: 3.5,
   },
   cardFaceDown: {
     backgroundColor: "#FFFBEB",
-    borderWidth: 1.5,
     borderColor: "#FDE68A",
-    borderBottomWidth: 3.5,
     borderBottomColor: "#F59E0B",
-  },
-  faceDownInner: {
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
+    gap: 4,
   },
   faceDownBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: "#FEF3C7",
     alignItems: "center",
     justifyContent: "center",
@@ -527,9 +475,7 @@ const styles = StyleSheet.create({
   },
   cardFaceUp: {
     backgroundColor: "#FFFFFF",
-    borderWidth: 1.5,
     borderColor: "#BBF7D0",
-    borderBottomWidth: 3.5,
     borderBottomColor: "#4ADE80",
     padding: 6,
     gap: 4,
@@ -539,29 +485,35 @@ const styles = StyleSheet.create({
     borderColor: "#16A34A",
     borderBottomColor: "#15803D",
   },
+  cardMismatchBorder: {
+    borderColor: "#EF4444",
+    borderBottomColor: "#DC2626",
+    backgroundColor: "#FEF2F2",
+  },
   iconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
   },
   cardLabel: {
     ...typography.labelSm,
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: "800",
     color: "#1E293B",
     textAlign: "center",
-    lineHeight: 15,
+    lineHeight: 14,
+    maxWidth: "90%",
   },
   matchedCheckBadge: {
     position: "absolute",
-    top: 6,
-    right: 6,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    top: 4,
+    right: 4,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     backgroundColor: "#16A34A",
     alignItems: "center",
     justifyContent: "center",

@@ -1,13 +1,12 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { colors, componentColors, rounded, spacing, typography } from "../../../theme/theme";
 import { useTranslation } from "../../../hooks/useTranslation";
+import { componentColors, rounded, spacing, typography } from "../../../theme/theme";
+import type { LevelNodeDetail } from "../../../types/learn";
 import {
   VerticalJourneyTimeline,
   type JourneyTimelineNode,
 } from "../../common/VerticalJourneyTimeline";
-import type { LevelNodeDetail } from "../../../types/learn";
-import { AtmosphericGlow } from "../../ui/AtmosphericGlow";
 
 export interface LessonTimelineProps {
   levels: LevelNodeDetail[];
@@ -17,19 +16,24 @@ export interface LessonTimelineProps {
 export function LessonTimeline({ levels, onSelectLevel }: LessonTimelineProps) {
   const { t } = useTranslation();
 
-  const journeyNodes: JourneyTimelineNode[] = levels.map((level) => ({
-    id: level.id,
-    title: level.title || (level.titleKey ? t(level.titleKey) : `Level ${level.levelNumber}`),
-    subtitle: level.description || (level.durationMinutes ? `${level.durationMinutes} min` : undefined),
-    status:
-      level.status === "inProgress"
-        ? "active"
-        : level.status === "available"
-        ? "active"
-        : level.status,
-    xp: level.xp,
-    durationMinutes: level.durationMinutes,
-  }));
+  const journeyNodes: JourneyTimelineNode[] = useMemo(
+    () =>
+      levels.map((level) => ({
+        id: level.id,
+        levelNumber: level.levelNumber,
+        title: level.title || (level.titleKey ? t(level.titleKey) : `Level ${level.levelNumber}`),
+        subtitle: level.description || (level.durationMinutes ? `${level.durationMinutes} min` : undefined),
+        status:
+          level.status === "inProgress"
+            ? "active"
+            : level.status === "available"
+            ? "active"
+            : level.status,
+        xp: level.xp,
+        durationMinutes: level.durationMinutes,
+      })),
+    [levels, t]
+  );
 
   const handleSelectNode = (node: JourneyTimelineNode) => {
     const matchedLevel = levels.find((l) => l.id === node.id);
@@ -45,23 +49,12 @@ export function LessonTimeline({ levels, onSelectLevel }: LessonTimelineProps) {
         <Text style={styles.sectionTitle}>{t("lesson.detail.journeyTitle")}</Text>
       </View>
 
-      {/* Main Timeline Card with Particle Atmosphere Backdrop */}
+      {/* Main Timeline Card */}
       <View style={styles.card}>
-        {/* Background Particle Aura */}
-        <AtmosphericGlow
-          size={380}
-          opacity={0.6}
-          tintColor="#4CAF50"
-          showParticles
-          particleDensity="high"
-          animated
-          style={styles.backgroundParticles}
-        />
-
         <VerticalJourneyTimeline
           nodes={journeyNodes}
           onSelectNode={handleSelectNode}
-          activeButtonText="START LESSON"
+          activeButtonText="START"
           showTrophyEnd={true}
         />
       </View>
@@ -96,11 +89,5 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.stackSm,
     overflow: "hidden",
     position: "relative",
-  },
-  backgroundParticles: {
-    position: "absolute",
-    top: -40,
-    alignSelf: "center",
-    zIndex: 0,
   },
 });

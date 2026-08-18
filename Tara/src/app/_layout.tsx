@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Platform } from "react-native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
@@ -36,7 +37,8 @@ export default function RootLayout() {
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: "#f7faf5" },
-            animation: "fade",
+            animation: Platform.OS === "ios" ? "default" : "slide_from_right",
+            freezeOnBlur: true,
           }}
         />
         <UpdateAvailableModal />

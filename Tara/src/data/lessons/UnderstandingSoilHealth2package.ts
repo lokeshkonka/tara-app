@@ -539,7 +539,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
           instructions: { en: "Compare the situations and tap the option that shows healthier soil conditions.", hi: "विकल्पों की तुलना करें और बेहतर मिट्टी चुनें।", te: "మంచి నేల లక్షణాన్ని ఎంచుకోండి.", ml: "ശരിയായ സാഹചര്യം തിരഞ്ഞെടുക്കുക." },
           xp: 30,
           taraDialogue: { en: "Can you spot the signs of healthy soil? Choose the better option in each situation!", hi: "क्या आप स्वस्थ मिट्टी के संकेतों को पहचान सकते हैं?", te: "ఆరోగ్యకరమైన నేల సంకేతాలను గుర్తించగలరా?", ml: "നല്ല മണ്ണിന്റെ ലക്ഷണങ്ങൾ കണ്ടെത്താമോ?" },
-          taraSuccessDialogue: { en: "Great job! You have a keen eye for healthy soil conditions!", hi: "बहुत बढ़िया! आपने स्वस्थ मिट्टी को पहचान लिया!", te: "చాలా బాగా గుర్తించారు!", ml: "മികച്ച വിജయం!" },
+          taraSuccessDialogue: { en: "Great job! You have a keen eye for healthy soil conditions!", hi: "बहुत बढ़िया! आपने स्वस्थ मिट्टी को पहचान लिया!", te: "చాలా బాగా గుర్తించారు!", ml: "മികച്ച വിജയം!" },
           rounds: [
             {
               id: "round-1-structure",
@@ -559,7 +559,7 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
                   id: "opt-r1-b",
                   label: "B",
                   title: { en: "Soil with visible pore spaces", hi: "भुरभुरी मिट्टी", te: "గుల్ల నేల", ml: "പൊടിഞ്ഞ മണ്ണ്" },
-                  text: { en: "Soil with visible spaces and crumbly texture", hi: "भुरभुरी मिट्टी जिसमें हवा के छिद्र हों", te: "గుల్లగా రంధ్రాలు ఉన్న నేల", ml: "വാయు സഞ്ചారമുള്ള പൊടിഞ്ഞ മണ്ണ്" },
+                  text: { en: "Soil with visible spaces and crumbly texture", hi: "भुरभुरी मिट्टी जिसमें हवा के छिद्र हों", te: "గుల్లగా రంధ్రాలు ఉన్న నేల", ml: "വായു സഞ്ചാരമുള്ള പൊടിഞ്ഞ മണ്ണ്" },
                   isCorrect: true,
                   explanation: { en: "Crumbly soil with pore spaces lets roots grow freely!", hi: "भुरभुरी मिट्टी जड़ों को स्वतंत्र रूप से बढ़ने देती है!", te: "గుల్ల నేలలో వేర్లు బలంగా పెరుగుతాయి!", ml: "പൊടിഞ്ഞ മണ്ണിൽ വേരുകൾ നന്നായി പടരും!" },
                 },
@@ -862,238 +862,191 @@ export const UNDERSTANDING_SOIL_HEALTH_PACKAGE: LessonPackageDefinition = {
     },
 
     // ─────────────────────────────────────────────
-    // LEVEL 5: PROTECT YOUR SOIL (4 PHASES)
+    // LEVEL 5: TARA AI CAPSTONE ORAL ASSESSMENT & CERTIFICATION (3 PHASES)
     // ─────────────────────────────────────────────
     {
       id: "soil-level-5",
       levelNumber: 5,
       title: {
-        en: "Protect Your Soil",
-        hi: "मिट्टी की रक्षा करें",
-        te: "మీ నేలను రక్షించండి",
-        ml: "മണ്ണിനെ സംരക്ഷിക്കുക",
+        en: "Tara AI Capstone Interview",
+        hi: "तारा एआई मौखिक साक्षात्कार",
+        te: "తారా AI ముఖాముఖి ఇంటర్వ్యూ",
+        ml: "താര AI സർട്ടിഫിക്കേഷൻ ഇന്റർവ്യൂ",
       },
       subtitle: {
-        en: "Discover practical behaviors to protect and nourish the soil system",
-        hi: "मिट्टी की सुरक्षा और पोषण के लिए व्यावहारिक व्यवहारों की खोज करें",
-        te: "నేలను రక్షించడానికి ఆచరణాత్మక పద్ధతులను తెలుసుకోండి",
-        ml: "മണ്ണ് സംprotectത്തിനായുള്ള പ്രായോഗിക രീതികൾ പഠിക്കുക",
+        en: "Face Verification & Live Oral Assessment with Tara",
+        hi: "चेहरा सत्यापन और तारा के साथ लाइव मौखिक मूल्यांकन",
+        te: "ముఖ ధృవీకరణ మరియు తారాతో ప్రత్యక్ష ముఖాముఖి",
+        ml: "ഫെയ്സ് വെരിഫിക്കേഷനും ലൈവ് അഭിമുഖവും",
       },
-      durationMinutes: 5,
-      xpReward: 80,
+      durationMinutes: 6,
+      xpReward: 150,
       phases: [
-        // Phase 1: Concept Cards
+        // Phase 1: Camera Face Verification & Audio Check
         {
-          type: "conceptCards",
-          id: "soil-protect-cards",
-          title: { en: "Protect Your Soil", hi: "मिट्टी की रक्षा करें", te: "మీ నేలను రక్షించండి", ml: "മണ്ണിനെ സംരക്ഷിക്കുക" },
+          type: "faceVerification",
+          id: "soil-level-5-face-verify",
+          title: {
+            en: "Oral Interview Verification",
+            hi: "मौखिक साक्षात्कार सत्यापन",
+            te: "ముఖాముఖి ధృవీకరణ",
+            ml: "അഭിമുഖ വെരിഫിക്കേഷൻ",
+          },
+          subtitle: {
+            en: "Verify face presence and microphone readiness",
+            hi: "चेहरे की उपस्थिति और माइक्रोफ़ोन की तत्परता सत्यापित करें",
+            te: "ముఖ ఉనికి మరియు మైక్రోఫోన్ సంసిద్ధతను ధృవీకరించండి",
+            ml: "ക്യാമറയും മൈക്രോഫോണും പരിശോധിക്കുക",
+          },
+          instructions: {
+            en: "Align your face in the camera frame to initialize your AI viva-voce session.",
+            hi: "एआई मौखिक सत्र शुरू करने के लिए कैमरे में अपना चेहरा संरेखित करें।",
+            te: "AI ముఖాముఖి ప్రారంభించడానికి మీ ముఖాన్ని సరిగ్గా చూపించండి.",
+            ml: "AI അഭിമുഖം ആരംഭിക്കാൻ ക്യാമറയിലേക്ക് നോക്കുക.",
+          },
           taraDialogue: {
-            en: "Now you know that soil is alive and that its different parts work together. Simple farming practices can help protect the surface, support soil life, and maintain organic matter!",
-            hi: "अब आप जानते हैं कि मिट्टी जीवित है। सरल खेती के तरीके सतह की रक्षा करने और जैविक पदार्थों को बनाए रखने में मदद कर सकते हैं!",
-            te: "నేల సజీవమైనదని ఇప్పుడు మీకు తెలుసు. సరైన పద్ధతులు నేలను కాపాడతాయి!",
-            ml: "മണ്ണ് ജീവനുള്ളതാണെന്ന് ഇപ്പോൾ നിങ്ങൾക്കറിയാം. ലളിതമായ കാര്യങ്ങളിലൂടെ മണ്ണിനെ കാത്തുസൂക്ഷിക്കാം!",
+            en: "Welcome to your Capstone Assessment! Please align your face so I can verify your presence and microphone before we begin.",
+            hi: "अपने अंतिम मूल्यांकन में आपका स्वागत है! साक्षात्कार शुरू करने से पहले कृपया अपना चेहरा संरेखित करें।",
+            te: "తుది ముఖాముఖికి స్వాగతం! సంభాషణ ప్రారంభించే ముందు మీ ముఖాన్ని చూపించండి.",
+            ml: "ഫൈനൽ അസസ്സ്മെന്റിലേക്ക് സ്വാഗതം! സംഭാഷണം ആരംഭിക്കുന്നതിന് മുൻപ് ക്യാമറയിലേക്ക് നോക്കുക.",
           },
-          taraExpression: "excited",
-          explanation: {
-            tag: { en: "SOIL CARE BEHAVIORS", hi: "मृदा देखभाल व्यवहार", te: "నేల సంరక్షణ పద్ధతులు", ml: "മണ്ണ് സംരക്ഷണ രീതികൾ" },
-            title: { en: "Key Soil Protection Practices", hi: "मुख्य मृदा संरक्षण प्रथाएं", te: "ముఖ్యమైన నేల రక్షణ పద్ధతులు", ml: "പ്രധാന മണ്ണ് സംരക്ഷണ രീതികൾ" },
-            description: { en: "The way we manage soil protects or harms the ecosystem.", hi: "जिस तरह से हम मिट्टी का प्रबंधन करते हैं वह पारिस्थितिकी तंत्र की रक्षा करता है।", te: "మనం చేసే పనులు నేల ఆరోగ్యాన్ని కాపాడతాయి.", ml: "നമ്മുടെ രീതികളാണ് മണ്ണിന്റെ ജീവൻ നിലനിർത്തുന്നത്." },
-            bulletPoints: [
-              {
-                title: { en: "Keep Soil Covered", hi: "मिट्टी को ढँक कर रखें", te: "నేలను కప్పి ఉంచండి", ml: "മണ്ണ് മൂടി സൂക്ഷിക്കുക" },
-                text: { en: "Acts like a protective blanket from rain and wind.", hi: "बारिश और हवा से सुरक्षात्मक कंबल की तरह काम करता है।", te: "వర్షం, గాలి నుండి నేలను కాపాడుతుంది.", ml: "മഴയിൽ നിന്നും കാറ്റിൽ നിന്നും സംരക്ഷണം നൽകുന്നു." },
-                icon: "shield",
-              },
-              {
-                title: { en: "Return Organic Matter", hi: "जैविक पदार्थ लौटाएं", te: "సేంద్రీయ వ్యర్థాలను కలపండి", ml: "ജൈവാവശിഷ്ടങ്ങൾ നൽകുക" },
-                text: { en: "Plant residues recycle nutrients and feed biological workers.", hi: "अवशेष पोषक तत्वों को पुनर्चक्रित करते हैं।", te: "వ్యర్థాలు నేలకు పోషకాలనిస్తాయి.", ml: "സസ്യ അവശിഷ്ടങ്ങൾ മണ്ണിന് വളമാകുന്നു." },
-                icon: "compost",
-              },
-              {
-                title: { en: "Protect Structure", hi: "संरचना की रक्षा करें", te: "నిర్మాణాన్ని కాపాడండి", ml: "ഘടന നിലനിർത്തുക" },
-                text: { en: "Minimizing heavy compaction preserves root channels.", hi: "दबाव कम करने से जड़ों के रास्ते सुरक्षित रहते हैं।", te: "గట్టిపడకుండా నేలను గుల్లగా ఉంచండి.", ml: "മണ്ണ് അധികം അമർന്ന് പോകാതെ സൂക്ഷിക്കുക." },
-                icon: "grid-view",
-              },
-              {
-                title: { en: "Support Soil Life", hi: "जीवों का समर्थन करें", te: "జీవులకు రక్షణ ఇవ్వండి", ml: "ജീവികളെ സംരക്ഷിക്കുക" },
-                text: { en: "Nourishing soil maintains biological diversity.", hi: "मिट्टी का पोषण विविधता बनाए रखता है।", te: "నేలను పోషించడం వల్ల జీవులు వృద్ధి చెందుతాయి.", ml: "മണ്ണിലെ ജീവജാലങ്ങൾ പെരുകാൻ സഹായിക്കുക." },
-                icon: "biotech",
-              },
-            ],
+          taraExpression: "happy",
+          taraSuccessDialogue: {
+            en: "Face and audio verified! Let's begin your oral concept interview with Tara.",
+            hi: "चेहरा और ऑडियो सत्यापित! आइए तारा के साथ मौखिक साक्षात्कार शुरू करें।",
+            te: "ధృవీకరణ పూర్తయింది! తారాతో సంభాషణ ప్రారంభించండి.",
+            ml: "വെരിഫിക്കേഷൻ പൂർത്തിയായി! നമുക്ക് അഭിമുഖം ആരംഭിക്കാം.",
           },
-          cards: [
-            {
-              id: "card-keep-covered",
-              title: { en: "Keep Soil Covered", hi: "मिट्टी को ढँक कर रखें", te: "నేలను కప్పి ఉంచండి", ml: "മണ്ണ് മൂടി സൂക്ഷിക്കുക" },
-              icon: "shield",
-              color: "#2E7D32",
-              taraDialogue: { en: "Think of soil cover like a protective blanket for the ground!", hi: "मिट्टी के आवरण को जमीन के लिए सुरक्षात्मक कंबल समझें!", te: "నేలను కప్పడం అంటే రక్షణ దుప్పటి లాంటిది!", ml: "മണ്ണ് മൂടുന്നത് ഒരു സംരക്ഷണ കവചം പോലെയാണ്!" },
-            },
-            {
-              id: "card-return-organic",
-              title: { en: "Return Organic Matter", hi: "जैविक पदार्थ लौटाएं", te: "సేంద్రీయ వ్యర్థాలు", ml: "ജൈവാവശിഷ്ടങ്ങൾ" },
-              icon: "compost",
-              color: "#795548",
-              taraDialogue: { en: "When plant residues return to the soil, they feed the whole living community.", hi: "पौधों के अवशेष लौटने पर पूरे समुदाय को भोजन मिलता है।", te: "వ్యర్థాలు నేలలోని జీవులకు ఆహారంగా మారతాయి.", ml: "സസ്യ അവശിഷ്ടങ്ങൾ മണ്ണിലെ ജീവികൾക്ക് ആഹാരമാകുന്നു." },
-            },
-            {
-              id: "card-protect-structure",
-              title: { en: "Protect Soil Structure", hi: "संरचना की रक्षा करें", te: "నిర్మాణ రక్షణ", ml: "ഘടന സംരക്ഷണം" },
-              icon: "grid-view",
-              color: "#0284C7",
-              taraDialogue: { en: "Protecting pore spaces helps roots, air, and water move freely.", hi: "छिद्रों की रक्षा जड़ों को आसानी से फैलने देती है।", te: "రంధ్రాలను కాపాడటం వల్ల గాలి, నీరు సులభంగా వెళ్తాయి.", ml: "വായുസഞ്ചാരം നിലനിർത്താൻ സുഷിരങ്ങൾ സംരക്ഷിക്കുക." },
-            },
-            {
-              id: "card-support-life",
-              title: { en: "Support Soil Life", hi: "जीवों का समर्थन करें", te: "జీవుల సంరక్షణ", ml: "ജീവി സംരക്ഷണം" },
-              icon: "biotech",
-              color: "#FFA000",
-              taraDialogue: { en: "When we care for the soil environment, tiny workers thrive inside it.", hi: "मिट्टी की देखभाल करने से सूक्ष्म श्रमिक पनपते हैं।", te: "నేల బాగుంటే సూక్ష్మజీవులు ఆరోగ్యంగా ఉంటాయి.", ml: "നല്ല പരിചരണം ജീവികളെ സഹായിക്കുന്നു." },
-            },
-          ],
+          totalXp: 20,
         },
 
-        // Phase 2: Decision Choice Game ("Good Choice / Bad Choice")
+        // Phase 2: Tara AI Oral Assessment Interview (Multilingual Gemini 2.0 Flash)
         {
-          type: "decisionChoice",
-          id: "soil-protect-decisions",
-          title: { en: "Good Choice / Bad Choice", hi: "अच्छा विकल्प / बुरा विकल्प", te: "మంచి నిర్ణయం / చెడు నిర్ణయం", ml: "നല്ല തീരുമാനം / തെറ്റായ തീരുമാനം" },
-          instructions: { en: "A farmer has a choice. Can you choose the action that better protects the soil?", hi: "एक किसान के पास विकल्प है। बेहतर विकल्प चुनें!", te: "నేలకు మేలు చేసే సరైన నిర్ణయాన్ని ఎంచుకోండి!", ml: "മണ്ണിന് ഗുണകരമായ ശരിയായ തീരുമാനം എടുക്കുക!" },
-          xp: 30,
-          taraDialogue: { en: "A farmer has a choice. Can you choose the action that better protects the soil?", hi: "एक किसान के पास विकल्प है। बेहतर विकल्प चुनें!", te: "నేలకు మేలు చేసే సరైన నిర్ణయాన్ని ఎంచుకోండి!", ml: "മണ്ണിന് ഗുണകരമായ ശരിയായ തീരുമാനം എടുക്കുക!" },
-          taraSuccessDialogue: { en: "Excellent! Good soil care means thinking about what our actions do to the whole soil system.", hi: "बहुत बढ़िया! अच्छी मिट्टी की देखभाल का मतलब है पूरे सिस्टम के बारे में सोचना।", te: "చాలా బాగుంది! సరైన నిర్ణయాలు నేలను కాపాడతాయి.", ml: "വളരെ മികച്ച തീരുമാനം!" },
-          rounds: [
-            {
-              id: "round-1-cover",
-              roundNumber: 1,
-              topic: { en: "Soil Cover", hi: "मृदा आवरण", te: "నేల కవచం", ml: "മണ്ണ് കവചം" },
-              situation: { en: "The soil is completely exposed before heavy rain.", hi: "भारी बारिश से पहले मिट्टी पूरी तरह से खुली है।", te: "భారీ వర్షానికి ముందు నేల పూర్తిగా ఖాళీగా ఉంది.", ml: "കനത്ത മഴയ്ക്ക് മുൻപ് മണ്ണ് മൂടാതെ കിടക്കുന്നു." },
-              choices: [
-                {
-                  id: "opt-r1-a",
-                  label: "Choice A",
-                  text: { en: "Leave it exposed", hi: "इसे खुला छोड़ दें", te: "అలాగే వదిలేయండి", ml: "അങ്ങനെ തന്നെ ഇടുക" },
-                  isGoodChoice: false,
-                },
-                {
-                  id: "opt-r1-b",
-                  label: "Choice B",
-                  text: { en: "Use suitable soil cover", hi: "उपयुक्त आवरण का प्रयोग करें", te: "మంచి నేల కవచాన్ని వాడండి", ml: "മണ്ണ് മൂടി സൂക്ഷിക്കുക" },
-                  isGoodChoice: true,
-                  taraReaction: { en: "Good choice! Soil cover protects the surface from rain.", hi: "अच्छा विकल्प! आवरण बारिश से सतह की रक्षा करता है।", te: "మంచి నిర్ణయం! కవచం నేలను రక్షిస్తుంది.", ml: "നല്ല തീരുമാനം! കവചം മണ്ണിനെ സംരക്ഷിക്കുന്നു." },
-                },
-              ],
-            },
-            {
-              id: "round-2-residue",
-              roundNumber: 2,
-              topic: { en: "Organic Matter", hi: "जैविक पदार्थ", te: "సేంద్రీయ పదార్థం", ml: "జైవవస్తుക്കൾ" },
-              situation: { en: "There are suitable plant residues left after harvest.", hi: "फसल कटाई के बाद उपयुक्त अवशेष बचे हैं।", te: "పంట కోత తర్వాత వ్యర్థాలు మిగిలి ఉన్నాయి.", ml: "വിളവെടുപ്പിന് ശേഷം അവശിഷ്ടങ്ങൾ ബാക്കിയുണ്ട്." },
-              choices: [
-                {
-                  id: "opt-r2-a",
-                  label: "Choice A",
-                  text: { en: "Return them appropriately as organic material", hi: "उन्हें जैविक सामग्री के रूप में उपयोग करें", te: "సేంద్రీయ ఎరువుగా ఉపయోగించండి", ml: "ജൈവ വളമായി മണ്ണിലേക്ക് ചേർക്കുക" },
-                  isGoodChoice: true,
-                  taraReaction: { en: "Spot on! Returning plant residues feeds soil life.", hi: "बिल्कुल सही! अवशेष मिट्टी के जीवन को पोषण देते हैं।", te: "సరిగ్గా చెప్పారు! వ్యర్థాలు నేలకు మేలు చేస్తాయి.", ml: "ശരിയാണ്! ഇത് മണ്ണിന് വളരെ നല്ലതാണ്." },
-                },
-                {
-                  id: "opt-r2-b",
-                  label: "Choice B",
-                  text: { en: "Remove and discard all organic material", hi: "सभी जैविक सामग्री हटा दें", te: "వ్యర్థాలన్నీ తీసి పారేయండి", ml: "അവശിഷ്ടങ്ങൾ പൂർണ്ണമായി ഒഴിവാക്കുക" },
-                  isGoodChoice: false,
-                },
-              ],
-            },
-            {
-              id: "round-3-compaction",
-              roundNumber: 3,
-              topic: { en: "Soil Structure", hi: "संरचना", te: "నిర్మాణం", ml: "ഘടന" },
-              situation: { en: "Heavy machinery frequently travels over the wet field.", hi: "गीले खेत पर भारी मशीनरी बार-बार चलती है।", te: "తడి నేలపై భారీ యంత్రాలు తిరుగుతున్నాయి.", ml: "നനഞ്ഞ മണ്ണിലൂടെ വലിയ യന്ത്രങ്ങൾ ഓടിക്കുന്നു." },
-              choices: [
-                {
-                  id: "opt-r3-a",
-                  label: "Choice A",
-                  text: { en: "Avoid unnecessary traffic and compaction", hi: "अनावश्यक दबाव और आवाजाही से बचें", te: "అనవసరమైన గట్టిపడటాన్ని నివారించండి", ml: "അനാവശ്യ സമ്മർദ്ദം ഒഴിവാക്കുക" },
-                  isGoodChoice: true,
-                  taraReaction: { en: "Wise decision! Protecting soil from compaction preserves root spaces.", hi: "समझदारी भरा फैसला! दबाव से बचने से जड़ें सुरक्षित रहती हैं।", te: "మంచి నిర్ణయం! వేర్లకు చోటు ఉంటుంది.", ml: "നല്ല തീരുമാനം! വേരുകൾക്ക് ശ്വസിക്കാൻ എളുപ്പമാകും." },
-                },
-                {
-                  id: "opt-r3-b",
-                  label: "Choice B",
-                  text: { en: "Drive repeatedly over the wet field", hi: "गीले खेत पर बार-बार चलाएं", te: "తడి నేలపై మళ్లీ మళ్లీ తిప్పండి", ml: "വീണ്ടും വീണ്ടും യന്ത്രങ്ങൾ ഓടിക്കുക" },
-                  isGoodChoice: false,
-                },
-              ],
-            },
-            {
-              id: "round-4-life",
-              roundNumber: 4,
-              topic: { en: "Supporting Life", hi: "जीवों का समर्थन", te: "జీవుల రక్షణ", ml: "ജീവ സംരക്ഷണം" },
-              situation: { en: "The farmer wants to nourish underground beneficial organisms.", hi: "किसान भूमिगत लाभकारी जीवों का पोषण करना चाहता है।", te: "రైతు భూమిలోని జీవులను కాపాడాలనుకుంటున్నాడు.", ml: "കർഷകൻ മണ്ണിലെ സൂക്ഷ്മജീവികളെ പരിപാലിക്കാൻ ആഗ്രഹിക്കുന്നു." },
-              choices: [
-                {
-                  id: "opt-r4-a",
-                  label: "Choice A",
-                  text: { en: "Maintain organic mulch and a welcoming environment", hi: "जैविक मल्च और अनुकूल वातावरण बनाए रखें", te: "సేంద్రీయ కవచం మరియు మంచి వాతావరణం కల్పించండి", ml: "ജൈവ പുതപ്പും നല്ല സാഹചര്യവും ഒരുക്കുക" },
-                  isGoodChoice: true,
-                  taraReaction: { en: "Exactly! Providing food and shelter nurtures beneficial soil biology.", hi: "बिल्कुल सही! भोजन और आश्रय देने से जीव पनपते हैं।", te: "సరిగ్గా చెప్పారు! ఆహారం ఇస్తే జీవులు వృద్ధి చెందుతాయి.", ml: "തികച്ചും ശരി! ഇത് ജീവികൾക്ക് അനുയോജ്യമാണ്." },
-                },
-                {
-                  id: "opt-r4-b",
-                  label: "Choice B",
-                  text: { en: "Strip all residues and leave dry bare ground", hi: "सभी अवशेष हटा दें और सूखी खुली जमीन छोड़ें", te: "అన్నీ తీసేసి ఎండిపోయిన నేలను వదలండి", ml: "എല്ലാം മാറ്റി വരണ്ട നിലമാക്കുക" },
-                  isGoodChoice: false,
-                },
-              ],
-            },
-          ],
-        },
-
-        // Phase 3: MCQ Quiz
-        {
-          type: "mcq",
-          id: "soil-protect-mcq",
-          totalXp: 50,
+          type: "aiInterview",
+          id: "soil-level-5-ai-interview",
+          title: {
+            en: "Oral Concept Check with Tara",
+            hi: "तारा के साथ मौखिक अवधारणा जांच",
+            te: "తారాతో ముఖాముఖి సంభాషణ",
+            ml: "താരയുമായുള്ള ആശയ വിനിമയം",
+          },
+          subtitle: {
+            en: "Explain key living soil practices in your own words",
+            hi: "जीवित मिट्टी के नियमों को अपने शब्दों में समझाएं",
+            te: "సజీవ నేల పద్ధతులను మీ స్వంత మాటలలో వివరించండి",
+            ml: "മണ്ണ് സംരക്ഷണ ആശയങ്ങൾ നിങ്ങളുടെ സ്വന്തം വാക്കുകളിൽ പറയുക",
+          },
+          instructions: {
+            en: "Speak or type your answer. Tara AI will evaluate your practical agricultural reasoning.",
+            hi: "बोलें या टाइप करें। तारा एआई आपकी समझ का विश्लेषण करेगी।",
+            te: "మాట్లాడండి లేదా టైప్ చేయండి. తారా మీ సమాధానాన్ని పరిశీలిస్తుంది.",
+            ml: "സംസാരിക്കുക അല്ലെങ്കിൽ ടൈപ്പ് ചെയ്യുക. താര നിങ്ങളുടെ ആശയം വിലയിരുത്തും.",
+          },
+          totalXp: 80,
+          taraDialogue: {
+            en: "Before awarding your Soil Guardian badge, let's talk! In your own words, how do living organisms, organic residues, and good soil structure protect your land?",
+            hi: "मृदा संरक्षक बैज प्राप्त करने से पहले, आइए बातचीत करें! अपने शब्दों में बताएं कि मिट्टी के जीव, जैविक अवशेष और अच्छी संरचना आपकी भूमि की रक्षा कैसे करते हैं?",
+            te: "మృదా సంరక్షకుడు బ్యాడ్జ్ పొందే ముందు, నేలలోని జీవులు, సేంద్రీయ వ్యర్థాలు మరియు నేల నిర్మాణం మీ పొలాన్ని ఎలా కాపాడతాయో చెప్పండి!",
+            ml: "മണ്ണ് സംരക്ഷകൻ ബാഡ്ജ് നേടുന്നതിന് മുൻപ്, മണ്ണിലെ ജീവികളും ജൈവവസ്തുക്കളും മണ്ണിന്റെ ഘടനയും എങ്ങനെയാണ് ഭൂമിയെ സംരക്ഷിക്കുന്നതെന്ന് സ്വന്തം വാക്കുകളിൽ പറയൂ!",
+          },
+          taraExpression: "thinking",
+          taraSuccessDialogue: {
+            en: "Brilliant! You have a profound practical understanding of living soil management!",
+            hi: "शानदार! आपके पास जीवित मिट्टी के प्रबंधन की गहरी व्यावहारिक समझ है!",
+            te: "అద్భుతం! సజీవ నేల నిర్వహణపై మీకు స్పష్టమైన అవగాహన ఉంది!",
+            ml: "വളരെ പ്രശംസനീയം! മണ്ണിന്റെ ആരോഗ്യത്തെക്കുറിച്ച് നിങ്ങൾക്ക് മികച്ച പ്രായോഗിക ധാരണയുണ്ട്!",
+          },
           questions: [
             {
-              id: "q1-surface-protection",
-              question: { en: "Which action can help protect the soil surface?", hi: "कौन सा कार्य मिट्टी की सतह की रक्षा कर सकता है?", te: "ఏ పని నేల ఉపరితలాన్ని కాపాడుతుంది?", ml: "മണ്ണിന്റെ ഉപരിതലം സംരക്ഷിക്കാൻ സഹായിക്കുന്നത് ഏത്?" },
-              xp: 25,
-              options: [
+              id: "q-soil-guardian-capstone",
+              question: {
+                en: "How do living soil organisms, plant residues, and soil structure work together to nourish your crops?",
+                hi: "जीवित मिट्टी के जीव, फसल अवशेष और मिट्टी की संरचना मिलकर आपकी फसलों का पोषण कैसे करते हैं?",
+                te: "నేలలోని జీవులు, సేంద్రీయ వ్యర్థాలు మరియు నేల నిర్మాణం కలిసి పంటలకు ఎలా మేలు చేస్తాయి?",
+                ml: "മണ്ണിലെ ജീവികളും സസ്യ അവശിഷ്ടങ്ങളും മണ്ണിന്റെ ഘടനയും ചേർന്ന് എങ്ങനെയാണ് വിളകളെ పోഷിപ്പിക്കുന്നത്?",
+              },
+              taraDialogue: {
+                en: "Think about what happens underground: earthworms, decomposing residues, and pore spaces holding air and water.",
+                hi: "भूमिगत क्या होता है सोचें: केंचुए, जैविक पदार्थों का टूटना, और छिद्रों में हवा-पानी का संचयन।",
+                te: "భూమి లోపల జరిగే ప్రక్రియను గుర్తు చేసుకోండి: వానపాములు, సేంద్రీయ వ్యర్థాలు, గాలి-నీటి రంధ్రాలు.",
+                ml: "ഭൂമിക്കടിയിലെ കാര്യങ്ങൾ ഓർക്കുക: ഞാഞ്ഞൂലുകൾ, ജൈവവസ്തുക്കൾ, വായుവും വെള്ളവും സംഭരിക്കുന്ന സുഷിరങ്ങൾ.",
+              },
+              taraExpression: "thinking",
+              expectedConcepts: [
                 {
-                  id: "opt-q1-a",
-                  text: { en: "Keeping suitable soil cover", hi: "उपयुक्त आवरण रखना", te: "నేలను కప్పి ఉంచడం", ml: "മണ്ണ് മൂടി സൂക്ഷിക്കുക" },
-                  isCorrect: true,
-                  explanation: { en: "Cover protects the soil surface from harsh wind and rain impact.", hi: "आवरण हवा और बारिश के प्रभाव से सतह की रक्षा करता है।", te: "కవచం నేలను కాపాడుతుంది.", ml: "കവചം മണ്ണിനെ സംരക്ഷിക്കുന്നു." },
+                  id: "concept-soil-life",
+                  label: {
+                    en: "Soil Organisms & Life",
+                    hi: "मिट्टी के जीव और सूक्ष्मजीव",
+                    te: "నేలలోని సూక్ష్మజీవులు మరియు వానపాములు",
+                    ml: "മണ്ണിലെ ജീവികളും സൂക്ഷ്മജീവികളും",
+                  },
+                  keywords: [
+                    { en: "organism", hi: "जीव", te: "జీవులు", ml: "ജീവികൾ" },
+                    { en: "earthworm", hi: "केंचुआ", te: "వానపాము", ml: "ഞാഞ്ഞൂൽ" },
+                    { en: "microbes", hi: "सूक्ष्मजीव", te: "సూक्ष्मజీవులు", ml: "സൂക്ഷ്മജീവികൾ" },
+                    { en: "life", hi: "जीवन", te: "జీవం", ml: "ജീവൻ" },
+                  ],
+                },
+                {
+                  id: "concept-organic-matter",
+                  label: {
+                    en: "Organic Matter & Plant Residue",
+                    hi: "जैविक पदार्थ और फसल अवशेष",
+                    te: "సేంద్రీయ వ్యర్థాలు మరియు ఎరువు",
+                    ml: "ജൈവാവശിഷ്ടങ്ങളും വളവും",
+                  },
+                  keywords: [
+                    { en: "organic", hi: "जैविक", te: "సేంద్రీయ", ml: "ജൈవ" },
+                    { en: "residue", hi: "अवशेष", te: "వ్యర్థాలు", ml: "അവശിഷ്ടങ്ങൾ" },
+                    { en: "compost", hi: "खाद", te: "ఎరువు", ml: "കമ്പോസ്റ്റ്" },
+                    { en: "mulch", hi: "मल्च", te: "కవచం", ml: "പുതപ്പ്" },
+                  ],
+                },
+                {
+                  id: "concept-soil-structure",
+                  label: {
+                    en: "Pore Spaces & Soil Aeration",
+                    hi: "छिद्र और हवा-पानी संतुलन",
+                    te: "రంధ్రాలు మరియు గాలి-నీటి ప్రసరణ",
+                    ml: "സുഷിരങ്ങളും വాయുസഞ്ചാരവും",
+                  },
+                  keywords: [
+                    { en: "structure", hi: "संरचना", te: "నిర్మాణం", ml: "ഘടന" },
+                    { en: "pores", hi: "छिद्र", te: "రంధ్రాలు", ml: "సుഷിరങ്ങൾ" },
+                    { en: "air", hi: "हवा", te: "గాలి", ml: "വാయు" },
+                    { en: "water", hi: "पानी", te: "నీరు", ml: "വെള്ളം" },
+                    { en: "channels", hi: "रास्ते", te: "మార్గాలు", ml: "പാതകൾ" },
+                  ],
                 },
               ],
-            },
-            {
-              id: "q2-residue-benefit",
-              question: { en: "Why can returning organic residues to soil be useful?", hi: "मिट्टी में जैविक अवशेष लौटाना क्यों उपयोगी है?", te: "సేంద్రీయ వ్యర్థాలను నేలకు చేర్చడం ఎందుకు మంచిది?", ml: "ജൈവാവശിഷ്ടങ്ങൾ മണ്ണിലേക്ക് നൽകുന്നത് എന്ത് കൊണ്ട് പ്രയോജനകരമാണ്?" },
-              xp: 25,
-              options: [
-                {
-                  id: "opt-q2-a",
-                  text: { en: "It contributes organic matter and feeds biological workers", hi: "यह जैविक पदार्थ बढ़ाता है और जीवों को भोजन देता है", te: "ఇది సేంద్రీయ పదార్థాన్ని పెంచి జీవులకు ఆహారాన్నిస్తుంది", ml: "ഇത് ജൈവാംശം വർദ്ധിപ്പിക്കുകയും ജീവികൾക്ക് ഭക്ഷണം നൽകുകയും ചെയ്യുന്നു" },
-                  isCorrect: true,
-                  explanation: { en: "Organic residues act as fuel for ongoing biological nutrient cycling.", hi: "जैविक अवशेष पोषक चक्र को शक्ति देते हैं।", te: "సేంద్రీయ వ్యర్థాలు పోషకాల చక్రాన్ని నడుపుతాయి.", ml: "ഇത് മണ്ണിന്റെ ഫലഭൂയിഷ്ഠത വർദ്ധിപ്പിക്കുന്നു." },
-                },
-              ],
+              hint: {
+                en: "Mention how earthworms or microbes feed on organic residues and create pores for roots to breathe.",
+                hi: "बताएं कि केंचुए या सूक्ष्मजीव कैसे अवशेषों को खाते हैं और जड़ों के लिए छिद्र बनाते हैं।",
+                te: "వానపాములు వ్యర్థాలను ఆహారంగా తీసుకుని వేర్లకు గాలి అందేలా రంధ్రాలు ఎలా చేస్తాయో చెప్పండి.",
+                ml: "ഞാഞ്ഞൂലുകൾ ജൈവവസ്തുക്കൾ ഭക്ഷിച്ച് വേരുകൾക്ക് വായുസഞ്ചാരം ഒരുക്കുന്ന വിധം വ്യക്തമാക്കുക.",
+              },
+              followUpDialogue: {
+                en: "You're doing great! Don't forget to mention how pore spaces help water and air circulate.",
+                hi: "आप बहुत अच्छा कर रहे हैं! यह बताना न भूलें कि छिद्र हवा और पानी के संचार में कैसे मदद करते हैं।",
+                te: "చాలా బాగా చెప్పారు! రంధ్రాలు గాలి, నీటి ప్రసరణకు ఎలా సహాయపడతాయో కూడా చెప్పండి.",
+                ml: "മികച്ച മുന്നേറ്റം! സുഷിരങ്ങൾ വായുവിനും വെള്ളത്തിനും എങ്ങനെ സഹായിക്കുന്നു എന്നും പറയുക.",
+              },
+              passingScore: 50,
+              xp: 80,
             },
           ],
         },
 
-        // Phase 4: Module Mastery Reward
+        // Phase 3: Module Mastery Reward
         {
           type: "reward",
           id: "soil-level-5-reward",
-          xp: 80,
+          xp: 150,
           badgeTitle: { en: "Soil Guardian", hi: "मृदा संरक्षक", te: "నేల సంరక్షకుడు", ml: "മണ്ണ് സംരക്ഷകൻ" },
           badgeIcon: "eco",
           badgeDescription: { en: "Mastered all 5 levels of Soil Health & Living Soil Ecosystems", hi: "मृदा स्वास्थ्य के सभी 5 स्तरों में महारत हासिल की", te: "మొత్తం 5 స్థాయిలను పూర్తి చేసారు", ml: "5 ഘട്ടങ്ങളും വിജയകരമായി പൂർത്തിയാക്കി" },
-          taraDialogue: { en: "Congratulations! You completed all 5 levels of the Soil Health lesson and earned the prestigious Soil Guardian badge!", hi: "बधाई हो! आपने मृदा स्वास्थ्य के सभी 5 स्तर पूरे कर लिए और मृदा संरक्षक बैज अर्जित किया!", te: "అభినందనలు! మీరు మొత్తం 5 స్థాయిలను పూర్తి చేసి నేల సంరక్షకుడు బ్యాడ్జ్ పొందారు!", ml: "അഭിനന്ദനങ്ങൾ! നിങ്ങൾ മണ്ണ് സംരക്ഷകൻ ബാഡ്ജ് സ്വന്തമാക്കി!" },
+          taraDialogue: { en: "Congratulations! You completed the full Soil Health journey and oral capstone assessment! You've earned the prestigious Soil Guardian badge!", hi: "बधाई हो! आपने मृदा स्वास्थ्य यात्रा और मौखिक मूल्यांकन पूरा कर लिया और मृदा संरक्षक बैज अर्जित किया!", te: "అభినందనలు! మీరు మొత్తం శిక్షణ మరియు ముఖాముఖి పూర్తి చేసి నేల సంరక్షకుడు బ్యాడ్జ్ పొందారు!", ml: "അഭിനന്ദനങ്ങൾ! നിങ്ങൾ എല്ലാ ഘട്ടങ്ങളും പൂർത്തിയാക്കി മണ്ണ് സംരക്ഷകൻ ബാഡ്ജ് സ്വന്തമാക്കി!" },
           taraExpression: "excited",
         },
       ],

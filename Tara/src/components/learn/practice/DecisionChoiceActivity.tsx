@@ -2,9 +2,10 @@ import React, { useRef, useState } from "react";
 import {
   Animated,
   Easing,
+  Platform,
+  Pressable,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -22,6 +23,12 @@ export interface DecisionChoiceActivityProps {
   onComplete: () => void;
 }
 
+/**
+ * DecisionChoiceActivity
+ * - Clear instructive feedback on both Good and Bad choices
+ * - Snappy non-blocking animations
+ * - Multi-lingual responsive choice cards
+ */
 export const DecisionChoiceActivity: React.FC<DecisionChoiceActivityProps> = ({
   title = "Good Choice / Bad Choice",
   instructions = "A farmer has a choice. Select the action that better protects the soil system.",
@@ -31,7 +38,7 @@ export const DecisionChoiceActivity: React.FC<DecisionChoiceActivityProps> = ({
   const [currentRoundIndex, setCurrentRoundIndex] = useState<number>(0);
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
   const [isAnswerChecked, setIsAnswerChecked] = useState<boolean>(false);
-  const [currentFeedback, setCurrentFeedback] = useState<string | null>(null);
+  const [currentFeedback, setCurrentFeedback] = useState<{ text: string; isGood: boolean } | null>(null);
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -42,21 +49,31 @@ export const DecisionChoiceActivity: React.FC<DecisionChoiceActivityProps> = ({
   const handleSelectChoice = (choice: DecisionChoiceOption) => {
     if (isAnswerChecked) return;
 
-    try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    } catch {}
+    if (Platform.OS !== "web") {
+      try {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      } catch {}
+    }
 
     setSelectedChoiceId(choice.id);
     setIsAnswerChecked(true);
 
-    if (choice.isGoodChoice) {
-      // Good Choice!
-      try {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      } catch {}
+    const feedbackMessage =
+      choice.taraReaction ||
+      (choice.isGoodChoice
+        ? "Excellent decision! This protects living soil structure and microbes."
+        : "This action damages soil porosity and beneficial organisms. Try the other option!");
 
-      if (choice.taraReaction) {
-        setCurrentFeedback(choice.taraReaction);
+    setCurrentFeedback({
+      text: feedbackMessage,
+      isGood: choice.isGoodChoice,
+    });
+
+    if (choice.isGoodChoice) {
+      if (Platform.OS !== "web") {
+        try {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        } catch {}
       }
 
       setTimeout(() => {
@@ -64,12 +81,12 @@ export const DecisionChoiceActivity: React.FC<DecisionChoiceActivityProps> = ({
           Animated.sequence([
             Animated.timing(fadeAnim, {
               toValue: 0,
-              duration: 200,
+              duration: 180,
               useNativeDriver: true,
             }),
             Animated.timing(fadeAnim, {
               toValue: 1,
-              duration: 250,
+              duration: 220,
               easing: Easing.out(Easing.cubic),
               useNativeDriver: true,
             }),
@@ -82,25 +99,26 @@ export const DecisionChoiceActivity: React.FC<DecisionChoiceActivityProps> = ({
         } else {
           onComplete();
         }
-      }, 1000);
+      }, 950);
     } else {
-      // Bad Choice
-      try {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-      } catch {}
+      if (Platform.OS !== "web") {
+        try {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        } catch {}
+      }
 
       Animated.sequence([
-        Animated.timing(shakeAnim, { toValue: -8, duration: 60, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: 8, duration: 60, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: -6, duration: 60, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: 6, duration: 60, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: -8, duration: 40, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 8, duration: 40, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: -5, duration: 40, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 5, duration: 40, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 0, duration: 40, useNativeDriver: true }),
       ]).start();
 
       setTimeout(() => {
         setSelectedChoiceId(null);
         setIsAnswerChecked(false);
-      }, 1100);
+      }, 700);
     }
   };
 
@@ -110,40 +128,61 @@ export const DecisionChoiceActivity: React.FC<DecisionChoiceActivityProps> = ({
     <View style={styles.container}>
       {/* Activity Header */}
       <View style={styles.headerGroup}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
         <View style={styles.progressRow}>
-          <Text style={styles.progressText}>
-            Decision {currentRoundIndex + 1} of {totalRounds}
-          </Text>
-          <View style={styles.progressBarBg}>
-            <View
-              style={[
-                styles.progressBarFill,
-                { width: `${((currentRoundIndex + 1) / totalRounds) * 100}%` },
-              ]}
-            />
+          <View style={styles.decisionPill}>
+            <MaterialIcons name="psychology" size={15} color="#16A34A" />
+            <Text style={styles.decisionPillText}>
+              Decision {currentRoundIndex + 1} of {totalRounds}
+            </Text>
           </View>
+          <Text style={styles.instructionsText}>{instructions}</Text>
+        </View>
+
+        <View style={styles.progressBarBg}>
+          <View
+            style={[
+              styles.progressBarFill,
+              { width: `${((currentRoundIndex + 1) / Math.max(totalRounds, 1)) * 100}%` },
+            ]}
+          />
         </View>
       </View>
 
       <Animated.View style={[styles.roundContainer, { opacity: fadeAnim }]}>
         {/* Situation Card */}
         <View style={styles.situationCard}>
-          <View style={styles.situationBadgeRow}>
-            <View style={styles.situationChip}>
-              <MaterialIcons name="psychology" size={14} color="#B45309" />
-              <Text style={styles.situationChipText}>FARMER'S SITUATION</Text>
-            </View>
+          <View style={styles.situationChip}>
+            <MaterialIcons name="terrain" size={13} color="#B45309" />
+            <Text style={styles.situationChipText}>FARM SCENARIO</Text>
           </View>
           <Text style={styles.situationHeading}>{currentRound.situation}</Text>
         </View>
 
-        {/* Reaction Feedback if present */}
+        {/* Instructive Feedback Banner (For both Good & Bad choices) */}
         {currentFeedback && (
-          <View style={styles.feedbackBanner}>
-            <MaterialIcons name="check-circle" size={18} color="#16A34A" />
-            <Text style={styles.feedbackBannerText}>{currentFeedback}</Text>
+          <View
+            style={[
+              styles.feedbackBanner,
+              currentFeedback.isGood
+                ? styles.feedbackBannerGood
+                : styles.feedbackBannerBad,
+            ]}
+          >
+            <MaterialIcons
+              name={currentFeedback.isGood ? "check-circle" : "info"}
+              size={18}
+              color={currentFeedback.isGood ? "#16A34A" : colors.error}
+            />
+            <Text
+              style={[
+                styles.feedbackBannerText,
+                currentFeedback.isGood
+                  ? styles.feedbackTextGood
+                  : styles.feedbackTextBad,
+              ]}
+            >
+              {currentFeedback.text}
+            </Text>
           </View>
         )}
 
@@ -161,8 +200,7 @@ export const DecisionChoiceActivity: React.FC<DecisionChoiceActivityProps> = ({
                   transform: isBad ? [{ translateX: shakeAnim }] : [],
                 }}
               >
-                <TouchableOpacity
-                  activeOpacity={0.85}
+                <Pressable
                   disabled={isAnswerChecked}
                   onPress={() => handleSelectChoice(choice)}
                   style={[
@@ -171,6 +209,8 @@ export const DecisionChoiceActivity: React.FC<DecisionChoiceActivityProps> = ({
                     isGood && styles.choiceCardGood,
                     isBad && styles.choiceCardBad,
                   ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Option ${choice.label}: ${choice.text}`}
                 >
                   <View
                     style={[
@@ -193,6 +233,7 @@ export const DecisionChoiceActivity: React.FC<DecisionChoiceActivityProps> = ({
                     style={[
                       styles.choiceText,
                       isGood && styles.choiceTextGood,
+                      isBad && styles.choiceTextBad,
                     ]}
                   >
                     {choice.text}
@@ -203,7 +244,7 @@ export const DecisionChoiceActivity: React.FC<DecisionChoiceActivityProps> = ({
                       <MaterialIcons name="check-circle" size={22} color="#16A34A" />
                     </View>
                   )}
-                </TouchableOpacity>
+                </Pressable>
               </Animated.View>
             );
           })}
@@ -216,41 +257,46 @@ export const DecisionChoiceActivity: React.FC<DecisionChoiceActivityProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    paddingVertical: spacing.stackSm,
   },
   headerGroup: {
-    marginBottom: spacing.stackMd,
-  },
-  title: {
-    ...typography.headlineMd,
-    fontSize: 19,
-    fontWeight: "800",
-    color: colors.onSurface,
-    marginBottom: 4,
-  },
-  instructions: {
-    ...typography.bodyMd,
-    fontSize: 13,
-    color: colors.onSurfaceVariant,
-    lineHeight: 18,
-    marginBottom: 10,
+    marginBottom: spacing.stackSm,
+    gap: 6,
   },
   progressRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 8,
   },
-  progressText: {
+  decisionPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#F0FDF4",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: rounded.full,
+    borderWidth: 1,
+    borderColor: "#DCFCE7",
+  },
+  decisionPillText: {
     ...typography.labelSm,
     fontSize: 11.5,
-    fontWeight: "800",
-    color: colors.primary,
+    fontWeight: "700",
+    color: "#15803D",
+  },
+  instructionsText: {
+    ...typography.bodyMd,
+    fontSize: 12,
+    color: colors.onSurfaceVariant,
+    flex: 1,
+    textAlign: "right",
   },
   progressBarBg: {
-    width: 120,
-    height: 6,
+    width: "100%",
+    height: 5,
+    backgroundColor: "#E5E7EB",
     borderRadius: 3,
-    backgroundColor: colors.surfaceContainer,
     overflow: "hidden",
   },
   progressBarFill: {
@@ -259,86 +305,93 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   roundContainer: {
-    width: "100%",
-    gap: spacing.stackSm,
+    gap: 12,
   },
   situationCard: {
-    backgroundColor: "#FFFBEB",
-    padding: 14,
-    borderRadius: rounded.lg,
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: rounded.xl,
+    padding: spacing.stackMd,
     borderWidth: 1.5,
-    borderColor: "#FDE68A",
+    borderColor: componentColors.cardBorder,
     borderBottomWidth: 3.5,
-    borderBottomColor: "#F59E0B",
-    marginBottom: 4,
-  },
-  situationBadgeRow: {
-    flexDirection: "row",
-    marginBottom: 6,
+    borderBottomColor: componentColors.cardEdge,
+    gap: 6,
   },
   situationChip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 4,
     backgroundColor: "#FEF3C7",
     paddingHorizontal: 8,
-    paddingVertical: 2.5,
+    paddingVertical: 3,
     borderRadius: rounded.full,
-    borderWidth: 1,
-    borderColor: "#FCD34D",
+    alignSelf: "flex-start",
   },
   situationChipText: {
     ...typography.labelSm,
-    fontSize: 9.5,
+    fontSize: 10,
     fontWeight: "800",
-    color: "#B45309",
-    letterSpacing: 0.6,
+    color: "#92400E",
+    letterSpacing: 0.5,
   },
   situationHeading: {
     ...typography.headlineMd,
-    fontSize: 16,
+    fontSize: 15.5,
     fontWeight: "800",
-    color: "#78350F",
+    color: colors.onSurface,
     lineHeight: 22,
   },
   feedbackBanner: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 8,
-    backgroundColor: "#F0FDF4",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    padding: 10,
     borderRadius: rounded.md,
     borderWidth: 1,
-    borderColor: "#BBF7D0",
-    marginBottom: 4,
+  },
+  feedbackBannerGood: {
+    backgroundColor: "#F0FDF4",
+    borderColor: "#86EFAC",
+  },
+  feedbackBannerBad: {
+    backgroundColor: "#FEF2F2",
+    borderColor: "#FECDD3",
   },
   feedbackBannerText: {
-    ...typography.labelSm,
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#15803D",
+    ...typography.bodyMd,
+    fontSize: 12.5,
+    lineHeight: 18,
     flex: 1,
+  },
+  feedbackTextGood: {
+    color: "#15803D",
+    fontWeight: "600",
+  },
+  feedbackTextBad: {
+    color: "#BE123C",
+    fontWeight: "600",
   },
   choicesList: {
     gap: 10,
-    marginTop: 4,
   },
   choiceCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.surfaceContainerLowest,
-    padding: 14,
+    backgroundColor: "#FFFFFF",
     borderRadius: rounded.lg,
     borderWidth: 1.5,
     borderColor: componentColors.cardBorder,
     borderBottomWidth: 3.5,
     borderBottomColor: componentColors.cardEdge,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    minHeight: 64,
     gap: 12,
   },
   choiceCardSelected: {
-    borderColor: colors.primary,
-    borderBottomColor: colors.onPrimaryFixedVariant,
+    backgroundColor: "#F0FDF4",
+    borderColor: "#16A34A",
+    borderBottomColor: "#15803D",
   },
   choiceCardGood: {
     backgroundColor: "#F0FDF4",
@@ -347,14 +400,16 @@ const styles = StyleSheet.create({
   },
   choiceCardBad: {
     backgroundColor: "#FEF2F2",
-    borderColor: "#EF4444",
-    borderBottomColor: "#B91C1C",
+    borderColor: colors.error,
+    borderBottomColor: "#991B1B",
   },
   choicePillBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: rounded.full,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: "#F1F5F9",
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
     borderColor: "#CBD5E1",
   },
@@ -363,12 +418,12 @@ const styles = StyleSheet.create({
     borderColor: "#15803D",
   },
   choicePillBadgeBad: {
-    backgroundColor: "#EF4444",
-    borderColor: "#B91C1C",
+    backgroundColor: colors.error,
+    borderColor: "#991B1B",
   },
   choicePillText: {
     ...typography.labelSm,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: "800",
     color: "#475569",
   },
@@ -377,16 +432,21 @@ const styles = StyleSheet.create({
   },
   choiceText: {
     ...typography.bodyMd,
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 13.5,
+    fontWeight: "600",
     color: colors.onSurface,
-    flex: 1,
     lineHeight: 19,
+    flex: 1,
   },
   choiceTextGood: {
-    color: "#14532D",
+    color: "#166534",
+    fontWeight: "700",
+  },
+  choiceTextBad: {
+    color: "#991B1B",
+    fontWeight: "700",
   },
   statusBadge: {
-    marginLeft: 4,
+    marginLeft: "auto",
   },
 });

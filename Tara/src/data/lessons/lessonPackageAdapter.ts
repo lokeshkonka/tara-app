@@ -222,6 +222,67 @@ export function adaptLevelPhase(
         })),
       };
 
+    case "aiInterview":
+      return {
+        type: "aiInterview",
+        id: phase.id,
+        title: resolveLocalizedText(phase.title, lang),
+        subtitle: phase.subtitle ? resolveLocalizedText(phase.subtitle, lang) : undefined,
+        instructions: phase.instructions
+          ? resolveLocalizedText(phase.instructions, lang)
+          : undefined,
+        totalXp: phase.totalXp,
+        taraDialogue: phase.taraDialogue
+          ? resolveLocalizedText(phase.taraDialogue, lang)
+          : undefined,
+        audioSource: resolveLocalizedAudio(phase.taraAudio, lang),
+        taraAudio: resolveLocalizedAudio(phase.taraAudio, lang),
+        taraExpression: phase.taraExpression,
+        taraSuccessDialogue: phase.taraSuccessDialogue
+          ? resolveLocalizedText(phase.taraSuccessDialogue, lang)
+          : undefined,
+        questions: phase.questions.map((q) => ({
+          id: q.id,
+          question: resolveLocalizedText(q.question, lang),
+          taraDialogue: q.taraDialogue ? resolveLocalizedText(q.taraDialogue, lang) : undefined,
+          audioSource: resolveLocalizedAudio(q.taraAudio, lang),
+          taraAudio: resolveLocalizedAudio(q.taraAudio, lang),
+          taraExpression: q.taraExpression,
+          expectedConcepts: q.expectedConcepts.map((c) => ({
+            id: c.id,
+            label: resolveLocalizedText(c.label, lang),
+            keywords: c.keywords.map((kw) => resolveLocalizedText(kw, lang)),
+          })),
+          hint: q.hint ? resolveLocalizedText(q.hint, lang) : undefined,
+          followUpDialogue: q.followUpDialogue
+            ? resolveLocalizedText(q.followUpDialogue, lang)
+            : undefined,
+          sampleAnswer: q.sampleAnswer ? resolveLocalizedText(q.sampleAnswer, lang) : undefined,
+          passingScore: q.passingScore,
+          xp: q.xp,
+        })),
+      };
+
+    case "faceVerification":
+      return {
+        type: "faceVerification",
+        id: phase.id,
+        title: resolveLocalizedText(phase.title, lang),
+        subtitle: phase.subtitle ? resolveLocalizedText(phase.subtitle, lang) : undefined,
+        instructions: phase.instructions
+          ? resolveLocalizedText(phase.instructions, lang)
+          : undefined,
+        totalXp: phase.totalXp,
+        taraDialogue: phase.taraDialogue
+          ? resolveLocalizedText(phase.taraDialogue, lang)
+          : undefined,
+        taraAudio: resolveLocalizedAudio(phase.taraAudio, lang),
+        taraExpression: phase.taraExpression,
+        taraSuccessDialogue: phase.taraSuccessDialogue
+          ? resolveLocalizedText(phase.taraSuccessDialogue, lang)
+          : undefined,
+      };
+
     case "reward":
       return {
         type: "reward",

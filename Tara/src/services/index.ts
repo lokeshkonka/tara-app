@@ -3,6 +3,8 @@ import { DummyLearnRepository } from "./dummy/DummyLearnRepository";
 import { DummyOnboardingRepository } from "./dummy/DummyOnboardingRepository";
 import { DummyProgressRepository } from "./dummy/DummyProgressRepository";
 import { DummyUserRepository } from "./dummy/DummyUserRepository";
+import { MockAIInterviewService } from "./aiInterview/MockAIInterviewService";
+import type { IAIInterviewService } from "./aiInterview/IAIInterviewService";
 import type { IDashboardRepository } from "./repositories/IDashboardRepository";
 import type { ILearnRepository } from "./repositories/ILearnRepository";
 import type { IOnboardingRepository } from "./repositories/IOnboardingRepository";
@@ -36,3 +38,6 @@ export const learnRepository: ILearnRepository =
   DATA_SOURCE === "dummy"
     ? new DummyLearnRepository()
     : new DummyLearnRepository(); // ApiLearnRepository in future
+
+export const aiInterviewService: IAIInterviewService = new MockAIInterviewService();
+export type { IAIInterviewService };

@@ -18,8 +18,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import {
+  AIInterviewPhaseScreen,
   ConceptCardPhaseScreen,
   DecisionChoicePhaseScreen,
+  FaceVerificationPhaseScreen,
   InteractiveLearnScreen,
   LevelExitModal,
   MatchPhaseScreen,
@@ -35,10 +37,6 @@ import { useUser } from "../../../context/UserContext";
 import { useTranslation } from "../../../hooks/useTranslation";
 import { colors, componentColors, rounded, spacing, typography } from "../../../theme/theme";
 import type { LevelDefinition } from "../../../types/learn";
-
-if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 export default function LevelExperienceScreen() {
   const router = useRouter();
@@ -61,6 +59,19 @@ export default function LevelExperienceScreen() {
   // Step change pulse animation for step badge and action button
   const stepScaleAnim = useRef(new Animated.Value(1)).current;
   const prevStepRef = useRef<number>(activeStepNumber);
+
+  // Hardware-accelerated smooth slide & cross-fade phase transition
+  const phaseTransitionAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    phaseTransitionAnim.setValue(0);
+    Animated.timing(phaseTransitionAnim, {
+      toValue: 1,
+      duration: 220,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [currentPhaseIndex, phaseTransitionAnim]);
 
   useEffect(() => {
     if (prevStepRef.current !== activeStepNumber) {
@@ -227,6 +238,15 @@ export default function LevelExperienceScreen() {
     outputRange: [0.75, 1, 0.92],
   });
 
+  const phaseTranslateX = phaseTransitionAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [24, 0],
+  });
+  const phaseOpacity = phaseTransitionAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.15, 1],
+  });
+
   const handlePrevStep = () => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -313,8 +333,16 @@ export default function LevelExperienceScreen() {
         </Animated.View>
       )}
 
-      {/* Dynamic Phase Engine Renderer */}
-      <View style={styles.phaseContent}>
+      {/* Dynamic Phase Engine Renderer with Hardware-Accelerated Smooth Transition */}
+      <Animated.View
+        style={[
+          styles.phaseContent,
+          {
+            opacity: phaseOpacity,
+            transform: [{ translateX: phaseTranslateX }],
+          },
+        ]}
+      >
         {currentPhase?.type === "conceptCards" && (
           <ConceptCardPhaseScreen
             phase={currentPhase}
@@ -367,6 +395,20 @@ export default function LevelExperienceScreen() {
             onScroll={handleScroll}
           />
         )}
+        {currentPhase?.type === "faceVerification" && (
+          <FaceVerificationPhaseScreen
+            phase={currentPhase}
+            onCompletePhase={handleNextPhase}
+            onScroll={handleScroll}
+          />
+        )}
+        {currentPhase?.type === "aiInterview" && (
+          <AIInterviewPhaseScreen
+            phase={currentPhase}
+            onCompletePhase={handleNextPhase}
+            onScroll={handleScroll}
+          />
+        )}
         {currentPhase?.type === "reward" && (
           <RewardPhaseScreen
             phase={currentPhase}
@@ -376,7 +418,7 @@ export default function LevelExperienceScreen() {
             onScroll={handleScroll}
           />
         )}
-      </View>
+      </Animated.View>
 
       {/* Confirmation Exit Modal */}
       <LevelExitModal

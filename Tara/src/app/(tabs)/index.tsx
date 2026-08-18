@@ -3,7 +3,6 @@ import { Animated, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { DashboardTopBar } from "../../components/dashboard/DashboardTopBar";
-import { HomeActiveLevelStepCard } from "../../components/dashboard/HomeActiveLevelStepCard";
 import { HomeTodaysPracticeCard } from "../../components/dashboard/HomeTodaysPracticeCard";
 import { ProgressSection } from "../../components/progress/ProgressSection";
 import TaraHomeBanner from "../../components/dashboard/TaraHomeBanner";
@@ -87,13 +86,16 @@ export default function HomeTab() {
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-        <TaraHomeBanner />
-        <HomeActiveLevelStepCard />
+        <TaraHomeBanner onPress={() => router.push("/learn")} />
         {todaysPractice && !isLoading && (
-          <HomeTodaysPracticeCard practice={todaysPractice} />
+          <HomeTodaysPracticeCard
+            practice={todaysPractice}
+            onStartPractice={() => router.push("/practice")}
+            onViewCalendar={() => router.push("/practice")}
+          />
         )}
         {progress && <ProgressSection data={progress} />}
-        <CommunityBanner onExplore={() => router.push('/community')} />
+        <CommunityBanner onExplore={() => router.push("/community")} />
       </ScrollView>
     </SafeAreaView>
   );

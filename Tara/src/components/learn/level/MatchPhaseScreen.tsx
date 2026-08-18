@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,11 +10,11 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { colors, componentColors, rounded, spacing, typography } from "../../../theme/theme";
 import type { MatchPhase } from "../../../types/learn";
-import { MatchActivity } from "../practice/MatchActivity";
 import { TaraSideMessageCard } from "../../tara-messages/TaraSideMessageCard";
 import { TactileButton } from "../../ui/TactileButton";
-import { colors, componentColors, rounded, spacing, typography } from "../../../theme/theme";
+import { MatchActivity } from "../practice/MatchActivity";
 
 interface MatchPhaseScreenProps {
   phase: MatchPhase;
@@ -27,13 +28,14 @@ export const MatchPhaseScreen: React.FC<MatchPhaseScreenProps> = ({
   onScroll,
 }) => {
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const handleMatchComplete = () => {
     setIsCompleted(true);
-    try {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch {}
+    if (Platform.OS !== "web") {
+      try {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      } catch {}
+    }
   };
 
   return (
@@ -43,20 +45,21 @@ export const MatchPhaseScreen: React.FC<MatchPhaseScreenProps> = ({
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled={true}
-        scrollEnabled={!isDragging}
         keyboardShouldPersistTaps="handled"
         onScroll={onScroll}
         scrollEventThrottle={16}
       >
-        {/* Tara Intro / Encouragement Header */}
+        {/* Tara Mentor Dialogue Header */}
         <View style={styles.taraSection}>
           <TaraSideMessageCard
             title={phase.title || "Match-Up Game"}
             expression={isCompleted ? "excited" : phase.taraExpression || "happy"}
             message={
               isCompleted
-                ? phase.taraSuccessDialogue || "Great job! You found all the matching roles in the soil community!"
-                : phase.taraDialogue || "Connect each soil friend with their role in the community."
+                ? phase.taraSuccessDialogue ||
+                  "Great job! You found all the matching roles in the soil community!"
+                : phase.taraDialogue ||
+                  "Connect each soil friend with their role in the community."
             }
             autoPlay={true}
             showVoiceControl={true}
@@ -70,7 +73,6 @@ export const MatchPhaseScreen: React.FC<MatchPhaseScreenProps> = ({
             instructions={phase.instructions}
             pairs={phase.pairs}
             onComplete={handleMatchComplete}
-            onDragStateChange={setIsDragging}
           />
         </View>
 
@@ -78,18 +80,20 @@ export const MatchPhaseScreen: React.FC<MatchPhaseScreenProps> = ({
         {isCompleted && (
           <View style={styles.completionFooter}>
             <View style={styles.successPill}>
-              <MaterialIcons name="stars" size={20} color="#D97706" />
-              <Text style={styles.successPillText}>+30 XP EARNED • MATCH COMPLETED</Text>
+              <MaterialIcons name="stars" size={18} color="#D97706" />
+              <Text style={styles.successPillText}>
+                +{phase.xp ?? 30} XP EARNED • MATCH COMPLETED
+              </Text>
             </View>
 
             <TactileButton
               title="Continue to Questions"
               icon="arrow-forward"
               iconPosition="right"
-              faceColor="#16A34A"
-              depthColor="#15803D"
+              faceColor={colors.primaryContainer}
+              depthColor={colors.onPrimaryFixedVariant}
               textColor="#FFFFFF"
-              height={54}
+              height={52}
               depth={4}
               borderRadius={rounded.full}
               onPress={onCompletePhase}
@@ -112,10 +116,10 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.marginMobile,
     paddingTop: spacing.stackSm,
-    paddingBottom: spacing.xl,
+    paddingBottom: 120,
   },
   taraSection: {
-    marginBottom: spacing.stackMd,
+    marginBottom: spacing.stackSm,
   },
   activityCard: {
     backgroundColor: colors.surfaceContainerLowest,
@@ -130,7 +134,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 2,
-    marginBottom: spacing.stackLg,
+    marginBottom: spacing.stackMd,
   },
   completionFooter: {
     width: "100%",
@@ -144,11 +148,11 @@ const styles = StyleSheet.create({
     gap: 6,
     backgroundColor: "#FFFBEB",
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderRadius: rounded.full,
     borderWidth: 1.5,
     borderColor: "#FDE68A",
-    borderBottomWidth: 3,
+    borderBottomWidth: 2.5,
     borderBottomColor: "#F59E0B",
   },
   successPillText: {
@@ -156,6 +160,6 @@ const styles = StyleSheet.create({
     fontSize: 11.5,
     fontWeight: "800",
     color: "#B45309",
-    letterSpacing: 0.6,
+    letterSpacing: 0.5,
   },
 });

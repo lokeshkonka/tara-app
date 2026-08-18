@@ -36,8 +36,7 @@ export default function LessonDetailScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchDetail();
-      refresh();
-    }, [fetchDetail, refresh])
+    }, [fetchDetail])
   );
 
   const handleSelectLevel = (level: LevelNodeDetail) => {

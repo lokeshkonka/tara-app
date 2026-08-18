@@ -274,6 +274,53 @@ export interface DecisionChoicePhase {
   taraSuccessDialogue?: string;
 }
 
+export interface AIInterviewConcept {
+  id: string;
+  label: string;
+  keywords: string[];
+  matched?: boolean;
+}
+
+export interface AIInterviewQuestion {
+  id: string;
+  question: string;
+  taraDialogue?: string;
+  audioSource?: any;
+  taraAudio?: any;
+  taraExpression?: TaraExpression;
+  expectedConcepts: AIInterviewConcept[];
+  hint?: string;
+  followUpDialogue?: string;
+  sampleAnswer?: string;
+  passingScore?: number;
+  xp?: number;
+}
+
+export interface AIInterviewEvaluationResult {
+  questionId: string;
+  score: number; // 0..100
+  passed: boolean;
+  detectedConcepts: string[];
+  missingConcepts: string[];
+  feedbackText: string;
+  followUpNeeded: boolean;
+}
+
+export interface AIInterviewPhase {
+  type: "aiInterview";
+  id: string;
+  title: string;
+  subtitle?: string;
+  instructions?: string;
+  totalXp?: number;
+  taraDialogue?: string;
+  audioSource?: any;
+  taraAudio?: any;
+  taraExpression?: TaraExpression;
+  taraSuccessDialogue?: string;
+  questions: AIInterviewQuestion[];
+}
+
 export interface RewardPhase {
   type: "reward";
   id: string;
@@ -287,6 +334,19 @@ export interface RewardPhase {
   taraExpression?: TaraExpression;
 }
 
+export interface FaceVerificationPhase {
+  type: "faceVerification";
+  id: string;
+  title: string;
+  subtitle?: string;
+  instructions?: string;
+  totalXp?: number;
+  taraDialogue?: string;
+  taraAudio?: any;
+  taraExpression?: TaraExpression;
+  taraSuccessDialogue?: string;
+}
+
 export type LevelPhase =
   | LearnInteractiveTopicPhase
   | ConceptCardPhase
@@ -295,6 +355,8 @@ export type LevelPhase =
   | MemoryPhase
   | DecisionChoicePhase
   | MCQPhase
+  | FaceVerificationPhase
+  | AIInterviewPhase
   | RewardPhase;
 
 export interface LevelDefinition {

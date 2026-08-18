@@ -1,161 +1,212 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
   Alert,
   Pressable,
-  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
-import { TactileButton } from "../../components/ui/TactileButton";
 import { useAuth } from "../../auth/AuthProvider";
+import { useCommunity } from "../../context/CommunityContext";
+import { useFarmJourney } from "../../context/FarmJourneyContext";
+import { useSettings } from "../../context/SettingsContext";
 import { useUser } from "../../context/UserContext";
-import { LANGUAGES_DATA } from "../../data/dummy/languagesData";
 import { colors, rounded, spacing, typography } from "../../theme/theme";
 
 export default function ProfileTab() {
-  const { signOut, user: authUser } = useAuth();
-  const { user, updateUser } = useUser();
-  const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
+  const { signOut } = useAuth();
+  const { user } = useUser();
+  const { accountProfile } = useSettings();
+  const { farmHealth, achievements } = useFarmJourney();
+  const { userImpact, activePanchayat } = useCommunity();
 
-  const selectedLanguage = user?.language || "en";
-  
-  const selectedLang =
-    LANGUAGES_DATA.find((lang) => lang.code === selectedLanguage) ??
-    LANGUAGES_DATA[0];
+  const unlockedBadgesCount = achievements.filter((a) => a.isUnlocked).length;
+  const currentXp = user?.xp || 2450;
+  const targetXp = 3000;
+  const progressPct = Math.min(100, (currentXp / targetXp) * 100);
 
-  const handleSelect = async (lang: typeof LANGUAGES_DATA[number]) => {
-    if (lang.isComingSoon) {
-      Alert.alert(
-        "Coming Soon",
-        `${lang.name} (${lang.nativeName}) language support is under development and will be available soon!`,
-        [{ text: "OK" }]
-      );
-      return;
-    }
-    
-    // Update the language in the global user context
-    await updateUser({ language: lang.code });
-    setLanguagePickerVisible(false);
+  const handleLogout = () => {
+    Alert.alert("Log Out", "Are you sure you want to sign out of Tara?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Log Out", style: "destructive", onPress: () => signOut() },
+    ]);
   };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Profile</Text>
-          {authUser && (
-            <Text style={styles.subtitle}>Logged in as {authUser.email || authUser.name || "User"}</Text>
-          )}
+      {/* Top Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarInitial}>
+              {accountProfile.fullName.charAt(0)}
+            </Text>
+          </View>
+          <Text style={styles.screenTitle}>Farmer Profile</Text>
         </View>
+        <Pressable
+          style={styles.settingsIconBtn}
+          onPress={() => router.push("/settings")}
+          accessibilityRole="button"
+          accessibilityLabel="Settings"
+        >
+          <MaterialIcons name="settings" size={22} color={colors.primary} />
+        </Pressable>
+      </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>App Language</Text>
-          <Pressable
-            onPress={() => setLanguagePickerVisible(true)}
-            style={styles.pickerRow}
-            accessibilityRole="button"
-            accessibilityLabel="Change app language"
-          >
-            <View style={styles.pickerIcon}>
-              <MaterialIcons name="translate" size={20} color={colors.primary} />
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Profile Hero Card */}
+        <View style={styles.heroCard}>
+          <View style={styles.heroTopRow}>
+            <View>
+              <Text style={styles.farmerName}>{accountProfile.fullName}</Text>
+              <View style={styles.locationRow}>
+                <MaterialIcons name="location-on" size={14} color={colors.onSurfaceVariant} />
+                <Text style={styles.farmerLocation}>
+                  {accountProfile.villagePanchayat}
+                </Text>
+              </View>
             </View>
-            <View style={styles.pickerText}>
-              <Text style={styles.pickerTitle}>{selectedLang.nativeName}</Text>
-              <Text style={styles.pickerSubtitle}>
-                {selectedLang.name} ({selectedLang.script})
+
+            <View style={styles.levelBadge}>
+              <MaterialIcons name="verified" size={14} color={colors.primary} />
+              <Text style={styles.levelBadgeText}>Level 12 • Soil Guardian</Text>
+            </View>
+          </View>
+
+          {/* XP Progress Bar */}
+          <View style={styles.xpSection}>
+            <View style={styles.xpRow}>
+              <Text style={styles.xpLabel}>Season XP</Text>
+              <Text style={styles.xpValue}>
+                {currentXp} / {targetXp} XP
               </Text>
             </View>
-            <MaterialIcons name="chevron-right" size={22} color={colors.onSurfaceVariant} />
-          </Pressable>
-        </View>
-
-        <View style={styles.footer}>
-          <TactileButton
-            title="Logout"
-            icon="logout"
-            variant="danger"
-            onPress={signOut}
-          />
-        </View>
-      </ScrollView>
-
-      <Modal
-        visible={languagePickerVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setLanguagePickerVisible(false)}
-      >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => setLanguagePickerVisible(false)}
-        >
-          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-            <View style={styles.sheetHeader}>
-              <Text style={styles.sheetTitle}>Select App Language</Text>
-              <Pressable
-                onPress={() => setLanguagePickerVisible(false)}
-                hitSlop={12}
-              >
-                <MaterialIcons name="close" size={24} color={colors.onSurfaceVariant} />
-              </Pressable>
+            <View style={styles.xpTrack}>
+              <View style={[styles.xpFill, { width: `${progressPct}%` }]} />
             </View>
-            <ScrollView style={styles.sheetList}>
-              {LANGUAGES_DATA.map((lang) => {
-                const isSelected = selectedLanguage === lang.code;
-                return (
-                  <Pressable
-                    key={lang.id}
-                    onPress={() => handleSelect(lang)}
-                    style={[styles.toggleRow, isSelected && styles.toggleRowSelected]}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected: isSelected }}
-                  >
-                    <View
-                      style={[
-                        styles.toggleIcon,
-                        isSelected && styles.toggleIconSelected,
-                      ]}
-                    >
-                      <MaterialIcons
-                        name="translate"
-                        size={20}
-                        color={isSelected ? colors.primaryContainer : colors.onSurfaceVariant}
-                      />
-                    </View>
-                    <View style={styles.toggleText}>
-                      <Text style={[styles.toggleTitle, isSelected && styles.toggleTitleSelected]}>
-                        {lang.nativeName}
-                      </Text>
-                      <Text style={styles.toggleSubtitle}>
-                        {lang.name} ({lang.script})
-                      </Text>
-                    </View>
-                    {lang.isComingSoon ? (
-                      <View style={styles.comingSoonBadge}>
-                        <Text style={styles.comingSoonText}>Soon</Text>
-                      </View>
-                    ) : null}
-                    <View
-                      style={[
-                        styles.toggleIndicator,
-                        isSelected && styles.toggleIndicatorOn,
-                      ]}
-                    >
-                      {isSelected && (
-                        <MaterialIcons name="check" size={14} color={colors.white} />
-                      )}
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          </Pressable>
+          </View>
+
+          {/* Tara Companion Speech Card */}
+          <View style={styles.taraDialogueBubble}>
+            <View style={styles.taraIconMini}>
+              <MaterialIcons name="eco" size={16} color={colors.primary} />
+            </View>
+            <Text style={styles.taraDialogueText}>
+              "Your sustainable practices are building rich organic humus for your family and soil!"
+            </Text>
+          </View>
+        </View>
+
+        {/* 3 Quick Stats Row */}
+        <View style={styles.statsRow}>
+          <View style={styles.statBox}>
+            <View style={[styles.statIconCircle, { backgroundColor: "rgba(217, 119, 6, 0.12)" }]}>
+              <MaterialIcons name="local-fire-department" size={20} color="#D97706" />
+            </View>
+            <Text style={styles.statVal}>19 days</Text>
+            <Text style={styles.statSub}>Learning Streak</Text>
+          </View>
+
+          <View style={styles.statBox}>
+            <View style={[styles.statIconCircle, { backgroundColor: "rgba(0, 110, 28, 0.12)" }]}>
+              <MaterialIcons name="agriculture" size={20} color={colors.primary} />
+            </View>
+            <Text style={styles.statVal}>{farmHealth.activePracticesCount}</Text>
+            <Text style={styles.statSub}>Practices Live</Text>
+          </View>
+
+          <View style={styles.statBox}>
+            <View style={[styles.statIconCircle, { backgroundColor: "rgba(205, 167, 33, 0.15)" }]}>
+              <MaterialIcons name="emoji-events" size={20} color="#B45309" />
+            </View>
+            <Text style={styles.statVal}>
+              {unlockedBadgesCount}/{achievements.length}
+            </Text>
+            <Text style={styles.statSub}>Badges Earned</Text>
+          </View>
+        </View>
+
+        {/* Navigation Hub Cards */}
+        <Text style={styles.sectionHeading}>Farm & Community Portals</Text>
+
+        <Pressable
+          style={styles.navCard}
+          onPress={() => router.push("/profile/farm-journey")}
+        >
+          <View style={[styles.navIconWrap, { backgroundColor: "rgba(0, 110, 28, 0.1)" }]}>
+            <MaterialIcons name="terrain" size={24} color={colors.primary} />
+          </View>
+          <View style={styles.navTextWrap}>
+            <Text style={styles.navTitle}>My Farm Journey</Text>
+            <Text style={styles.navSub}>
+              Timeline of adopted practices • Farm health score {farmHealth.overallScore}/100
+            </Text>
+          </View>
+          <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
         </Pressable>
-      </Modal>
+
+        <Pressable
+          style={styles.navCard}
+          onPress={() => router.push("/profile/achievements")}
+        >
+          <View style={[styles.navIconWrap, { backgroundColor: "rgba(205, 167, 33, 0.15)" }]}>
+            <MaterialIcons name="military-tech" size={24} color="#B45309" />
+          </View>
+          <View style={styles.navTextWrap}>
+            <Text style={styles.navTitle}>Achievements & Certificates</Text>
+            <Text style={styles.navSub}>
+              {unlockedBadgesCount} unlocked • Soil Guardian Master Badge
+            </Text>
+          </View>
+          <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
+        </Pressable>
+
+        <Pressable
+          style={styles.navCard}
+          onPress={() => router.push("/community/impact")}
+        >
+          <View style={[styles.navIconWrap, { backgroundColor: "rgba(2, 132, 199, 0.12)" }]}>
+            <MaterialIcons name="public" size={24} color="#0284C7" />
+          </View>
+          <View style={styles.navTextWrap}>
+            <Text style={styles.navTitle}>Community Impact Report</Text>
+            <Text style={styles.navSub}>
+              Rank #{userImpact.communityRank} • {userImpact.farmersHelpedCount} farmers helped
+            </Text>
+          </View>
+          <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
+        </Pressable>
+
+        <Pressable
+          style={styles.navCard}
+          onPress={() => router.push("/settings")}
+        >
+          <View style={[styles.navIconWrap, { backgroundColor: "rgba(111, 122, 107, 0.15)" }]}>
+            <MaterialIcons name="tune" size={24} color={colors.onSurfaceVariant} />
+          </View>
+          <View style={styles.navTextWrap}>
+            <Text style={styles.navTitle}>App & Farm Settings</Text>
+            <Text style={styles.navSub}>
+              Account, Language, Notifications, Accessibility & Security
+            </Text>
+          </View>
+          <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
+        </Pressable>
+
+        {/* Log Out Option */}
+        <Pressable style={styles.logoutBtn} onPress={handleLogout}>
+          <MaterialIcons name="logout" size={18} color={colors.error} />
+          <Text style={styles.logoutText}>Sign Out of Tara</Text>
+        </Pressable>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -165,162 +216,234 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  container: {
-    paddingHorizontal: spacing.marginMobile,
-    paddingVertical: spacing.stackLg,
-  },
   header: {
-    marginBottom: spacing.stackLg,
-  },
-  title: {
-    ...typography.headlineMd,
-    color: colors.primary,
-  },
-  subtitle: {
-    ...typography.bodyMd,
-    color: colors.onSurfaceVariant,
-    marginTop: 4,
-  },
-  section: {
-    marginBottom: spacing.xl,
-  },
-  sectionTitle: {
-    ...typography.headlineMd,
-    color: colors.onSurface,
-    marginBottom: spacing.stackMd,
-  },
-  pickerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: rounded.lg,
-    backgroundColor: colors.surfaceContainerLowest,
-    borderWidth: 1.5,
-    borderColor: colors.outlineVariant,
-  },
-  pickerIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: rounded.md,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.surfaceContainerLow,
-    marginRight: 12,
-  },
-  pickerText: {
-    flex: 1,
-  },
-  pickerTitle: {
-    ...typography.labelLg,
-    fontSize: 15,
-    color: colors.onSurface,
-  },
-  pickerSubtitle: {
-    ...typography.bodyMd,
-    fontSize: 13,
-    color: colors.onSurfaceVariant,
-    marginTop: 1,
-  },
-  footer: {
-    marginTop: "auto",
-    paddingTop: spacing.xl,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0, 34, 4, 0.45)",
-  },
-  sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: rounded.xl,
-    borderTopRightRadius: rounded.xl,
-    paddingTop: spacing.stackMd,
-    paddingBottom: spacing.sectionPadding,
-    paddingHorizontal: spacing.marginMobile,
-    maxHeight: "75%",
-  },
-  sheetHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: spacing.stackMd,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
-  sheetTitle: {
-    ...typography.headlineMd,
-    color: colors.onSurface,
-  },
-  sheetList: {
-    flexGrow: 0,
-  },
-  toggleRow: {
+  headerLeft: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: rounded.lg,
-    backgroundColor: colors.surfaceContainerLowest,
-    borderWidth: 1.5,
-    borderColor: colors.outlineVariant,
-    marginBottom: spacing.stackSm,
+    gap: spacing.sm,
   },
-  toggleRowSelected: {
-    backgroundColor: colors.surfaceContainerLow,
-    borderColor: colors.primaryContainer,
-  },
-  toggleIcon: {
+  avatar: {
     width: 36,
     height: 36,
-    borderRadius: rounded.md,
+    borderRadius: rounded.full,
+    backgroundColor: "rgba(0, 110, 28, 0.12)",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.surfaceContainerLow,
-    marginRight: 12,
   },
-  toggleIconSelected: {
-    backgroundColor: "rgba(76, 175, 80, 0.15)",
-  },
-  toggleText: {
-    flex: 1,
-  },
-  toggleTitle: {
-    ...typography.labelLg,
-    fontSize: 15,
-    color: colors.onSurface,
-  },
-  toggleTitleSelected: {
+  avatarInitial: {
+    fontSize: 16,
+    fontWeight: "700",
     color: colors.primary,
   },
-  toggleSubtitle: {
-    ...typography.bodyMd,
-    fontSize: 13,
-    color: colors.onSurfaceVariant,
-    marginTop: 1,
-  },
-  comingSoonBadge: {
-    backgroundColor: colors.tertiaryFixed,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: rounded.full,
-    marginRight: 8,
-  },
-  comingSoonText: {
-    ...typography.labelSm,
-    color: colors.onTertiaryFixed,
+  screenTitle: {
+    fontSize: 22,
     fontWeight: "700",
-    fontSize: 10,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.primary,
   },
-  toggleIndicator: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
+  settingsIconBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: rounded.full,
+    backgroundColor: colors.surfaceContainerLowest,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
     borderColor: colors.outlineVariant,
+  },
+  scrollContainer: {
+    padding: spacing.md,
+    paddingBottom: 40,
+    gap: spacing.md,
+  },
+  heroCard: {
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: rounded.xxl,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    gap: spacing.md,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  heroTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  farmerName: {
+    fontSize: 20,
+    fontWeight: "700",
+    fontFamily: typography.fontFamily.bold,
+    color: colors.onSurface,
+  },
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    marginTop: 2,
+  },
+  farmerLocation: {
+    fontSize: 12,
+    color: colors.onSurfaceVariant,
+  },
+  levelBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: rounded.full,
+    backgroundColor: "rgba(0, 110, 28, 0.08)",
+  },
+  levelBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.primary,
+  },
+  xpSection: {
+    gap: 6,
+  },
+  xpRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  xpLabel: {
+    fontSize: 12,
+    color: colors.onSurfaceVariant,
+  },
+  xpValue: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.primary,
+  },
+  xpTrack: {
+    height: 8,
+    backgroundColor: colors.surfaceContainerHigh,
+    borderRadius: rounded.full,
+    overflow: "hidden",
+  },
+  xpFill: {
+    height: "100%",
+    backgroundColor: colors.primaryContainer,
+    borderRadius: rounded.full,
+  },
+  taraDialogueBubble: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 110, 28, 0.05)",
+    borderRadius: rounded.lg,
+    padding: spacing.sm,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.primary,
+    gap: spacing.xs,
+  },
+  taraIconMini: {
+    width: 24,
+    height: 24,
+    borderRadius: rounded.full,
+    backgroundColor: colors.surfaceContainerLowest,
     alignItems: "center",
     justifyContent: "center",
   },
-  toggleIndicatorOn: {
-    backgroundColor: colors.primaryContainer,
-    borderWidth: 0,
+  taraDialogueText: {
+    fontSize: 12,
+    color: colors.onSurface,
+    fontStyle: "italic",
+    flex: 1,
+    lineHeight: 16,
+  },
+  statsRow: {
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  statBox: {
+    flex: 1,
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: rounded.xl,
+    padding: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    alignItems: "center",
+    gap: 2,
+  },
+  statIconCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: rounded.full,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 2,
+  },
+  statVal: {
+    fontSize: 14,
+    fontWeight: "700",
+    fontFamily: typography.fontFamily.bold,
+    color: colors.onSurface,
+  },
+  statSub: {
+    fontSize: 10,
+    color: colors.onSurfaceVariant,
+    textAlign: "center",
+  },
+  sectionHeading: {
+    fontSize: 16,
+    fontWeight: "700",
+    fontFamily: typography.fontFamily.bold,
+    color: colors.onSurface,
+    marginTop: spacing.xs,
+  },
+  navCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: rounded.xl,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    gap: spacing.md,
+  },
+  navIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: rounded.full,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  navTextWrap: {
+    flex: 1,
+  },
+  navTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.onSurface,
+  },
+  navSub: {
+    fontSize: 12,
+    color: colors.onSurfaceVariant,
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  logoutBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+    paddingVertical: spacing.md,
+    marginTop: spacing.sm,
+  },
+  logoutText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.error,
   },
 });

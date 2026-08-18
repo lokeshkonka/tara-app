@@ -166,7 +166,7 @@ export const ConceptCardPhaseScreen: React.FC<ConceptCardPhaseScreenProps> = ({
         {/* Pinned Bottom CTA Button */}
         <View style={styles.fixedBottomContainer}>
           <TactileButton
-            title={ctaTitle || "Step 2"}
+            title={ctaTitle || "Explore Concept Cards"}
             icon="arrow-forward"
             iconPosition="right"
             faceColor={colors.primaryContainer}
@@ -328,7 +328,7 @@ export const ConceptCardPhaseScreen: React.FC<ConceptCardPhaseScreenProps> = ({
             <TactileButton
               title={
                 cardIndex === totalCards - 1
-                  ? "Step 3: Quick Quiz"
+                  ? "Continue to Next Step"
                   : `Next: ${nextCard ? nextCard.title : "Concept"}`
               }
               icon="arrow-forward"

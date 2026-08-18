@@ -242,6 +242,53 @@ export interface InteractiveLearnPhasePackage {
   promptToProceed?: LocalizedText | string;
 }
 
+export interface AIInterviewConceptPackage {
+  id: string;
+  label: LocalizedText | string;
+  keywords: (LocalizedText | string)[];
+}
+
+export interface AIInterviewQuestionPackage {
+  id: string;
+  question: LocalizedText | string;
+  taraDialogue?: LocalizedText | string;
+  taraAudio?: LocalizedAudio;
+  taraExpression?: TaraExpression;
+  expectedConcepts: AIInterviewConceptPackage[];
+  hint?: LocalizedText | string;
+  followUpDialogue?: LocalizedText | string;
+  sampleAnswer?: LocalizedText | string;
+  passingScore?: number; // Minimum required percentage or minimum concepts (default 60%)
+  xp?: number;
+}
+
+export interface AIInterviewPhasePackage {
+  type: "aiInterview";
+  id: string;
+  title: LocalizedText | string;
+  subtitle?: LocalizedText | string;
+  instructions?: LocalizedText | string;
+  totalXp?: number;
+  taraDialogue?: LocalizedText | string;
+  taraAudio?: LocalizedAudio;
+  taraExpression?: TaraExpression;
+  taraSuccessDialogue?: LocalizedText | string;
+  questions: AIInterviewQuestionPackage[];
+}
+
+export interface FaceVerificationPhasePackage {
+  type: "faceVerification";
+  id: string;
+  title: LocalizedText | string;
+  subtitle?: LocalizedText | string;
+  instructions?: LocalizedText | string;
+  totalXp?: number;
+  taraDialogue?: LocalizedText | string;
+  taraAudio?: LocalizedAudio;
+  taraExpression?: TaraExpression;
+  taraSuccessDialogue?: LocalizedText | string;
+}
+
 export type LevelPhasePackage =
   | InteractiveLearnPhasePackage
   | ConceptCardsPhasePackage
@@ -250,6 +297,8 @@ export type LevelPhasePackage =
   | MemoryPhasePackage
   | DecisionChoicePhasePackage
   | MCQPhasePackage
+  | FaceVerificationPhasePackage
+  | AIInterviewPhasePackage
   | RewardPhasePackage;
 
 // ─────────────────────────────────────────────
