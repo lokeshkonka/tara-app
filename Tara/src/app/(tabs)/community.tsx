@@ -14,10 +14,12 @@ import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TactileButton } from "../../components/ui/TactileButton";
 import { useCommunity } from "../../context/CommunityContext";
+import { useTranslation } from "../../hooks/useTranslation";
 import { colors, componentColors, rounded, spacing, typography } from "../../theme/theme";
 import type { ContributionCategory, ContributionType } from "../../types/community";
 
 export default function CommunityTab() {
+  const { t } = useTranslation();
   const {
     activePanchayat,
     panchayats,
@@ -65,7 +67,7 @@ export default function CommunityTab() {
           <View style={styles.avatarWrap}>
             <MaterialIcons name="eco" size={24} color={colors.primary} />
           </View>
-          <Text style={styles.screenTitle}>Community</Text>
+          <Text style={styles.screenTitle}>{t("community.screenTitle")}</Text>
         </View>
         <Pressable
           style={styles.notificationBtn}
@@ -89,7 +91,7 @@ export default function CommunityTab() {
         <View style={styles.heroCard}>
           <View style={styles.heroCardHeader}>
             <View>
-              <Text style={styles.heroSub}>YOUR COMMUNITY</Text>
+              <Text style={styles.heroSub}>{t("community.yourPanchayat")}</Text>
               <View style={styles.locationRow}>
                 <MaterialIcons
                   name="location-on"
@@ -110,15 +112,6 @@ export default function CommunityTab() {
           </View>
 
           <View style={styles.heroMetricsRow}>
-            <View style={styles.heroMetricPill}>
-              <Text style={styles.heroMetricVal}>
-                {activePanchayat.membersCount}
-              </Text>
-              <Text style={styles.heroMetricLabel} numberOfLines={1}>
-                Active Farmers
-              </Text>
-            </View>
-
             <View style={styles.heroMetricPill}>
               <Text style={styles.heroMetricVal}>
                 {activePanchayat.activePracticesCount}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -176,6 +176,14 @@ export default function LanguageSettingsScreen() {
   const { user, updateUser } = useUser();
   const [selectedLang, setSelectedLang] = useState(user?.language || "en");
   const [autoTranslate, setAutoTranslate] = useState(true);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const handleSelectLang = (code: string) => {
+    setSelectedLang(code);
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
 
   const handleSave = async () => {
     await updateUser({ language: selectedLang });
@@ -198,6 +206,7 @@ export default function LanguageSettingsScreen() {
       </View>
 
       <ScrollView
+        ref={scrollViewRef}
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
@@ -249,7 +258,7 @@ export default function LanguageSettingsScreen() {
               key={item.code}
               item={item}
               isSelected={selectedLang === item.code}
-              onSelect={() => setSelectedLang(item.code)}
+              onSelect={() => handleSelectLang(item.code)}
             />
           ))}
         </View>

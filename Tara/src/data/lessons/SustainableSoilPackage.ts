@@ -1,5 +1,5 @@
 import type { LessonPackageDefinition } from "../../types/lessonSchema";
-import { SUSTAINABLE_SOIL_AUDIO } from "./sustainableSoilAudio";
+import { LESSON_AUDIO_MAP as SUSTAINABLE_SOIL_AUDIO } from "./audio/sustainable-soil-packageAudio";
 
 /**
  * SUSTAINABLE SOIL PACKAGE — 8 COMPLETE LEVELS

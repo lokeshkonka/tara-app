@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, SafeAreaView, Dimensions, Animated as RNAnimated, Easing as RNEasing } from "react-native";
 import { Image } from "expo-image";
 import { useAuth } from "../auth/AuthProvider";
@@ -18,7 +18,27 @@ import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 const { width, height } = Dimensions.get("window");
 
 export default function LoginScreen() {
-  const { signInWithGoogle, signInAsGuest, isLoading, error } = useAuth();
+  const { signInWithGoogle, signInAsGuest, error } = useAuth();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
+
+  const handleGooglePress = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signInWithGoogle();
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const handleGuestPress = async () => {
+    setIsGuestLoading(true);
+    try {
+      await signInAsGuest("Tara Farmer");
+    } finally {
+      setIsGuestLoading(false);
+    }
+  };
 
   // Floating animation for Tara image
   const floatAnim = useSharedValue(0);
@@ -151,11 +171,11 @@ export default function LoginScreen() {
           <TactileButton
             title=""
             variant="secondary"
-            loading={isLoading}
-            onPress={signInWithGoogle}
+            loading={isGoogleLoading}
+            onPress={handleGooglePress}
             style={styles.googleButton}
           >
-            {!isLoading && (
+            {!isGoogleLoading && (
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <AntDesign name="google" size={20} color={colors.primary} style={{ marginRight: 8 }} />
                 <Text style={{ ...typography.labelLg, fontSize: 16, fontWeight: "700", letterSpacing: 0.2, color: colors.primary }}>
@@ -169,11 +189,11 @@ export default function LoginScreen() {
           <TactileButton
             title=""
             variant="secondary"
-            loading={isLoading}
-            onPress={() => signInAsGuest("Tara Farmer")}
+            loading={isGuestLoading}
+            onPress={handleGuestPress}
             style={styles.guestButton}
           >
-            {!isLoading && (
+            {!isGuestLoading && (
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <MaterialIcons name="person-outline" size={20} color={colors.onSurfaceVariant} style={{ marginRight: 8 }} />
                 <Text style={{ ...typography.labelLg, fontSize: 15, fontWeight: "600", color: colors.onSurfaceVariant }}>

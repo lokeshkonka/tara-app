@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -26,12 +26,23 @@ export default function LessonDetailScreen() {
   const [detail, setDetail] = useState<LearnLessonDetail | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [timelineY, setTimelineY] = useState<number | null>(null);
+
   const fetchDetail = useCallback(async () => {
     if (!lessonId) return;
     const res = await getLessonDetail(lessonId, lang);
     setDetail(res);
     setIsLoading(false);
-  }, [lessonId, lang, getLessonDetail]);
+
+    // If returning after completing a level (at least 1 completed level), scroll to timeline section
+    const hasCompletedLevel = res?.levels.some((l) => l.status === "completed");
+    if (hasCompletedLevel && timelineY !== null) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({ y: timelineY - 20, animated: true });
+      }, 300);
+    }
+  }, [lessonId, lang, getLessonDetail, timelineY]);
 
   useFocusEffect(
     useCallback(() => {
@@ -102,6 +113,7 @@ export default function LessonDetailScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ScrollView
+        ref={scrollViewRef}
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: Math.max(insets.bottom, 24) + spacing.stackLg },
@@ -144,7 +156,20 @@ export default function LessonDetailScreen() {
           )}
 
           {/* Timeline */}
-          <View style={styles.timelineSection}>
+          <View
+            style={styles.timelineSection}
+            onLayout={(event) => {
+              const y = event.nativeEvent.layout.y;
+              setTimelineY(y);
+              // Auto scroll if levels are completed and initial load layout completes
+              const hasCompleted = detail?.levels.some((l) => l.status === "completed");
+              if (hasCompleted) {
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollTo({ y: y - 20, animated: true });
+                }, 150);
+              }
+            }}
+          >
             <LessonTimeline levels={detail.levels} onSelectLevel={handleSelectLevel} />
           </View>
 

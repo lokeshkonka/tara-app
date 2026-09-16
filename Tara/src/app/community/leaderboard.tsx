@@ -10,11 +10,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useCommunity } from "../../context/CommunityContext";
+import { useTranslation } from "../../hooks/useTranslation";
 import { colors, rounded, spacing, typography } from "../../theme/theme";
 
 type Timeframe = "weekly" | "monthly" | "allTime";
 
 export default function LeaderboardScreen() {
+  const { t } = useTranslation();
   const { leaderboard, activePanchayat } = useCommunity();
   const [timeframe, setTimeframe] = useState<Timeframe>("weekly");
   const [scope, setScope] = useState<"panchayat" | "regional">("panchayat");
@@ -30,7 +32,7 @@ export default function LeaderboardScreen() {
         <Pressable style={styles.backBtn} onPress={() => router.back()} hitSlop={8}>
           <MaterialIcons name="arrow-back" size={22} color={colors.onSurface} />
         </Pressable>
-        <Text style={styles.headerTitle}>Community Leaderboard</Text>
+        <Text style={styles.headerTitle}>{t("leaderboard.screenTitle")}</Text>
         <View style={{ width: 32 }} />
       </View>
 

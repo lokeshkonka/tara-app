@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "../../hooks/useTranslation";
 import { TactileButton } from "../../components/ui/TactileButton";
 import { useCommunity } from "../../context/CommunityContext";
 import { colors, rounded, spacing, typography } from "../../theme/theme";
@@ -26,6 +27,7 @@ const CATEGORIES: { id: ContributionCategory | "all"; label: string; icon: strin
 ];
 
 export default function VoiceStoriesScreen() {
+  const { t } = useTranslation();
   const {
     voiceStories,
     activeStoryPlayingId,
@@ -59,7 +61,7 @@ export default function VoiceStoriesScreen() {
         >
           <MaterialIcons name="arrow-back" size={22} color={colors.onSurface} />
         </Pressable>
-        <Text style={styles.headerTitle}>Farmer Voice Stories</Text>
+        <Text style={styles.headerTitle}>{t("voiceStories.screenTitle")}</Text>
         <Pressable
           style={styles.recordHeaderBtn}
           onPress={() => setRecordModalVisible(true)}

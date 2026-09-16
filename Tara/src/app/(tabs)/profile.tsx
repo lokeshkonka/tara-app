@@ -15,11 +15,13 @@ import { useCommunity } from "../../context/CommunityContext";
 import { useFarmJourney } from "../../context/FarmJourneyContext";
 import { useSettings } from "../../context/SettingsContext";
 import { useUser } from "../../context/UserContext";
+import { useTranslation } from "../../hooks/useTranslation";
 import { colors, componentColors, rounded, spacing, typography } from "../../theme/theme";
 
 export default function ProfileTab() {
   const { signOut } = useAuth();
   const { user } = useUser();
+  const { t } = useTranslation();
   const { accountProfile } = useSettings();
   const { farmHealth, achievements } = useFarmJourney();
   const { userImpact, activePanchayat } = useCommunity();
@@ -30,9 +32,9 @@ export default function ProfileTab() {
   const progressPct = Math.min(100, (currentXp / targetXp) * 100);
 
   const handleLogout = () => {
-    Alert.alert("Log Out", "Are you sure you want to sign out of Tara?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Log Out", style: "destructive", onPress: () => signOut() },
+    Alert.alert(t("profile.logout"), "Are you sure you want to sign out of Tara?", [
+      { text: t("community.cancelBtn"), style: "cancel" },
+      { text: t("profile.logout"), style: "destructive", onPress: () => signOut() },
     ]);
   };
 
@@ -46,7 +48,7 @@ export default function ProfileTab() {
               {accountProfile.fullName.charAt(0)}
             </Text>
           </View>
-          <Text style={styles.screenTitle}>Farmer Profile</Text>
+          <Text style={styles.screenTitle}>{t("profile.title")}</Text>
         </View>
 
         <Pressable
@@ -88,14 +90,14 @@ export default function ProfileTab() {
 
             <View style={styles.levelBadge}>
               <MaterialIcons name="verified" size={14} color={colors.primary} />
-              <Text style={styles.levelBadgeText}>Level 12 • Soil Guardian</Text>
+              <Text style={styles.levelBadgeText}>{t("profile.levelBadge", { level: 12 })}</Text>
             </View>
           </View>
 
           {/* XP Progress Bar */}
           <View style={styles.xpSection}>
             <View style={styles.xpRow}>
-              <Text style={styles.xpLabel}>Season XP</Text>
+              <Text style={styles.xpLabel}>{t("profile.seasonXp")}</Text>
               <Text style={styles.xpValue}>
                 {currentXp} / {targetXp} XP
               </Text>
@@ -111,7 +113,7 @@ export default function ProfileTab() {
               <MaterialIcons name="eco" size={16} color={colors.primary} />
             </View>
             <Text style={styles.taraDialogueText}>
-              "Your sustainable practices are building rich organic humus for your family and soil!"
+              "{t("profile.taraDialogue")}"
             </Text>
           </View>
         </View>
@@ -122,8 +124,8 @@ export default function ProfileTab() {
             <View style={[styles.statIconCircle, { backgroundColor: "rgba(217, 119, 6, 0.12)" }]}>
               <MaterialIcons name="local-fire-department" size={18} color="#D97706" />
             </View>
-            <Text style={styles.statVal}>19 days</Text>
-            <Text style={styles.statSub} numberOfLines={1}>Learning Streak</Text>
+            <Text style={styles.statVal}>{t("profile.streakVal", { days: 19 })}</Text>
+            <Text style={styles.statSub} numberOfLines={1}>{t("profile.streakSub")}</Text>
           </View>
 
           <View style={styles.statBox}>
@@ -131,7 +133,7 @@ export default function ProfileTab() {
               <MaterialIcons name="agriculture" size={18} color={colors.primary} />
             </View>
             <Text style={styles.statVal}>{farmHealth.activePracticesCount}</Text>
-            <Text style={styles.statSub} numberOfLines={1}>Practices Live</Text>
+            <Text style={styles.statSub} numberOfLines={1}>{t("profile.practicesVal")}</Text>
           </View>
 
           <View style={styles.statBox}>
@@ -141,12 +143,12 @@ export default function ProfileTab() {
             <Text style={styles.statVal}>
               {unlockedBadgesCount}/{achievements.length}
             </Text>
-            <Text style={styles.statSub} numberOfLines={1}>Badges Earned</Text>
+            <Text style={styles.statSub} numberOfLines={1}>{t("profile.badgesVal")}</Text>
           </View>
         </View>
 
         {/* Navigation Hub Cards */}
-        <Text style={styles.sectionHeading}>Farm & Community Portals</Text>
+        <Text style={styles.sectionHeading}>{t("profile.portalsTitle")}</Text>
 
         {/* Portal 1: Farm Journey */}
         <Pressable onPress={() => router.push("/profile/farm-journey")}>
@@ -177,10 +179,10 @@ export default function ProfileTab() {
                   ]}
                   numberOfLines={1}
                 >
-                  My Farm Journey
+                  {t("profile.portal.farmJourneyTitle")}
                 </Text>
                 <Text style={styles.navSub} numberOfLines={1}>
-                  Timeline of adopted practices • Farm health score {farmHealth.overallScore}/100
+                  {t("profile.portal.farmJourneySub", { score: farmHealth.overallScore })}
                 </Text>
               </View>
               <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
@@ -217,10 +219,10 @@ export default function ProfileTab() {
                   ]}
                   numberOfLines={1}
                 >
-                  Achievements & Certificates
+                  {t("profile.portal.achievementsTitle")}
                 </Text>
                 <Text style={styles.navSub} numberOfLines={1}>
-                  {unlockedBadgesCount} unlocked • Soil Guardian Master Badge
+                  {t("profile.portal.achievementsSub", { count: unlockedBadgesCount })}
                 </Text>
               </View>
               <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
@@ -257,10 +259,10 @@ export default function ProfileTab() {
                   ]}
                   numberOfLines={1}
                 >
-                  Community Impact Report
+                  {t("profile.portal.communityImpactTitle")}
                 </Text>
                 <Text style={styles.navSub} numberOfLines={1}>
-                  Rank #{userImpact.communityRank} • {userImpact.farmersHelpedCount} farmers helped
+                  {t("profile.portal.communityImpactSub", { rank: userImpact.communityRank, impact: userImpact.farmersHelpedCount })}
                 </Text>
               </View>
               <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
@@ -280,11 +282,11 @@ export default function ProfileTab() {
               <View
                 style={[
                   styles.navIconWrap,
-                  { backgroundColor: pressed ? colors.onSurfaceVariant : "rgba(111, 122, 107, 0.15)" },
+                  { backgroundColor: pressed ? colors.onSurfaceVariant : "rgba(100, 116, 139, 0.12)" },
                 ]}
               >
                 <MaterialIcons
-                  name="tune"
+                  name="settings"
                   size={24}
                   color={pressed ? colors.white : colors.onSurfaceVariant}
                 />
@@ -293,14 +295,14 @@ export default function ProfileTab() {
                 <Text
                   style={[
                     styles.navTitle,
-                    pressed && { color: colors.onSurfaceVariant },
+                    pressed && { color: colors.onSurface },
                   ]}
                   numberOfLines={1}
                 >
-                  App & Farm Settings
+                  {t("profile.portal.settingsTitle")}
                 </Text>
                 <Text style={styles.navSub} numberOfLines={1}>
-                  Account, Notifications, Accessibility & Security
+                  {t("profile.portal.settingsSub")}
                 </Text>
               </View>
               <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
@@ -339,7 +341,7 @@ export default function ProfileTab() {
                     ]}
                     numberOfLines={1}
                   >
-                    Language & Voice
+                    {t("profile.portal.languageTitle")}
                   </Text>
                   <View style={styles.currentLangBadge}>
                     <Text style={styles.currentLangBadgeText}>
@@ -348,7 +350,7 @@ export default function ProfileTab() {
                   </View>
                 </View>
                 <Text style={styles.navSub} numberOfLines={1}>
-                  Switch app interface & AI audio voice language
+                  {t("profile.portal.languageSub")}
                 </Text>
               </View>
               <MaterialIcons name="chevron-right" size={24} color={colors.outlineVariant} />
@@ -366,7 +368,7 @@ export default function ProfileTab() {
               ]}
             >
               <MaterialIcons name="logout" size={20} color={colors.white} />
-              <Text style={styles.logoutText}>Sign Out of Tara</Text>
+              <Text style={styles.logoutText}>{t("profile.logout")}</Text>
             </View>
           )}
         </Pressable>
