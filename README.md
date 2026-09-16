@@ -23,9 +23,9 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 ## Prototype Walkthrough
 
 <div align="center">
-  <video src="https://raw.githubusercontent.com/lokeshkonka/tara-app/main/Tara/docs/Readme-docs/prototype-video.mp4" controls="controls" width="300"></video>
+  <img src="Tara/docs/Readme-docs/prototype-demo.gif" width="300" alt="TARA Prototype Walkthrough" />
   <br/>
-  <a href="Tara/docs/Readme-docs/prototype-video.mp4">Watch Prototype Walkthrough (MP4)</a>
+  <sub>Interactive mobile prototype demonstration</sub>
 </div>
 
 - **Onboarding**: Role selection (Farmer, Student, Agronomist), language, land size, and crops.
