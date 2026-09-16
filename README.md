@@ -10,9 +10,9 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 
 ## Pitch Presentation
 
-[![Watch TARA Pitch Video](https://img.shields.io/badge/Play_Video_with_Audio-TARA--PITCH.mp4-2e7d32?style=for-the-badge&logo=quicktime)](Tara/docs/Readme-docs/TARA-PITCH.mp4)
-
-> [Watch TARA Pitch Video (MP4 with Audio)](Tara/docs/Readme-docs/TARA-PITCH.mp4)
+<video src="Tara/docs/Readme-docs/TARA-PITCH.mp4" controls autoplay playsinline width="100%">
+  Your browser does not support the video tag.
+</video>
 
 - **Problem**: High failure rates transitioning to sustainable methods without structured guidance.
 - **Solution**: Action-oriented learning path bridging conceptual understanding with verified field adoption.
