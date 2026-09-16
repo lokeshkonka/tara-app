@@ -10,7 +10,9 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 
 ## Pitch Presentation
 
-<video src="README-docs/TARA-PITCH.mp4" controls="controls" width="100%" height="auto"></video>
+<video src="https://raw.githubusercontent.com/lokeshkonka/tara-app/main/Tara/docs/Readme-docs/TARA-PITCH.mp4" controls="controls" width="100%"></video>
+
+> [Watch TARA Pitch Video with Audio (MP4)](docs/Readme-docs/TARA-PITCH.mp4)
 
 - **Problem**: High failure rates transitioning to sustainable methods without structured guidance.
 - **Solution**: Action-oriented learning path bridging conceptual understanding with verified field adoption.
@@ -21,7 +23,9 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 ## Prototype Walkthrough
 
 <div align="center">
-  <video src="README-docs/prototype-video.mp4" controls="controls" width="300"></video>
+  <video src="https://raw.githubusercontent.com/lokeshkonka/tara-app/main/Tara/docs/Readme-docs/prototype-video.mp4" controls="controls" width="300"></video>
+  <br/>
+  <a href="docs/Readme-docs/prototype-video.mp4">Watch Prototype Walkthrough (MP4)</a>
 </div>
 
 - **Onboarding**: Role selection (Farmer, Student, Agronomist), language, land size, and crops.
@@ -43,7 +47,7 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 
 ## System Architecture
 
-![TARA System Architecture](README-docs/system-architecture.png)
+![TARA System Architecture](docs/Readme-docs/system-architecture.png)
 
 - **Frontend Client**: Cross-platform mobile app built with React Native (0.86.2) and Expo SDK 57 (`expo-router`).
 - **UI & Gestures**: Reanimated 4.5, Gesture Handler, Bottom Sheet, and React Native SVG.
@@ -57,7 +61,7 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 
 ## Technology Stack
 
-![TARA Technology Stack](README-docs/tech-stack.png)
+![TARA Technology Stack](docs/Readme-docs/tech-stack.png)
 
 | Layer | Technology | Purpose |
 |---|---|---|
@@ -229,7 +233,7 @@ flowchart LR
 
 ## Business Model & Sustainability
 
-![TARA Business & Impact Model](README-docs/business-impacts.png)
+![TARA Business & Impact Model](docs/Readme-docs/business-impacts.png)
 
 ### Potential Strategic Models *(Product Vision)*
 - **B2G (Public Extension Programs)**: Deployment through government agricultural and soil health missions.
@@ -320,11 +324,11 @@ EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_key_here
 
 ## Demo Assets
 
-- **TARA Pitch Video**: `README-docs/TARA-PITCH.mp4`
-- **Prototype Walkthrough**: `README-docs/prototype-video.mp4`
-- **System Architecture**: `README-docs/system-architecture.png`
-- **Technology Stack**: `README-docs/tech-stack.png`
-- **Business & Impact Model**: `README-docs/business-impacts.png`
+- **TARA Pitch Video**: `docs/Readme-docs/TARA-PITCH.mp4`
+- **Prototype Walkthrough**: `docs/Readme-docs/prototype-video.mp4`
+- **System Architecture**: `docs/Readme-docs/system-architecture.png`
+- **Technology Stack**: `docs/Readme-docs/tech-stack.png`
+- **Business & Impact Model**: `docs/Readme-docs/business-impacts.png`
 
 ---
 
