@@ -10,7 +10,9 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 
 ## Pitch Presentation
 
-<video src="docs/Readme-docs/TARA-PITCH.mp4" controls="controls" width="100%"></video>
+<video src="./README-docs/TARA-PITCH.mp4" controls playsinline autoplay width="100%">
+  Your browser does not support the video tag.
+</video>
 
 - **Problem**: High failure rates transitioning to sustainable methods without structured guidance.
 - **Solution**: Action-oriented learning path bridging conceptual understanding with verified field adoption.
@@ -21,7 +23,9 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 ## Prototype Walkthrough
 
 <div align="center">
-  <img src="docs/Readme-docs/prototype-demo.gif" width="240" alt="TARA Prototype Walkthrough" />
+  <video src="./README-docs/prototype-video.webm" controls playsinline autoplay width="240">
+    Your browser does not support the video tag.
+  </video>
   <br/>
   <sub>Interactive mobile prototype demonstration</sub>
 </div>
@@ -45,7 +49,7 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 
 ## System Architecture
 
-![TARA System Architecture](docs/Readme-docs/system-architecture.png)
+![TARA System Architecture](./README-docs/system-architecture.png)
 
 - **Frontend Client**: Cross-platform mobile app built with React Native (0.86.2) and Expo SDK 57 (`expo-router`).
 - **UI & Gestures**: Reanimated 4.5, Gesture Handler, Bottom Sheet, and React Native SVG.
@@ -59,7 +63,7 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 
 ## Technology Stack
 
-![TARA Technology Stack](docs/Readme-docs/tech-stack.png)
+![TARA Technology Stack](./README-docs/tech-stack.png)
 
 | Layer | Technology | Purpose |
 |---|---|---|
@@ -122,20 +126,12 @@ TARA structures learning into an action-oriented cycle:
 
 ## Learning Structure
 
-```mermaid
-flowchart LR
-    A["Concept Cards & Audio"] --> B["Visual Diagrams"]
-    B --> C["Decision Choices"]
-    C --> D["Mini-Games"]
-    D --> E["AI Interview Assessment"]
-    E --> F["Rewards & XP"]
-```
-
-- **Concepts**: Bite-sized principles paired with native audio narration.
-- **Exploration**: Interactive soil horizon and root-depth visualizers.
-- **Decisions**: Real-world scenarios (e.g., moisture stress, pest outbreaks).
-- **Mini-Games**: Drag-and-drop matching, category sorting, and memory reinforcement.
-- **AI Assessment**: Spoken concept evaluation prior to unlocking subsequent levels.
+1. **Concept Cards & Audio**: Bite-sized principles paired with native audio narration.
+2. **Visual Exploration**: Interactive soil horizon and root-depth visualizers.
+3. **Decision Scenarios**: Real-world agricultural dilemmas (e.g., moisture stress, pest outbreaks).
+4. **Mini-Games**: Drag-and-drop matching, category sorting, and memory reinforcement.
+5. **AI Assessment**: Spoken concept evaluation prior to unlocking subsequent levels.
+6. **Milestone Rewards**: XP allocation, badge issuance, and Green Score updates.
 
 ---
 
@@ -149,16 +145,7 @@ flowchart LR
 
 ## AI Architecture
 
-```mermaid
-flowchart TD
-    A["User Voice / Text Response"] --> B{"Connectivity & Key"}
-    B -- "Online" --> C["Google Gemini 2.0 / 1.5 Flash"]
-    B -- "Offline / Fallback" --> D["Local Semantic Matcher"]
-    C --> E["Structured Concept Rubric"]
-    D --> E
-    E --> F["Score, Detected Concepts & Feedback"]
-```
-
+- **Pipeline**: User Voice / Text -> Google Gemini 2.0 / 1.5 Flash -> Structured Concept Rubric -> Score & Feedback.
 - **Provider**: Google Gemini REST API (`gemini-2.0-flash` / `gemini-1.5-flash`).
 - **Response Format**: JSON schema returning score (`0-100`), pass status, detected concepts, and feedback.
 - **Offline Fallback**: Embedded keyword and concept matcher functions when offline or without an API key.
@@ -176,16 +163,6 @@ flowchart TD
 ---
 
 ## User Flow
-
-```mermaid
-flowchart LR
-    A["1. Onboarding"] --> B["2. Dashboard"]
-    B --> C["3. Interactive Lessons"]
-    C --> D["4. Simulation & Games"]
-    D --> E["5. AI Capstone Check"]
-    E --> F["6. Field Action Log"]
-    F --> G["7. Community Sharing"]
-```
 
 1. **Onboard**: Select language, user role, farm location, land size, and crops.
 2. **Dashboard**: Review daily goals, active streak, and current Green Score.
@@ -231,7 +208,7 @@ flowchart LR
 
 ## Business Model & Sustainability
 
-![TARA Business & Impact Model](docs/Readme-docs/business-impacts.png)
+![TARA Business & Impact Model](./README-docs/business-impacts.png)
 
 ### Potential Strategic Models *(Product Vision)*
 - **B2G (Public Extension Programs)**: Deployment through government agricultural and soil health missions.
@@ -269,7 +246,7 @@ flowchart LR
 
 ```
 Tara/
-├── docs/Readme-docs/        # Pitch & prototype videos, architecture & tech stack images
+├── README-docs/             # Pitch & prototype videos, architecture & tech stack images
 ├── src/
 │   ├── app/                 # Expo Router screens (tabs, learn, community, profile)
 │   ├── auth/                # Dual-mode authentication (local simulation & backend OAuth)
@@ -322,11 +299,11 @@ EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_key_here
 
 ## Demo Assets
 
-- **TARA Pitch Video**: `docs/Readme-docs/TARA-PITCH.mp4`
-- **Prototype Walkthrough**: `docs/Readme-docs/prototype-video.mp4`
-- **System Architecture**: `docs/Readme-docs/system-architecture.png`
-- **Technology Stack**: `docs/Readme-docs/tech-stack.png`
-- **Business & Impact Model**: `docs/Readme-docs/business-impacts.png`
+- **TARA Pitch Video**: `./README-docs/TARA-PITCH.mp4`
+- **Prototype Walkthrough**: `./README-docs/prototype-video.webm`
+- **System Architecture**: `./README-docs/system-architecture.png`
+- **Technology Stack**: `./README-docs/tech-stack.png`
+- **Business & Impact Model**: `./README-docs/business-impacts.png`
 
 ---
 
