@@ -10,7 +10,7 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 
 ## Pitch Presentation
 
-<video src="Tara/docs/Readme-docs/TARA-PITCH.mp4" controls autoplay playsinline width="100%">
+<video src="https://raw.githubusercontent.com/lokeshkonka/tara-app/main/Tara/docs/Readme-docs/TARA-PITCH.mp4" controls autoplay playsinline width="100%">
   Your browser does not support the video tag.
 </video>
 
