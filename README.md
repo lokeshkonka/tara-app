@@ -9,10 +9,7 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 ---
 
 ## Pitch Presentation
-
-<video src="https://raw.githubusercontent.com/lokeshkonka/tara-app/main/Tara/docs/Readme-docs/TARA-PITCH.mp4" controls autoplay playsinline width="100%">
-  Your browser does not support the video tag.
-</video>
+https://github.com/user-attachments/assets/d2232d67-ff8e-41ac-92cb-fbc67e7d803a
 
 - **Problem**: High failure rates transitioning to sustainable methods without structured guidance.
 - **Solution**: Action-oriented learning path bridging conceptual understanding with verified field adoption.
