@@ -10,9 +10,9 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 
 ## Pitch Presentation
 
-<video src="./README-docs/TARA-PITCH.mp4" controls playsinline autoplay width="100%">
-  Your browser does not support the video tag.
-</video>
+[![Watch TARA Pitch Video](https://img.shields.io/badge/Play_Video_with_Audio-TARA--PITCH.mp4-2e7d32?style=for-the-badge&logo=quicktime)](Tara/docs/Readme-docs/TARA-PITCH.mp4)
+
+> [Watch TARA Pitch Video (MP4 with Audio)](Tara/docs/Readme-docs/TARA-PITCH.mp4)
 
 - **Problem**: High failure rates transitioning to sustainable methods without structured guidance.
 - **Solution**: Action-oriented learning path bridging conceptual understanding with verified field adoption.
@@ -23,11 +23,9 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 ## Prototype Walkthrough
 
 <div align="center">
-  <video src="./README-docs/prototype-video.webm" controls playsinline autoplay width="240">
-    Your browser does not support the video tag.
-  </video>
+  <img src="Tara/docs/Readme-docs/prototype-demo.gif" width="240" alt="TARA Prototype Walkthrough" />
   <br/>
-  <sub>Interactive mobile prototype demonstration</sub>
+  <sub><a href="Tara/docs/Readme-docs/prototype-video.mp4">Watch Full Video Recording (MP4)</a></sub>
 </div>
 
 - **Onboarding**: Role selection (Farmer, Student, Agronomist), language, land size, and crops.
@@ -49,7 +47,7 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 
 ## System Architecture
 
-![TARA System Architecture](./README-docs/system-architecture.png)
+![TARA System Architecture](Tara/docs/Readme-docs/system-architecture.png)
 
 - **Frontend Client**: Cross-platform mobile app built with React Native (0.86.2) and Expo SDK 57 (`expo-router`).
 - **UI & Gestures**: Reanimated 4.5, Gesture Handler, Bottom Sheet, and React Native SVG.
@@ -63,7 +61,7 @@ TARA is a mobile-first platform built with React Native and Expo that translates
 
 ## Technology Stack
 
-![TARA Technology Stack](./README-docs/tech-stack.png)
+![TARA Technology Stack](Tara/docs/Readme-docs/tech-stack.png)
 
 | Layer | Technology | Purpose |
 |---|---|---|
@@ -208,7 +206,7 @@ TARA structures learning into an action-oriented cycle:
 
 ## Business Model & Sustainability
 
-![TARA Business & Impact Model](./README-docs/business-impacts.png)
+![TARA Business & Impact Model](Tara/docs/Readme-docs/business-impacts.png)
 
 ### Potential Strategic Models *(Product Vision)*
 - **B2G (Public Extension Programs)**: Deployment through government agricultural and soil health missions.
@@ -246,7 +244,7 @@ TARA structures learning into an action-oriented cycle:
 
 ```
 Tara/
-├── README-docs/             # Pitch & prototype videos, architecture & tech stack images
+├── docs/Readme-docs/        # Pitch & prototype videos, architecture & tech stack images
 ├── src/
 │   ├── app/                 # Expo Router screens (tabs, learn, community, profile)
 │   ├── auth/                # Dual-mode authentication (local simulation & backend OAuth)
@@ -299,11 +297,11 @@ EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_key_here
 
 ## Demo Assets
 
-- **TARA Pitch Video**: `./README-docs/TARA-PITCH.mp4`
-- **Prototype Walkthrough**: `./README-docs/prototype-video.webm`
-- **System Architecture**: `./README-docs/system-architecture.png`
-- **Technology Stack**: `./README-docs/tech-stack.png`
-- **Business & Impact Model**: `./README-docs/business-impacts.png`
+- **TARA Pitch Video**: `Tara/docs/Readme-docs/TARA-PITCH.mp4`
+- **Prototype Walkthrough**: `Tara/docs/Readme-docs/prototype-video.mp4`
+- **System Architecture**: `Tara/docs/Readme-docs/system-architecture.png`
+- **Technology Stack**: `Tara/docs/Readme-docs/tech-stack.png`
+- **Business & Impact Model**: `Tara/docs/Readme-docs/business-impacts.png`
 
 ---
 
